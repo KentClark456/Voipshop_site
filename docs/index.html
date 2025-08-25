@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no" />
+    <title>VoIP Shop | Business Phone Systems</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Flowbite CSS and JS -->
+    <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js" defer></script>
+
+    <!-- Mobile polish -->
+    <style>
+      /* Respect reduced motion on mobile/tablet */
+      @media (prefers-reduced-motion: reduce) {
+        .btn-apple, .btn-apple .icon-slide, .btn-apple::after { transition: none !important; }
+      }
+      /* Improve tap targets on small screens */
+      @media (max-width: 640px) {
+        .btn-apple { padding-left: 1.125rem !important; padding-right: 1.125rem !important; min-height: 44px; }
+      }
+    </style>
+  </head>
+
+  <body class="bg-gray-100 text-black antialiased">
+    <!-- Skip link for accessibility -->
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-black text-white rounded px-3 py-2">Skip to content</a>
+
+    <!-- Inline icon sprite (include once) -->
+    <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+      <defs>
+        <!-- Sparkles (features) -->
+        <symbol id="icon-sparkles" viewBox="0 0 24 24">
+          <g stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 5v4M12 15v4M5 12h4M15 12h4"/>
+            <path d="M7.5 7.5l2.5 2.5M14 14l2.5 2.5M7.5 16.5L10 14M14 10l2.5-2.5"/>
+          </g>
+        </symbol>
+
+        <!-- Badge check (own hardware / no rentals) -->
+        <symbol id="icon-badge-check" viewBox="0 0 24 24">
+          <g stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 5h10a2 2 0 0 1 2 2v6.5a2 2 0 0 1-2 2H10l-3 3v-3H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
+            <path d="M9.5 9.5l2 2 3.5-3.5"/>
+          </g>
+        </symbol>
+
+        <!-- Headset (remote support) -->
+        <symbol id="icon-headset" viewBox="0 0 24 24">
+          <g stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 13a8 8 0 0 1 16 0"/>
+            <rect x="3.5" y="12" width="4" height="6" rx="1.5"/>
+            <rect x="16.5" y="12" width="4" height="6" rx="1.5"/>
+            <path d="M20.5 17.5a3.5 3.5 0 0 1-3.5 3.5H13"/>
+          </g>
+        </symbol>
+
+        <!-- Wrench (installation) -->
+        <symbol id="icon-wrench" viewBox="0 0 24 24">
+          <g stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.5 5.5a4.5 4.5 0 0 0-6.2 5.9L3.5 16.2a2.1 2.1 0 1 0 2.9 2.9l4.1-4.1a4.5 4.5 0 0 0 6-6.5l-2 2-2-2z"/>
+          </g>
+        </symbol>
+
+        <!-- ID card / number -->
+        <symbol id="icon-idcard" viewBox="0 0 24 24">
+          <g stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="6" width="18" height="12" rx="2"/>
+            <circle cx="8.5" cy="12" r="2"/>
+            <path d="M13 10h5M13 13h5"/>
+          </g>
+        </symbol>
+
+        <!-- Signal bars (fibre/LTE) -->
+        <symbol id="icon-signal" viewBox="0 0 24 24">
+          <g stroke="currentColor" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 19v-3"/>
+            <path d="M9 19v-6"/>
+            <path d="M13 19v-9"/>
+            <path d="M17 19v-12"/>
+          </g>
+        </symbol>
+      </defs>
+    </svg>
+
+    <!-- ✅ Universal navbar (injected by site.js) -->
+    <div id="nav-slot"></div>
+    <script src="./scripts/site.js" defer></script>
+    <!-- ✅ End navbar -->
+
+    <main id="main">
+      <!-- ✅ START: Hero Section -->
+      <section class="bg-gray-100">
+        <div class="grid max-w-screen-xl px-4 py-12 sm:py-14 lg:py-16 mx-auto lg:gap-8 xl:gap-0 lg:grid-cols-12 items-center">
+          <!-- Left text content -->
+          <div class="lg:col-span-6">
+            <h1 class="mb-6 text-4xl sm:text-5xl lg:text-6xl tracking-tight text-gray-900 font-normal leading-tight">
+              Business Phone Systems.<br />
+              <span class="block font-extrabold text-gray-900">Made Simple.</span>
+            </h1>
+            <p class="text-base sm:text-lg text-gray-600 leading-snug mb-8">
+              We install. Full support. One flat monthly fee.
+            </p>
+
+            <div class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
+              <!-- Primary / Packages -->
+              <a href="packages.html"
+                 class="btn-apple btn-primary-apple inline-flex items-center justify-center px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-full hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition">
+                Packages
+                <svg class="icon-slide w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </a>
+
+              <!-- Outline / Build -->
+              <a href="build-solution.html"
+                 class="btn-apple btn-outline-apple inline-flex items-center justify-center px-6 py-3 text-base font-medium text-gray-800 border border-gray-300 rounded-full hover:text-gray-900 focus:ring-4 focus:ring-gray-100 transition">
+                Build Your System
+                <svg class="icon-slide w-5 h-5 ml-2 -mr-1" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right image (desktop) -->
+          <div class="hidden lg:mt-0 lg:col-span-6 lg:flex justify-center">
+            <img src="Assets/undraw_on_the_office_re_cxds 1.png"
+                 alt="VoIP Illustration"
+                 class="w-full max-w-md h-auto"
+                 loading="lazy" decoding="async" />
+          </div>
+
+          <!-- Mobile/Tablet image (shows below CTAs) -->
+          <div class="mt-10 lg:hidden flex justify-center">
+            <img src="Assets/undraw_on_the_office_re_cxds 1.png"
+                 alt="VoIP Illustration"
+                 class="w-full max-w-sm h-auto"
+                 loading="lazy" decoding="async" />
+          </div>
+        </div>
+      </section>
+      <!-- ✅ END: Hero Section -->
+
+      <!-- ✅ START: Apple Button Styles -->
+      <style>
+        /* Base Apple button animation styles */
+        .btn-apple {
+          transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
+          will-change: transform;
+          position: relative;
+          overflow: hidden;
+        }
+        .btn-apple:hover { transform: translateY(-2px); }
+        .btn-apple:active { transform: translateY(0); }
+
+        /* Primary button glow */
+        .btn-primary-apple:hover {
+          box-shadow: 0 10px 25px rgba(37, 99, 235, .25);
+        }
+
+        /* Outline button hover */
+        .btn-outline-apple {
+          background: linear-gradient(#fff, #f7f7f7);
+        }
+        .btn-outline-apple:hover {
+          background: #f5f5f7;
+          box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 8px 20px rgba(0,0,0,.06);
+        }
+
+        /* Icon slide effect */
+        .btn-apple .icon-slide {
+          transition: transform .18s ease, opacity .18s ease;
+        }
+        .btn-apple:hover .icon-slide { transform: translateX(3px); }
+
+        /* Sheen sweep */
+        .btn-apple::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          transform: translateX(-120%);
+          background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.25) 50%, transparent 100%);
+          transition: transform .6s ease;
+        }
+        .btn-apple:hover::after { transform: translateX(120%); }
+
+        /* Focus ring Apple style */
+        .btn-apple:focus-visible {
+          outline: none;
+          box-shadow: 0 0 0 3px rgba(37,99,235,.2), 0 10px 25px rgba(37,99,235,.25);
+          border-color: rgba(37,99,235,.6);
+        }
+      </style>
+      <!-- ✅ END: Apple Button Styles -->
+
+  <!-- ✅ START: Features Cards (clean Apple-ish) -->
+<section class="bg-[#F5F5F7] py-12 sm:py-14">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <!-- Brand badge -->
+      <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide"
+            style="background:#FAE7B9;color:#7A5A14">
+        Features
+      </span>
+      <h2 class="mt-3 text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-gray-900">
+        Everything you need to run your business phone system
+      </h2>
+    </div>
+
+    <div class="mt-8 sm:mt-10 grid gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Essential PBX Features (Teal) -->
+      <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#1AA696;color:#fff">
+          <svg class="h-6 w-6" aria-hidden="true"><use href="#icon-sparkles"/></svg>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">Essential PBX Features</h3>
+        <p class="mt-1 text-[15px] leading-6 text-gray-600">Call transfer, divert, voicemail, recording and more — all standard.</p>
+      </div>
+
+      <!-- No Monthly Rentals (Yellow-Gold) -->
+      <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#E7C465;color:#fff">
+          <svg class="h-6 w-6" aria-hidden="true"><use href="#icon-badge-check"/></svg>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">No Monthly Rentals</h3>
+        <p class="mt-1 text-[15px] leading-6 text-gray-600">You own your hardware. No contracts. No hidden rental fees.</p>
+      </div>
+
+      <!-- Remote Support Included (Orange) -->
+      <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#F59D5B;color:#fff">
+          <svg class="h-6 w-6" aria-hidden="true"><use href="#icon-headset"/></svg>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">Remote Support Included</h3>
+        <p class="mt-1 text-[15px] leading-6 text-gray-600">Remote setup &amp; troubleshooting included. Call-outs are R450 only when needed.</p>
+      </div>
+
+      <!-- Installation Included (Brand Blue) -->
+      <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#0071E3;color:#fff">
+          <svg class="h-6 w-6" aria-hidden="true"><use href="#icon-wrench"/></svg>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">Installation Included</h3>
+        <p class="mt-1 text-[15px] leading-6 text-gray-600">We handle cabling, PoE and device setup. You’re ready to call, day one.</p>
+      </div>
+
+      <!-- Professional Numbers (Red-Coral) -->
+      <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#E45E4D;color:#fff">
+          <svg class="h-6 w-6" aria-hidden="true"><use href="#icon-idcard"/></svg>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">Professional Numbers</h3>
+        <p class="mt-1 text-[15px] leading-6 text-gray-600">Choose a geographic number or port your existing one for continuity.</p>
+      </div>
+
+      <!-- Fibre or LTE Compatible (Teal Deep) -->
+      <div class="h-full rounded-2xl border border-gray-200 bg-white p-5 sm:p-7 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:-translate-y-0.5 hover:shadow-md">
+        <div class="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-2xl" style="background:#127566;color:#fff">
+          <svg class="h-6 w-6" aria-hidden="true"><use href="#icon-signal"/></svg>
+        </div>
+        <h3 class="text-base font-semibold text-gray-900">Fibre or LTE Compatible</h3>
+        <p class="mt-1 text-[15px] leading-6 text-gray-600">Run over fast fibre or stable LTE for crystal-clear call quality.</p>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ✅ END: Features Cards -->
+
+<!-- ✅ START: Timeline (inside white card) -->
+<section class="bg-[#F5F5F7] text-black">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+    <div class="rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <!-- Card header -->
+      <div class="px-5 sm:px-8 pt-8 sm:pt-10 text-center">
+        <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide"
+              style="background:#B3E1DC;color:#0E5B52">
+          How it works
+        </span>
+        <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900">
+          Step-by-Step
+        </h2>
+        <p class="mt-2 text-sm text-gray-500">From choosing a package to going live.</p>
+      </div>
+
+      <!-- Card body -->
+      <div class="relative mt-6 sm:mt-8 px-5 sm:px-8 pb-8 sm:pb-10">
+        <!-- Horizontal connector line (desktop only) -->
+        <div class="hidden md:block absolute inset-x-8 top-[28px] h-px bg-gray-200"></div>
+
+        <ol class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <!-- Step 1 -->
+          <li class="relative">
+            <div class="flex md:justify-center">
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-gray-200 shadow-sm">
+                <span class="h-2.5 w-2.5 rounded-full" style="background:#1AA696"></span>
+              </span>
+            </div>
+            <div class="mt-4 text-left md:text-center md:px-4 group transition-transform hover:-translate-y-0.5">
+              <h3 class="text-base font-semibold text-gray-900">Step 1: Choose a Package</h3>
+              <p class="mt-1 text-sm text-gray-600">Pick from our pre-built solutions or customise your own PBX setup.</p>
+            </div>
+          </li>
+
+          <!-- Step 2 -->
+          <li class="relative">
+            <div class="flex md:justify-center">
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-gray-200 shadow-sm">
+                <span class="h-2.5 w-2.5 rounded-full" style="background:#E7C465"></span>
+              </span>
+            </div>
+            <div class="mt-4 text-left md:text-center md:px-4 group transition-transform hover:-translate-y-0.5">
+              <h3 class="text-base font-semibold text-gray-900">Step 2: We Set It Up</h3>
+              <p class="mt-1 text-sm text-gray-600">Our technicians configure and install your hardware — you’re ready to call.</p>
+            </div>
+          </li>
+
+          <!-- Step 3 -->
+          <li class="relative">
+            <div class="flex md:justify-center">
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-gray-200 shadow-sm">
+                <span class="h-2.5 w-2.5 rounded-full" style="background:#F59D5B"></span>
+              </span>
+            </div>
+            <div class="mt-4 text-left md:text-center md:px-4 group transition-transform hover:-translate-y-0.5">
+              <h3 class="text-base font-semibold text-gray-900">Step 3: Go Live</h3>
+              <p class="mt-1 text-sm text-gray-600">Start making and receiving calls.</p>
+            </div>
+          </li>
+
+          <!-- Step 4 -->
+          <li class="relative">
+            <div class="flex md:justify-center">
+              <span class="flex h-10 w-10 items-center justify-center rounded-full bg-white ring-1 ring-gray-200 shadow-sm">
+                <span class="h-2.5 w-2.5 rounded-full" style="background:#E45E4D"></span>
+              </span>
+            </div>
+            <div class="mt-4 text-left md:text-center md:px-4 group transition-transform hover:-translate-y-0.5">
+              <h3 class="text-base font-semibold text-gray-900">Step 4: Ongoing Support</h3>
+              <p class="mt-1 text-sm text-gray-600">Report faults via WhatsApp and view invoices anytime in your client portal.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ✅ END: Timeline (inside white card) -->
+
+
+<!-- ✅ START: FAQ (tight, Apple-ish, with a hint of color) -->
+<section class="bg-[#F5F5F7]">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-12 sm:py-14">
+    <div class="text-center">
+      <!-- Brand badge -->
+      <span class="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold tracking-wide"
+            style="background:#FFDCC7;color:#7A3A13">
+        FAQ
+      </span>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight text-black">
+        Frequently Asked Questions
+      </h2>
+      <p class="mt-2 text-sm text-gray-500">Quick answers to common questions.</p>
+    </div>
+
+    <div class="mt-8 sm:mt-10 grid gap-4 sm:gap-6 md:grid-cols-2">
+      <!-- Item -->
+      <article class="group relative rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+        <h3 class="mb-1 text-base font-semibold text-gray-900 flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full" style="background:#1AA696"></span>
+          Do I need fibre or LTE internet?
+        </h3>
+        <p class="text-[15px] leading-6 text-gray-600">
+          Yes — a stable connection (fibre or strong LTE) ensures clear, consistent call quality.
+        </p>
+      </article>
+
+      <article class="group relative rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+        <h3 class="mb-1 text-base font-semibold text-gray-900 flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full" style="background:#E7C465"></span>
+          What happens if I move premises?
+        </h3>
+        <p class="text-[15px] leading-6 text-gray-600">
+          No problem — your system is cloud-based. We’ll help you move or reinstall at your new location.
+        </p>
+      </article>
+
+      <article class="group relative rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+        <h3 class="mb-1 text-base font-semibold text-gray-900 flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full" style="background:#F59D5B"></span>
+          Can I add more extensions later?
+        </h3>
+        <p class="text-[15px] leading-6 text-gray-600">
+          Yes — your system can grow with your business. Tell us when you’re ready and we’ll scale it up.
+        </p>
+      </article>
+
+      <article class="group relative rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+        <h3 class="mb-1 text-base font-semibold text-gray-900 flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full" style="background:#E45E4D"></span>
+          Can I use my existing phones?
+        </h3>
+        <p class="text-[15px] leading-6 text-gray-600">
+          We recommend Yealink, but if you have SIP-compatible phones, we’ll check compatibility for you.
+        </p>
+      </article>
+
+      <article class="group relative rounded-2xl border border-gray-200 bg-white p-5 sm:p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow md:col-span-2">
+        <h3 class="mb-1 text-base font-semibold text-gray-900 flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full" style="background:#0071E3"></span>
+          What support is included?
+        </h3>
+        <p class="text-[15px] leading-6 text-gray-600">
+          Remote support is included. Need onsite help? We dispatch a technician for a flat R450 call-out.
+        </p>
+      </article>
+    </div>
+
+    <!-- Subtle callout -->
+    <div class="mt-8 text-center">
+      <a href="contact.html" class="inline-flex items-center gap-2 rounded-full bg-[#0071E3] text-white px-5 py-2 text-sm font-semibold tracking-tight hover:bg-[#0066CC] transition-colors">
+        Still have a question? Contact us
+        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+<!-- ✅ END: FAQ -->
+    </main>
+    <div id="site-footer" data-variant="full"></div>
+    <script src="scripts/footer.js" defer></script>
+    <!-- ✅ Floating WhatsApp Help Button (all devices, mobile-optimised) -->
+<a
+  href="https://wa.me/27683510074?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
+  target="_blank" rel="noopener"
+  aria-label="Chat to VoIP Shop on WhatsApp"
+  class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
+         px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
+         focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
+         right-4 bottom-4
+         md:right-5 md:bottom-5
+         [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
+         select-none"
+  style="backdrop-filter:saturate(140%)"
+>
+  <!-- Icon (SVG) -->
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+       class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
+    <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
+  </svg>
+
+  <span class="text-sm font-semibold">Need help?</span>
+</a>
+  </body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Choose a Virtual Number - VoIP Shop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Smooth animations */
+    .transition-all { transition: all 0.25s ease-in-out; }
+    .card-hover:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,.06); }
+    .btn-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,113,227,.3); }
+
+    /* Selectable cards */
+    .selectable-card { position: relative; }
+    .selectable-card.is-selected { box-shadow: 0 8px 24px rgba(0,0,0,.08) !important; }
+    .selectable-card.is-selected::after {
+      content: ""; position: absolute; inset: -2px; border-radius: 16px;
+      border: 2px solid rgba(0,113,227,.45); pointer-events: none;
+    }
+    .selectable-card.is-muted { filter: grayscale(.85); opacity: .6; }
+
+    /* Checkout highlight + disabled CTA */
+    .checkout-ring { box-shadow: 0 0 0 3px rgba(0,113,227,.35), 0 10px 25px rgba(0,113,227,.12) !important; border-color: rgba(0,113,227,.4) !important; }
+    .cta-disabled { pointer-events: none; opacity: .55; }
+
+    /* Inline status + shake */
+    .status-line { font-size: 14px; margin-top: 8px; }
+    .status-ok { color: #15803d; }     /* green-700 */
+    .status-warn { color: #b45309; }   /* amber-700 */
+
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-4px); }
+      40%, 60% { transform: translateX(4px); }
+    }
+    .shake { animation: shake .45s linear; }
+
+    /* VoIP Basics styles */
+    :root{ --vb3-blue:#0a84ff; --vb3-blue-2:#66a6ff; --vb3-text:#111; --vb3-muted:#515154; --vb3-border:#e5e5ea; --vb3-bg:#fff; }
+    #voip-basics{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;color:var(--vb3-text)}
+    .vb3-card{position:relative; max-width:980px; margin:40px auto 0; border-radius:16px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,.06);
+      background: linear-gradient(var(--vb3-bg),var(--vb3-bg)) padding-box,
+                  linear-gradient(135deg,var(--vb3-blue),var(--vb3-blue-2)) border-box; border:1px solid transparent;}
+    .vb3-head{display:flex; align-items:center; gap:10px; margin-bottom:12px}
+    .vb3-head h3{margin:0; font-size:16px; font-weight:600; letter-spacing:-.01em}
+    .vb3-grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px}
+    @media (max-width:780px){ .vb3-grid{grid-template-columns:1fr; gap:12px} }
+    .vb3-item{display:flex; gap:12px; align-items:flex-start; padding:12px 14px; border:1px solid var(--vb3-border); border-radius:12px; background:#fff;}
+    .vb3-ico{width:28px; height:28px; color:var(--vb3-blue)}
+    .vb3-text h4{margin:0 0 3px; font-size:15px; font-weight:600}
+    .vb3-text p{margin:0; font-size:13.5px; color:var(--vb3-muted); line-height:1.35}
+    .vb3-foot{margin-top:14px; text-align:right}
+    .vb3-link{font-size:13.5px; color:var(--vb3-blue); text-decoration:none}
+    .vb3-link:hover{text-decoration:underline}
+  </style>
+
+  <!-- ✅ load script non-blocking and after DOM parse -->
+  <script src="./scripts/porting.js" defer></script>
+</head>
+<body class="bg-gradient-to-b from-gray-50 to-gray-100 text-gray-900 font-sans">
+
+<!-- ✅ Universal navbar (injected by site.js) -->
+<div id="nav-slot"></div>
+<script src="./scripts/site.js" defer></script>
+<!-- ✅ End navbar -->
+
+  <!-- ✅ MAIN -->
+  <main class="max-w-screen-lg mx-auto px-12 py-24 space-y-20">
+
+    <!-- STEP 2 -->
+  <section id="step-2" class="space-y-6">
+  <div class="text-center">
+    <!-- Step pill -->
+    <span class="inline-flex items-center px-3 py-1 rounded-full bg-[#007AFF] text-white text-xs font-medium uppercase tracking-wide">
+      Step 2
+    </span>
+
+    <h1 class="text-4xl font-semibold mt-4">Choose a Virtual Number</h1>
+    <p class="mt-3 text-gray-600 max-w-2xl mx-auto">
+      Select a new number from your preferred region or port your existing one.
+    </p>
+    <div id="selection-status" class="status-line text-gray-600" aria-live="polite"></div>
+  </div>
+</section>
+
+      <div class="grid gap-10 md:grid-cols-2">
+
+        <!-- New Number (Premium Card) -->
+        <div
+          id="card-new"
+          class="group selectable-card relative rounded-2xl p-8 text-left bg-white border border-transparent
+                 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all"
+          style="background:
+            linear-gradient(#fff,#fff) padding-box,
+            linear-gradient(135deg,#cfe4ff,#e8f1ff) border-box;"
+        >
+          <button
+            id="new-number"
+            name="virtual-number"
+            onclick="virtualNumberBtn(0); selectCard(this.closest('.selectable-card'))"
+            class="w-full text-left"
+            type="button"
+          >
+            <div class="flex items-start gap-4">
+              <span class="inline-flex h-14 w-14 items-center justify-center rounded-2xl
+                           bg-gradient-to-br from-[#e7f0ff] to-[#f2f6ff] text-[#0B63E6] shadow-sm">
+                <!-- phone icon -->
+                <svg viewBox="0 0 24 24" class="h-7 w-7" fill="none" aria-hidden="true">
+                  <path d="M6 3h6a2 2 0 0 1 2 2v3H8a2 2 0 0 0-2 2v9H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"
+                        stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M10 15h8M10 19h8M18 11v12" stroke="currentColor" stroke-width="1.75"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <div class="flex-1">
+                <h3 class="text-xl font-semibold tracking-tight">New Number</h3>
+                <p class="mt-1 text-gray-600 text-sm">
+                  Get a fresh local number from any major SA region.
+                </p>
+
+                <label for="new-number-input" class="sr-only">Pick a Region</label>
+                <div class="relative mt-5">
+                  <select
+                    id="new-number-input"
+                    name="virtual-number-container-selector"
+                    class="w-full appearance-none rounded-xl border border-gray-300 bg-white px-4 py-3
+                           text-[15px] focus:outline-none focus:ring-2 focus:ring-[#0071E3] focus:border-[#0071E3] transition"
+                  >
+                    <option value="0">Pick a Region</option>
+                    <option value="8">Johannesburg (011)</option>
+                    <option value="12">Pretoria (012)</option>
+                    <option value="21">Cape Town (021)</option>
+                    <option value="31">Durban (031)</option>
+                    <option value="41">Gqeberha / Port Elizabeth (041)</option>
+                    <option value="43">East London (043)</option>
+                    <option value="44">Garden Route / George (044)</option>
+                    <option value="46">Makhanda / Grahamstown (046)</option>
+                  </select>
+                  <!-- chevron -->
+                  <span class="pointer-events-none absolute inset-y-0 right-3 inline-flex items-center text-gray-400">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </button>
+        </div>
+
+        <!-- Transfer Number (Premium Card) -->
+        <div
+          id="card-port"
+          class="group selectable-card relative rounded-2xl p-8 text-left bg-white border border-transparent
+                 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all"
+          style="background:
+            linear-gradient(#fff,#fff) padding-box,
+            linear-gradient(135deg,#cfe4ff,#e8f1ff) border-box;"
+        >
+          <button
+            id="port-number"
+            name="virtual-number"
+            onclick="virtualNumberBtn(1); selectCard(this.closest('.selectable-card'))"
+            class="w-full text-left mb-5"
+            type="button"
+          >
+            <div class="flex items-start gap-4">
+              <span class="inline-flex h-14 w-14 items-center justify-center rounded-2xl
+                           bg-gradient-to-br from-[#e7f0ff] to-[#f2f6ff] text-[#0B63E6] shadow-sm">
+                <!-- transfer icon -->
+                <svg viewBox="0 0 24 24" class="h-7 w-7" fill="none" aria-hidden="true">
+                  <path d="M7 7h10l-3-3M17 17H7l3 3" stroke="currentColor" stroke-width="1.75"
+                        stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 7v10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                </svg>
+              </span>
+              <div>
+                <h3 class="text-xl font-semibold tracking-tight">Transfer Number</h3>
+                <p class="mt-1 text-gray-600 text-sm">
+                  Port your existing geographic number to Voipshop.
+                </p>
+              </div>
+            </div>
+          </button>
+
+          <div id="port-numbers-container" class="space-y-3">
+            <input
+              type="text"
+              name="port-number-input"
+              placeholder="Enter your number (e.g. 0112345678)"
+              pattern="0[1-5]\\d{8}"
+              maxlength="10"
+              title="Enter a valid SA geographical number"
+              required
+              class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-[15px]
+                     focus:outline-none focus:ring-2 focus:ring-[#0071E3] focus:border-[#0071E3] transition"
+            />
+          </div>
+
+          <button id="add-another-number" class="mt-4 text-sm font-medium text-[#0071E3] hover:underline" type="button">
+            + Add another number
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Step 3 / Totals -->
+    <section id="step-3">
+      <div id="checkout-card" class="rounded-2xl border border-gray-200 bg-white shadow-sm card-hover transition-all p-10 text-center">
+        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 3</p>
+        <h2 class="mt-2 text-3xl font-semibold tracking-tight text-gray-900">Proceed to Checkout</h2>
+        <p class="mt-3 text-gray-600">Review your final totals, then complete your order.</p>
+
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-4">
+          <div class="inline-flex items-baseline gap-2 rounded-full border border-gray-200 bg-gray-50 px-5 py-2">
+            <span class="text-[11px] uppercase tracking-widest text-gray-500">Monthly</span>
+            <span id="total-footer-price" class="text-xl font-semibold text-gray-900">R 0</span>
+            <span id="total-cost-period" class="text-gray-500">/mo.</span>
+          </div>
+          <div class="inline-flex items-baseline gap-2 rounded-full border border-gray-200 bg-gray-50 px-5 py-2">
+            <span class="text-[11px] uppercase tracking-widest text-gray-500">Once-off</span>
+            <span id="total-onceoff" class="text-xl font-semibold text-gray-900">R 0</span>
+            <span class="text-gray-500">once-off</span>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <a id="checkout-cta" href="checkout.html"
+             class="inline-flex items-center gap-3 rounded-xl bg-[#0071E3] px-8 py-4 text-white font-semibold tracking-tight
+                    shadow-sm transition-all duration-200 hover:bg-[#0066CC] btn-hover focus:outline-none focus:ring-2 focus:ring-[#0071E3]/30">
+            <span class="inline-flex items-center gap-2">Checkout</span>
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        </div>
+
+        <p class="mt-3 text-xs text-gray-500">Complete your order and start using your phones.</p>
+      </div>
+    </section>
+
+<!-- VoIP Basics (Quick Guide) -->
+<section id="voip-basics" aria-label="VoIP basics">
+  <div class="vb3-card">
+    <div class="vb3-head">
+      <h3>VoIP Quick Guide</h3>
+    </div>
+
+    <div class="vb3-grid">
+      <!-- 1) SIP trunks -->
+      <article class="vb3-item">
+        <svg class="vb3-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <path d="M4 7h16M4 12h16M4 17h10"/>
+          </g>
+        </svg>
+        <div class="vb3-text">
+          <h4>SIP trunks = your phone lines</h4>
+          <ul class="mt-1 text-[13.5px] text-gray-600 list-disc pl-5 space-y-1">
+            <li>Carry inbound & outbound calls over the internet.</li>
+            <li>No per-channel fees — we size the channels for you.</li>
+            <li>Works with desk phones, cordless, and the mobile app.</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 2) Concurrent calls -->
+      <article class="vb3-item">
+        <svg class="vb3-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2">
+            <path d="M6 6v12"/><path d="M12 4v16"/><path d="M18 6v12"/>
+          </g>
+        </svg>
+        <div class="vb3-text">
+          <h4>Concurrent calls = calls at the same time</h4>
+          <ul class="mt-1 text-[13.5px] text-gray-600 list-disc pl-5 space-y-1">
+            <li>Each outside call uses one “line”.</li>
+            <li><strong>Rule of thumb:</strong> 4 extensions → <strong>4 concurrent calls</strong>.</li>
+            <li>Internal calls between extensions don’t use a line.</li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- 3) One number, many phones -->
+      <article class="vb3-item">
+        <svg class="vb3-ico" viewBox="0 0 24 24" aria-hidden="true">
+          <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+            <path d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/>
+            <path d="M4 7h16M8 12h8M8 16h8"/>
+          </g>
+        </svg>
+        <div class="vb3-text">
+          <h4>One main number, many phones</h4>
+          <ul class="mt-1 text-[13.5px] text-gray-600 list-disc pl-5 space-y-1">
+            <li>All phones can share one main number.</li>
+            <li>Route calls with ring groups, hunt lists & time rules.</li>
+            <li>Optional direct lines (DDIs) for specific users/departments.</li>
+          </ul>
+        </div>
+      </article>
+    </div>
+
+    <div class="vb3-foot">
+      <a class="vb3-link" href="index.html#faq">Learn more in our FAQ →</a>
+    </div>
+  </div>
+</section>
+
+
+  </main>
+  <!-- ✅ END MAIN -->
+
+  <!-- ✅ Footer -->
+  <footer class="bg-white border-t border-gray-200 mt-20">
+    <div class="max-w-screen-lg mx-auto px-6 py-8 text-center text-sm text-gray-500">
+      <p>&copy; 2025 VoIP Shop. All rights reserved.</p>
+      <div class="mt-2 space-x-4">
+        <a href="privacy.html" class="hover:text-[#0071E3]">Privacy Policy</a>
+        <a href="terms.html" class="hover:text-[#0071E3]">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

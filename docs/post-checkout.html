@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Order Received | VoIP Shop</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @media print { .no-print { display:none !important; } }
+    .dropzone { border: 1px dashed rgba(17,24,39,0.18); transition: border-color .2s, background-color .2s; }
+    .dropzone.dragover { border-color: #0B63E6; background-color: rgba(231,240,255,.3); }
+  </style>
+</head>
+<body class="bg-[#F5F5F7] text-gray-900">
+  <!-- Top actions -->
+  <div class="no-print sticky top-0 z-10 bg-[#F5F5F7]/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-end gap-3">
+      <a id="btn-view-invoice" href="#" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">View Invoice</a>
+      <button onclick="window.print()" class="inline-flex items-center rounded-full bg-[#0071E3] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0066CC]">Print</button>
+    </div>
+  </div>
+
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+    <!-- Success header -->
+    <section class="text-center">
+      <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] shadow-sm">
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="mt-4 text-3xl sm:text-4xl font-semibold tracking-tight">Order received</h1>
+      <p class="mt-2 text-gray-600">We’ve emailed your invoice to <span id="customer-email" class="font-medium text-gray-900">you@example.com</span>.</p>
+      <p class="text-sm text-gray-500">Order <span id="order-number" class="font-medium text-gray-800">#VS-000123</span></p>
+
+      <!-- Quick links -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <a id="btn-download-invoice" href="#" class="inline-flex items-center rounded-full bg-[#0071E3] px-6 py-3 text-white font-semibold hover:bg-[#0066CC]">Download Invoice (PDF)</a>
+        <a id="lnk-sla" href="/legal/sla.html" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download SLA</a>
+        <a id="lnk-loa" href="/docs/porting-letter-of-authority.pdf" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download Porting Document</a>
+      </div>
+    </section>
+
+    <!-- Two columns: Next steps + Summary -->
+    <section class="mt-10 grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <h2 class="text-lg font-semibold tracking-tight">What happens next</h2>
+        <ol class="mt-4 space-y-4 text-sm">
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">1</span>
+            <div>
+              <p class="font-medium text-gray-900">We confirm your order</p>
+              <p class="text-gray-600">We’ll call or email to double-check the hardware and quantities.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">2</span>
+            <div>
+              <p class="font-medium text-gray-900">You pay the invoice</p>
+              <p class="text-gray-600">Once-off setup/hardware + first month’s service as applicable.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">3</span>
+            <div>
+              <p class="font-medium text-gray-900">Download & sign</p>
+              <p class="text-gray-600">Open the SLA and Porting Doc below, print and sign them.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">4</span>
+            <div>
+              <p class="font-medium text-gray-900">Drop or email your documents</p>
+              <p class="text-gray-600">Upload all required docs below or email them to <a class="underline" href="mailto:sales@voipshop.co.za">sales@voipshop.co.za</a>.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">5</span>
+            <div>
+              <p class="font-medium text-gray-900">Install & port</p>
+              <p class="text-gray-600">We install your hardware and complete the number port.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">6</span>
+            <div>
+              <p class="font-medium text-gray-900">Support details</p>
+              <p class="text-gray-600">WhatsApp: <a class="underline" href="https://wa.me/27710057691" target="_blank">+27 71 005 7691</a> · Email: <a class="underline" href="mailto:sales@voipshop.co.za">sales@voipshop.co.za</a></p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="lg:col-span-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <h2 class="text-lg font-semibold tracking-tight">Order summary</h2>
+        <div class="mt-3 space-y-2 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Monthly total</span>
+            <span id="summary-monthly" class="font-semibold text-gray-900">R 0.00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Once-off total</span>
+            <span id="summary-onceoff" class="font-semibold text-gray-900">R 0.00</span>
+          </div>
+          <hr class="my-3 border-gray-200">
+          <p id="next-step-note" class="text-gray-600">We’ll confirm your order shortly and share installation/porting timelines.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Downloads -->
+    <section class="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <h2 class="text-lg font-semibold tracking-tight">Download & sign</h2>
+      <p class="mt-1 text-sm text-gray-600">Please download, print, and sign the following:</p>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <a href="docs/SLA.html" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Download SLA</a>
+        <a href="/docs/porting-letter-of-authority.pdf" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Download Porting Document</a>
+      </div>
+      <p class="mt-3 text-xs text-gray-500">Tip: If you can’t print now, email us and we’ll courier a copy for signature.</p>
+    </section>
+
+    <!-- Uploads -->
+    <section class="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <h2 class="text-lg font-semibold tracking-tight">Drop your documents</h2>
+        <p class="text-sm text-gray-500">Accepted: PDF, PNG, JPG (max 10MB each)</p>
+      </div>
+
+      <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <!-- ID document -->
+        <div>
+          <h3 class="text-sm font-medium text-gray-800">ID document (account holder)</h3>
+          <div id="dz-id" class="dropzone mt-2 grid place-items-center rounded-xl bg-gray-50 px-4 py-10 text-center">
+            <div>
+              <svg class="mx-auto h-10 w-10 text-gray-300" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.75"/><path d="M8 12h8M8 16h8" stroke="currentColor" stroke-width="1.75"/></svg>
+              <p class="mt-2 text-sm text-gray-600">Drag & drop here, or</p>
+              <label class="mt-2 inline-flex cursor-pointer items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">Browse<input id="file-id" type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden"></label>
+              <div id="info-id" class="mt-3 text-xs text-gray-500"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Letterhead -->
+        <div>
+          <h3 class="text-sm font-medium text-gray-800">Company letterhead</h3>
+          <div id="dz-letterhead" class="dropzone mt-2 grid place-items-center rounded-xl bg-gray-50 px-4 py-10 text-center">
+            <div>
+              <svg class="mx-auto h-10 w-10 text-gray-300" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.75"/><path d="M7 8h10M7 12h7M7 16h8" stroke="currentColor" stroke-width="1.75"/></svg>
+              <p class="mt-2 text-sm text-gray-600">Drag & drop here, or</p>
+              <label class="mt-2 inline-flex cursor-pointer items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">Browse<input id="file-letterhead" type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden"></label>
+              <div id="info-letterhead" class="mt-3 text-xs text-gray-500"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Signed LOA -->
+        <div>
+          <h3 class="text-sm font-medium text-gray-800">Signed Porting Document</h3>
+          <div id="dz-loa" class="dropzone mt-2 grid place-items-center rounded-xl bg-gray-50 px-4 py-10 text-center">
+            <div>
+              <svg class="mx-auto h-10 w-10 text-gray-300" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 16V8M8 12h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.75"/></svg>
+              <p class="mt-2 text-sm text-gray-600">Drag & drop here, or</p>
+              <label class="mt-2 inline-flex cursor-pointer items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">Browse<input id="file-loa" type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden"></label>
+              <div id="info-loa" class="mt-3 text-xs text-gray-500"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Signed SLA -->
+        <div>
+          <h3 class="text-sm font-medium text-gray-800">Signed SLA</h3>
+          <div id="dz-sla" class="dropzone mt-2 grid place-items-center rounded-xl bg-gray-50 px-4 py-10 text-center">
+            <div>
+              <svg class="mx-auto h-10 w-10 text-gray-300" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 7 10 17l-6-6" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.75"/></svg>
+              <p class="mt-2 text-sm text-gray-600">Drag & drop here, or</p>
+              <label class="mt-2 inline-flex cursor-pointer items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">Browse<input id="file-sla" type="file" accept=".pdf,.png,.jpg,.jpeg" class="hidden"></label>
+              <div id="info-sla" class="mt-3 text-xs text-gray-500"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <button id="btnUpload" class="inline-flex items-center rounded-full bg-[#0071E3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0066CC] disabled:opacity-50" disabled>Upload All</button>
+        <a href="mailto:sales@voipshop.co.za" class="text-sm text-gray-600 underline">Or email everything to sales@voipshop.co.za</a>
+        <span id="uploadStatus" class="text-sm text-gray-600"></span>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <section class="mt-8 text-sm text-gray-600">
+      Questions? WhatsApp <a href="https://wa.me/27710057691" target="_blank" class="underline">+27 71 005 7691</a> or email <a href="mailto:sales@voipshop.co.za" class="underline">sales@voipshop.co.za</a>.
+    </section>
+  </main>
+
+  <script>
+    // ===== Replace this with your backend endpoint =====
+    const UPLOAD_ENDPOINT = '/api/porting/upload';
+
+    // ===== Utilities for four dropzones =====
+    function setupDropzone(dzId, inputId, infoId, stateKey) {
+      const dz = document.getElementById(dzId);
+      const input = document.getElementById(inputId);
+      const info = document.getElementById(infoId);
+
+      function setFile(file){
+        if (!file) return;
+        const ok = ['application/pdf','image/png','image/jpeg'].includes(file.type) || /\.(pdf|png|jpe?g)$/i.test(file.name);
+        if (!ok) { info.textContent = 'Unsupported file type.'; return; }
+        if (file.size > 10 * 1024 * 1024) { info.textContent = 'File too large (max 10MB).'; return; }
+        uploadState[stateKey] = file;
+        info.textContent = `${file.name} • ${(file.size/1024/1024).toFixed(2)} MB`;
+        maybeEnableUpload();
+      }
+
+      input.addEventListener('change', (e) => setFile(e.target.files[0]));
+      dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+      dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+      dz.addEventListener('drop', (e) => { e.preventDefault(); dz.classList.remove('dragover'); setFile(e.dataTransfer.files[0]); });
+    }
+
+    const uploadState = { id:null, letterhead:null, loa:null, sla:null };
+    const btnUpload = document.getElementById('btnUpload');
+    const uploadStatus = document.getElementById('uploadStatus');
+
+    function maybeEnableUpload(){
+      btnUpload.disabled = !(uploadState.id && uploadState.letterhead && uploadState.loa && uploadState.sla);
+    }
+
+    setupDropzone('dz-id','file-id','info-id','id');
+    setupDropzone('dz-letterhead','file-letterhead','info-letterhead','letterhead');
+    setupDropzone('dz-loa','file-loa','info-loa','loa');
+    setupDropzone('dz-sla','file-sla','info-sla','sla');
+
+    btnUpload.addEventListener('click', async () => {
+      if (btnUpload.disabled) return;
+      uploadStatus.textContent = 'Uploading…';
+      const form = new FormData();
+      form.append('orderNumber', document.getElementById('order-number').textContent.trim());
+      form.append('customerEmail', document.getElementById('customer-email').textContent.trim());
+      form.append('idFile', uploadState.id);
+      form.append('letterheadFile', uploadState.letterhead);
+      form.append('loaFile', uploadState.loa);
+      form.append('slaFile', uploadState.sla);
+      try {
+        const res = await fetch(UPLOAD_ENDPOINT, { method: 'POST', body: form });
+        if (!res.ok) throw new Error('Upload failed');
+        uploadStatus.textContent = 'Uploaded. Thank you!';
+        btnUpload.disabled = true;
+      } catch (e) {
+        uploadStatus.textContent = 'Could not upload automatically. Please email the files to sales@voipshop.co.za';
+      }
+    });
+  </script>
+  <script>
+(function hydrateOrderReceived() {
+  // 1) Read params passed in the redirect (from the checkout page)
+  const url   = new URL(window.location.href);
+  const email = url.searchParams.get('email') || 'you@example.com';
+  const order = url.searchParams.get('order') || 'VS-000000';
+
+  // 2) Fill text on the page
+  const emailEl = document.getElementById('customer-email');
+  const orderEl = document.getElementById('order-number');
+  if (emailEl) emailEl.textContent = email;
+  if (orderEl) orderEl.textContent = order;
+
+  // 3) Find buttons
+  const btnDownload = document.getElementById('btn-download-invoice');
+  const btnView     = document.getElementById('btn-view-invoice');
+
+  // 4) Get invoice URL (best case: set by checkout page when /api/send-invoice ran with alsoLink:true)
+  //    We also accept ?invoiceUrl=... as a query param fallback.
+  const urlFromParam = url.searchParams.get('invoiceUrl');
+  const invoiceUrl   = urlFromParam || sessionStorage.getItem('lastInvoiceUrl') || '';
+
+  function wireButtonAsLink(anchorEl, href) {
+    if (!anchorEl) return;
+    anchorEl.href = href;
+    anchorEl.target = '_blank';
+    anchorEl.rel = 'noopener';
+    anchorEl.setAttribute('download', '');
+  }
+
+  function wireButtonAsNotice(anchorEl, message) {
+    if (!anchorEl) return;
+    anchorEl.removeAttribute('href');
+    anchorEl.addEventListener('click', function (e) {
+      e.preventDefault();
+      alert(message);
+    }, { once: true });
+  }
+
+  if (invoiceUrl) {
+    // Link both buttons to the invoice
+    wireButtonAsLink(btnDownload, invoiceUrl);
+    wireButtonAsLink(btnView, invoiceUrl);
+  } else {
+    // Graceful fallback: tell the user to check their email (the invoice was attached there)
+    wireButtonAsNotice(btnDownload, 'Your invoice has been emailed to you. If you need a copy, please reply to the email.');
+    wireButtonAsNotice(btnView,     'Your invoice has been emailed to you. If you need a copy, please reply to the email.');
+  }
+
+  // Optional: if you want to clear the stored link after use, uncomment:
+  // if (invoiceUrl) sessionStorage.removeItem('lastInvoiceUrl');
+})();
+</script>
+</body>
+</html>

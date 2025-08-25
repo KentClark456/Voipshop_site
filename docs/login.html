@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Account — Login or Create</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- System/Apple font stack -->
+  <style>
+    /* ----- Base / Reset ----- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: #0b0b0f; /* black page */
+      color: #111;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    /* ----- Theme tokens ----- */
+    :root {
+      --bg: #0b0b0f;
+      --panel: #ffffff;
+      --panel-muted: rgba(255,255,255,.92);
+      --text: #111111;
+      --text-muted: #666a73;
+      --chip-bg: rgba(255,255,255,.85);
+      --ring: rgba(0,0,0,.08);
+      --ring-strong: rgba(0,0,0,.15);
+      --blue: #0A84FF;  /* Apple blue */
+      --blue-hover: #0874e6;
+      --shadow: 0 10px 30px rgba(0,0,0,.25);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --maxw: 1120px;
+    }
+
+    /* ----- Layout ----- */
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 28px;
+    }
+
+    /* ----- Intro ----- */
+    .intro {
+      text-align: center;
+      color: #e7e7ea;
+    }
+    .intro h1 {
+      margin: 0;
+      font-size: clamp(28px, 3vw, 40px);
+      line-height: 1.15;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      color: #f5f5f7;
+    }
+    .intro p {
+      margin: 10px auto 0;
+      max-width: 720px;
+      color: #c9c9cf;
+      font-size: 15px;
+    }
+    .chips {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .chip {
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      color: #dfe1e6;
+      border: 1px solid rgba(255,255,255,.08);
+      backdrop-filter: blur(6px);
+    }
+
+    /* ----- Grid: Login / Register ----- */
+    .grid {
+      position: relative;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 22px;
+      }
+      .grid::before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, rgba(255,255,255,.14), transparent);
+        transform: translateX(-50%);
+        pointer-events: none;
+      }
+    }
+
+    /* ----- Card ----- */
+    .card {
+      background: var(--panel-muted);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      border: 1px solid var(--ring);
+      backdrop-filter: blur(8px);
+      padding: clamp(22px, 3vw, 36px);
+    }
+    .card h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .card .sub {
+      margin: 0 0 18px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* ----- Forms ----- */
+    .field { margin-bottom: 14px; }
+    label {
+      display: block;
+      font-size: 13px;
+      color: #3a3d45;
+      margin: 0 0 6px;
+      font-weight: 550;
+    }
+    input[type="email"],
+    input[type="password"],
+    input[type="text"],
+    input[type="tel"] {
+      width: 100%;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      border: 1px solid #d6d8dd;
+      background: #f7f8fa;
+      color: #111;
+      padding: 0 12px;
+      font-size: 14px;
+      outline: none;
+      transition: box-shadow .15s ease, border-color .15s ease, background .15s ease;
+    }
+    input::placeholder { color: #9aa0a6; }
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(10,132,255,.18);
+      background: #fff;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+      margin-bottom: 12px;
+    }
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #444851;
+      user-select: none;
+      cursor: pointer;
+    }
+    .check input { width: 16px; height: 16px; }
+
+    /* ----- Buttons ----- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 44px;
+      border-radius: var(--radius-sm);
+      border: none;
+      font-weight: 600;
+      letter-spacing: .01em;
+      cursor: pointer;
+      transition: transform .04s ease, box-shadow .15s ease, background .15s ease, opacity .15s ease;
+      will-change: transform;
+    }
+    .btn:active { transform: translateY(1px); }
+
+    .btn-black {
+      background: #111;
+      color: #fff;
+      box-shadow: 0 6px 14px rgba(0,0,0,.18);
+    }
+    .btn-black:hover { opacity: .92; }
+
+    .btn-blue {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 8px 18px rgba(10,132,255,.25);
+    }
+    .btn-blue:hover { background: var(--blue-hover); }
+
+    /* ----- Tiny footer ----- */
+    .foot {
+      text-align: center;
+      color: #a7aab3;
+      font-size: 12px;
+    }
+    .foot a { color: #cbd1ff; text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ----- Links inside cards ----- */
+    .link {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .link:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+    /* ----- Divider (mobile) ----- */
+    .or {
+      margin: 12px 0;
+      text-align: center;
+      color: #8a8f98;
+      font-size: 12px;
+    }
+    @media (min-width: 900px) {
+      .or { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <!-- Intro -->
+    <header class="intro">
+      <h1>Login or create your account</h1>
+      <p>
+        From your portal you can access your latest billing, manage system details, and track call reports — all in one place.
+      </p>
+      <div class="chips" aria-hidden="true">
+        <span class="chip">Real-time call reports</span>
+        <span class="chip">Latest invoices & billing</span>
+        <span class="chip">Manage extensions & devices</span>
+        <span class="chip">Support & system details</span>
+      </div>
+    </header>
+
+    <!-- Split layout -->
+    <section class="grid" aria-label="Account access">
+      <!-- Login -->
+      <article class="card" aria-labelledby="login-title">
+        <h2 id="login-title">Sign in</h2>
+        <p class="sub">Welcome back — enter your details below.</p>
+
+        <form action="/auth/login" method="post" novalidate>
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" name="email" type="email" placeholder="you@company.com" required>
+          </div>
+
+          <div class="field">
+            <label for="login-password">Password</label>
+            <input id="login-password" name="password" type="password" placeholder="••••••••" required>
+          </div>
+
+          <div class="row">
+            <label class="check">
+              <input type="checkbox" name="remember">
+              <span>Remember me</span>
+            </label>
+            <a class="link" href="/auth/forgot">Forgot password?</a>
+          </div>
+
+          <button class="btn btn-black" type="submit">Sign in</button>
+        </form>
+      </article>
+
+      <!-- Mobile “or” -->
+      <div class="or">— or —</div>
+
+      <!-- Create account -->
+      <article class="card" aria-labelledby="create-title">
+        <h2 id="create-title">Create account</h2>
+        <p class="sub">Get access to invoices, reports, and system management.</p>
+
+        <form action="/auth/register" method="post" novalidate>
+          <div class="field">
+            <label for="reg-name">Full name</label>
+            <input id="reg-name" name="name" type="text" placeholder="First Last" required>
+          </div>
+
+          <div class="field">
+            <label for="reg-email">Email</label>
+            <input id="reg-email" name="email" type="email" placeholder="you@company.com" required>
+          </div>
+
+          <div class="field">
+            <label for="reg-phone">Phone (optional)</label>
+            <input id="reg-phone" name="phone" type="tel" placeholder="+27 68 351 0074">
+          </div>
+
+          <div class="field">
+            <label for="reg-password">Password</label>
+            <input id="reg-password" name="password" type="password" placeholder="Create a strong password" required>
+          </div>
+
+          <label class="check" style="margin: 8px 0 14px;">
+            <input type="checkbox" required>
+            <span>I agree to the <a class="link" href="/legal/terms">Terms</a> and <a class="link" href="/legal/privacy">Privacy Policy</a>.</span>
+          </label>
+
+          <button class="btn btn-blue" type="submit">Create account</button>
+        </form>
+      </article>
+    </section>
+
+    <!-- Tiny footer -->
+    <p class="foot">
+      Need help? <a href="/support">Contact support</a>
+    </p>
+  </main>
+</body>
+</html>

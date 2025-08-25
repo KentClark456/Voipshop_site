@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quote | VoIP Shop</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="icon" type="image/png" href="Assets/icon _voice_.png" />
+
+  <style>
+    /* Print tweaks: hide controls, ensure white background */
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      .card { box-shadow: none !important; }
+    }
+    /* subtle Apple-ish shadows */
+    .card { box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    .card-hero { box-shadow: 0 10px 30px rgba(0,0,0,.06); }
+    .pill { border:1px solid #e5e7eb; background:#f9fafb; }
+    .tabular { font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body class="bg-[#F5F5F7] text-gray-900">
+
+  <!-- Top controls (hidden in PDF/print) -->
+  <div class="no-print sticky top-0 z-10 bg-[#F5F5F7]/80 backdrop-blur">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-end gap-3">
+      <a href="contact.html" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-semibold hover:bg-gray-50">
+        Accept Quote
+      </a>
+      <button onclick="window.print()" class="inline-flex items-center rounded-full bg-[#0071E3] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0066CC]">
+        Print / Save PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- Quote wrapper -->
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+      <div class="flex items-center gap-3">
+        <img src="Assets/Group 1642logo (1).png" alt="VoIP Shop" class="h-10 w-auto object-contain">
+        <div class="text-sm text-gray-500 leading-5">
+          <div id="company-name" class="font-medium text-gray-900">VoIP Shop</div>
+          <div>23 Lombardy Road, Broadacres, Johannesburg</div>
+          <div>+27 68 351 0074 • <span class="text-gray-700">sales@voipshop.co.za</span></div>
+        </div>
+      </div>
+
+      <div class="text-right">
+        <h1 class="text-2xl font-semibold tracking-tight">Quote</h1>
+        <div class="mt-2 grid grid-cols-2 gap-x-6 gap-y-1 text-sm text-gray-600">
+          <div class="font-medium text-gray-900">Quote #</div>     <div id="quote-number" class="tabular">Q-000123</div>
+          <div class="font-medium text-gray-900">Date</div>         <div id="quote-date" class="tabular">2025-08-11</div>
+          <div class="font-medium text-gray-900">Valid Until</div>  <div id="quote-valid" class="tabular">2025-08-18</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Client block -->
+    <section class="mt-8 card card-hero rounded-2xl border border-gray-200 bg-white p-6">
+      <div class="grid sm:grid-cols-2 gap-6 text-sm">
+        <div>
+          <div class="text-gray-500">Bill To</div>
+          <div id="client-name" class="mt-1 font-medium text-gray-900">Client Name</div>
+          <div id="client-company">Company (optional)</div>
+          <div id="client-email">email@example.com</div>
+          <div id="client-phone">+27 00 000 0000</div>
+          <div id="client-address">Street, City, Province</div>
+        </div>
+        <div>
+          <div class="text-gray-500">Project / Notes</div>
+          <div id="project-notes" class="mt-1 text-gray-700">
+            PBX system configuration and number setup.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary pills -->
+    <section class="mt-6 flex flex-wrap items-center gap-3">
+      <div class="pill inline-flex items-baseline gap-2 rounded-full px-4 py-2">
+        <span class="text-[11px] uppercase tracking-widest text-gray-500">Monthly</span>
+        <span id="total-monthly" class="text-xl font-semibold text-gray-900 tabular">R 0.00</span>
+        <span class="text-gray-500">/mo</span>
+      </div>
+      <div class="pill inline-flex items-baseline gap-2 rounded-full px-4 py-2">
+        <span class="text-[11px] uppercase tracking-widest text-gray-500">Once-off</span>
+        <span id="total-onceoff" class="text-xl font-semibold text-gray-900 tabular">R 0.00</span>
+        <span class="text-gray-500">setup</span>
+      </div>
+    </section>
+
+    <!-- Items -->
+    <section class="mt-6 grid lg:grid-cols-2 gap-6">
+      <!-- Monthly (recurring) -->
+      <div class="card rounded-2xl border border-gray-200 bg-white p-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold tracking-tight">Monthly Charges</h2>
+          <span class="text-sm text-gray-500" id="billing-period">Billed monthly</span>
+        </div>
+        <div class="mt-4 overflow-hidden rounded-xl border border-gray-100">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-500">
+              <tr>
+                <th class="text-left p-3">Description</th>
+                <th class="text-right p-3 w-28">Qty</th>
+                <th class="text-right p-3 w-32">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="monthly-items" class="divide-y divide-gray-100">
+              <!-- Inject monthly rows -->
+            </tbody>
+            <tfoot class="bg-gray-50">
+              <tr>
+                <td class="p-3 text-right font-medium" colspan="2">Subtotal (ex VAT)</td>
+                <td id="monthly-subtotal" class="p-3 text-right font-semibold text-gray-900 tabular">R 0.00</td>
+              </tr>
+              <tr>
+                <td class="p-3 text-right font-medium" colspan="2">VAT (15%)</td>
+                <td id="monthly-vat" class="p-3 text-right font-semibold text-gray-900 tabular">R 0.00</td>
+              </tr>
+              <tr>
+                <td class="p-3 text-right font-medium" colspan="2">Total / month (incl VAT)</td>
+                <td id="monthly-total" class="p-3 text-right font-extrabold text-gray-900 tabular">R 0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Once-off -->
+      <div class="card rounded-2xl border border-gray-200 bg-white p-6">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold tracking-tight">Once-off Charges</h2>
+          <span class="text-sm text-gray-500">Setup & hardware</span>
+        </div>
+        <div class="mt-4 overflow-hidden rounded-xl border border-gray-100">
+          <table class="w-full text-sm">
+            <thead class="bg-gray-50 text-gray-500">
+              <tr>
+                <th class="text-left p-3">Description</th>
+                <th class="text-right p-3 w-28">Qty</th>
+                <th class="text-right p-3 w-32">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="onceoff-items" class="divide-y divide-gray-100">
+              <!-- Inject once-off rows -->
+            </tbody>
+            <tfoot class="bg-gray-50">
+              <tr>
+                <td class="p-3 text-right font-medium" colspan="2">Subtotal (ex VAT)</td>
+                <td id="onceoff-subtotal" class="p-3 text-right font-semibold text-gray-900 tabular">R 0.00</td>
+              </tr>
+              <tr>
+                <td class="p-3 text-right font-medium" colspan="2">VAT (15%)</td>
+                <td id="onceoff-vat" class="p-3 text-right font-semibold text-gray-900 tabular">R 0.00</td>
+              </tr>
+              <tr>
+                <td class="p-3 text-right font-medium" colspan="2">Total (once-off incl VAT)</td>
+                <td id="onceoff-total" class="p-3 text-right font-extrabold text-gray-900 tabular">R 0.00</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Included / value adds + Totals -->
+    <section class="mt-8 grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 card rounded-2xl border border-gray-200 bg-white p-6">
+        <h3 class="text-lg font-semibold tracking-tight">Included with your PBX</h3>
+        <ul class="mt-4 grid sm:grid-cols-2 gap-3 text-sm">
+          <li class="flex items-start gap-2">
+            <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="text-gray-700">Professional install & device setup</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2"/></svg>
+            </span>
+            <span class="text-gray-700">Remote support included</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2"/></svg>
+            </span>
+            <span class="text-gray-700">Number porting assistance</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]">
+              <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2"/></svg>
+            </span>
+            <span class="text-gray-700">All core PBX features (transfer, voicemail, recording, IVR)</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Totals / Payment card -->
+      <div class="lg:col-span-5 card rounded-2xl border border-gray-200 bg-white p-6">
+        <h3 class="text-lg font-semibold tracking-tight">Totals</h3>
+        <div class="mt-4 space-y-3 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Monthly total (incl VAT)</span>
+            <span id="summary-monthly" class="font-semibold text-gray-900 tabular">R 0.00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Once-off total (incl VAT)</span>
+            <span id="summary-onceoff" class="font-semibold text-gray-900 tabular">R 0.00</span>
+          </div>
+          <hr class="my-2 border-gray-200">
+          <div class="flex items-center justify-between text-[1.05rem]">
+            <span class="font-semibold text-gray-900">Amount to Pay Now</span>
+            <!-- = monthly total (incl VAT) + once-off total (incl VAT) -->
+            <span id="summary-paynow" class="font-extrabold text-gray-900 tabular">R 0.00</span>
+          </div>
+
+          <p id="payment-terms" class="text-gray-600 mt-3">
+            Payment terms: once-off on installation; first month billed in advance. Thereafter, monthly in advance.
+          </p>
+          <p class="text-gray-500">
+            Bank details available on request. Please use your Quote # as payment reference.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer / Legal -->
+    <footer class="mt-8 text-xs text-gray-500">
+      <p id="quote-notes">
+        This quote is valid for <span id="valid-days">7</span> days. Stock subject to availability.
+        Pricing in ZAR. VAT calculated at <span id="vat-rate">15%</span>.
+      </p>
+      <p class="mt-1">Contact: <span class="text-gray-700">sales@voipshop.co.za</span> • +27 68 351 0074</p>
+    </footer>
+  </main>
+
+  <!-- (Optional) minimal placeholders your script can target (if rendering client-side too) -->
+  <script>
+    // If you inject numbers client-side, compute the big "Amount to Pay Now":
+    // const monthlyTotal = /* Number from your calc */;
+    // const onceOffTotal = /* Number from your calc */;
+    // document.getElementById('summary-paynow').textContent = formatZAR(monthlyTotal + onceOffTotal);
+
+    // function formatZAR(n){ return 'R ' + Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  </script>
+</body>
+</html>

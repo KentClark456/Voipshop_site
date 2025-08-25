@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VoIP Shop — Service Agreement & Debit Order</title>
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @media print { .no-print { display:none !important; } }
+    .sig-canvas { touch-action: none; }
+  </style>
+</head>
+<body class="bg-[#F5F5F7] text-gray-900">
+  <main class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <img src="Assets/Group 1642logo (1).png" alt="VoIP Shop" class="h-10 w-auto object-contain" onerror="this.style.display='none'">
+        <div class="text-sm text-gray-600 leading-5">
+          <div class="font-medium text-gray-900">VoIP Shop</div>
+          <div>Umojanet (Pty) Ltd t/a Darkwire</div>
+          <div>Reg: 2025/406791/07</div>
+          <div>23 Lombardy Road, Broadacres, Johannesburg</div>
+          <div>+27 68 351 0074 • admin@darkwire.co.za</div>
+        </div>
+      </div>
+      <div class="text-right">
+        <h1 class="text-2xl font-semibold tracking-tight">Service Agreement</h1>
+        <div class="text-sm text-gray-500">Date: <span id="today"></span></div>
+      </div>
+    </header>
+
+    <!-- Intro / summary -->
+    <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_10px_30px_rgba(0,0,0,0.06)]">
+      <p class="text-gray-700 text-sm leading-6">
+        This Agreement is between <span class="font-medium">VoIP Shop (Umojanet (Pty) Ltd t/a Darkwire)</span> and the Client. It covers hosted PBX services,
+        numbers & porting, configuration and support. By signing, you accept the terms below and authorise a debit order for monthly fees and approved once-off charges.
+      </p>
+      <div class="mt-4 grid sm:grid-cols-2 gap-3 text-sm">
+        <div class="flex items-start gap-2">
+          <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]">
+            <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span>Onsite call-outs (moves/adds/changes/repairs, cabling, training) billed at <span class="font-medium">R450</span> per visit (travel/after-hours may apply).</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2"/></svg></span>
+          <span>Hardware warranty: <span class="font-medium">3 years</span> (return-to-base). Excludes misuse/surge/liquid/physical damage.</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2"/></svg></span>
+          <span>Remote support during business hours included; after-hours best-effort (may be billable).</span>
+        </div>
+        <div class="flex items-start gap-2">
+          <span class="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]"><svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none"><path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2"/></svg></span>
+          <span>Number porting assisted; timing depends on donor network. Temporary downtime may occur at cutover.</span>
+        </div>
+      </div>
+      <details class="mt-4 text-sm text-gray-600">
+        <summary class="cursor-pointer select-none inline-flex items-center gap-2">
+          <span class="underline">View full terms & SLA</span>
+        </summary>
+        <div class="mt-3 space-y-2 leading-6">
+          <p><span class="font-medium">Term & cancellation:</span> Month‑to‑month; either party may cancel with 30 days’ notice. Fees accrued remain payable.</p>
+          <p><span class="font-medium">Billing:</span> Monthly recurring fees; once‑off setup/hardware. Debit order or EFT. Non‑payment may trigger suspension after notice.</p>
+          <p><span class="font-medium">Client duties:</span> Provide stable internet/power/LAN and access. Ensure lawful use & call‑recording compliance.</p>
+          <p><span class="font-medium">SLA (business hours Mon–Fri 08:30–17:00 SAST):</span> P1 outage: response 1h, target restore 8h. P2 major: response 4h, target 1 day. P3 minor/MAC: response 1 day, target 2–3 days. Onsite next business day (metro) or by arrangement.</p>
+          <p><span class="font-medium">Liability:</span> No indirect damages; cap = lesser of 3 months’ service fees or R100,000, to the extent permitted by law.</p>
+          <p><span class="font-medium">Law:</span> South African law; venue Johannesburg.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Client details -->
+    <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <h2 class="text-lg font-semibold tracking-tight">Client Details</h2>
+      <div class="mt-4 grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-600">Full Name</label>
+          <input id="clientName" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" required />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Company (optional)</label>
+          <input id="clientCompany" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Email</label>
+          <input id="clientEmail" type="email" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" required />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Mobile</label>
+          <input id="clientMobile" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-sm text-gray-600">Billing Address</label>
+          <input id="clientAddress" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Bank / Debit Order -->
+    <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <h2 class="text-lg font-semibold tracking-tight">Debit Order Details</h2>
+      <p class="mt-1 text-xs text-gray-500">Used to collect monthly service fees and approved once-off charges in terms of this agreement.</p>
+      <div class="mt-4 grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm text-gray-600">Account Holder</label>
+          <input id="accHolder" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" required />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Bank</label>
+          <input id="bankName" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" required />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Account Number</label>
+          <input id="accNumber" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" required />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Branch Code</label>
+          <input id="branchCode" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Account Type</label>
+          <select id="accType" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm">
+            <option>Current</option>
+            <option>Savings</option>
+            <option>Transmission</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600">Preferred Debit Day</label>
+          <select id="debitDay" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm">
+            <option value="1">1</option>
+            <option value="7">7</option>
+            <option value="15">15</option>
+            <option value="25">25</option>
+            <option value="last">Last day</option>
+          </select>
+        </div>
+      </div>
+      <p class="mt-3 text-xs text-gray-500">By signing, you authorise VoIP Shop to debit this account on/around the due date each month. You may cancel with 30 days’ written notice, provided all amounts due are settled.</p>
+    </section>
+
+    <!-- Agreement + signature -->
+    <section class="mt-6 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+      <div class="flex items-start gap-3">
+        <input id="agree" type="checkbox" class="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+        <label for="agree" class="text-sm text-gray-700">I have read and agree to the Service Agreement, SLA, and Debit Order Authorisation.</label>
+      </div>
+
+      <div class="mt-6 grid gap-6 sm:grid-cols-2">
+        <div>
+          <label class="block text-sm text-gray-600 mb-2">Client Signature</label>
+          <div class="rounded-xl border border-gray-300 bg-white p-2">
+            <canvas id="sigpad" class="sig-canvas w-full" height="180"></canvas>
+          </div>
+          <div class="mt-2 flex items-center gap-2">
+            <button id="clearSig" type="button" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-3 py-1.5 text-sm font-semibold hover:bg-gray-50">Clear</button>
+            <span class="text-xs text-gray-500">Use mouse or finger to sign.</span>
+          </div>
+        </div>
+        <div class="grid gap-4 content-start">
+          <div>
+            <label class="block text-sm text-gray-600">Name of Signatory</label>
+            <input id="signName" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" required />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600">Position</label>
+            <input id="signTitle" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm text-gray-600">Date</label>
+            <input id="signDate" type="date" class="mt-1 w-full rounded-xl border-gray-300 bg-white px-3 py-2 text-sm" />
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 flex flex-wrap items-center gap-3">
+        <button id="btnDownload" class="inline-flex items-center rounded-full bg-[#0071E3] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#0066CC]">Sign & Download PDF</button>
+        <button id="btnSend" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Send to VoIP Shop</button>
+        <span id="statusMsg" class="text-sm text-gray-600"></span>
+      </div>
+    </section>
+
+    <footer class="mt-6 text-xs text-gray-500">
+      <p>Support: WhatsApp +27 71 005 7691 • Email admin@darkwire.co.za</p>
+    </footer>
+  </main>
+
+  <!-- Signature Pad & jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script>
+    // Set today's date
+    const today = new Date();
+    document.getElementById('today').textContent = today.toISOString().slice(0,10);
+    const dateInput = document.getElementById('signDate');
+    dateInput.value = today.toISOString().slice(0,10);
+
+    // Init signature pad
+    const canvas = document.getElementById('sigpad');
+    function resizeCanvas() {
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * ratio;
+      canvas.height = 180 * ratio;
+      canvas.getContext('2d').scale(ratio, ratio);
+      sigPad.clear();
+    }
+    const sigPad = new SignaturePad(canvas, { backgroundColor: 'rgba(255,255,255,0)', penColor: '#0B63E6' });
+    window.addEventListener('resize', resizeCanvas);
+    setTimeout(resizeCanvas, 0);
+    document.getElementById('clearSig').addEventListener('click', () => sigPad.clear());
+
+    // Validation helper
+    function requireFields() {
+      const need = ['clientName','clientEmail','accHolder','bankName','accNumber','signName'];
+      for (const id of need) { if (!document.getElementById(id).value.trim()) return false; }
+      if (!document.getElementById('agree').checked) return false;
+      if (sigPad.isEmpty()) return false;
+      return true;
+    }
+
+    // Build PDF
+    async function buildPdf() {
+      const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+      const margin = 48; let y = margin;
+      const line = (txt, size=11, bold=false) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(size); doc.text(txt, margin, y); y += 18; };
+
+      // Header
+      doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text('VoIP Shop — Service Agreement & Debit Order', margin, y); y += 22;
+      doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.text(`Date: ${document.getElementById('signDate').value}`, margin, y); y += 18;
+
+      // Client block
+      doc.setFont('helvetica','bold'); doc.text('Client Details', margin, y); y += 16; doc.setFont('helvetica','');
+      const cName = document.getElementById('clientName').value;
+      const cCo   = document.getElementById('clientCompany').value;
+      const cEm   = document.getElementById('clientEmail').value;
+      const cMo   = document.getElementById('clientMobile').value;
+      const cAd   = document.getElementById('clientAddress').value;
+      const lines = [
+        `Name: ${cName}`,
+        cCo ? `Company: ${cCo}` : '',
+        `Email: ${cEm}`,
+        cMo ? `Mobile: ${cMo}` : '',
+        cAd ? `Address: ${cAd}` : ''
+      ].filter(Boolean);
+      for (const l of lines) { line(l); }
+      y += 6;
+
+      // Bank block
+      doc.setFont('helvetica','bold'); doc.text('Debit Order Details', margin, y); y += 16; doc.setFont('helvetica','');
+      const b = {
+        holder: document.getElementById('accHolder').value,
+        bank: document.getElementById('bankName').value,
+        num: document.getElementById('accNumber').value,
+        branch: document.getElementById('branchCode').value,
+        type: document.getElementById('accType').value,
+        day: document.getElementById('debitDay').value
+      };
+      for (const l of [
+        `Account Holder: ${b.holder}`,
+        `Bank: ${b.bank}`,
+        `Account Number: ${b.num}`,
+        b.branch ? `Branch Code: ${b.branch}` : '',
+        `Account Type: ${b.type}`,
+        `Preferred Debit Day: ${b.day}`
+      ].filter(Boolean)) { line(l); }
+      y += 6;
+
+      // Key terms
+      doc.setFont('helvetica','bold'); doc.text('Key Terms', margin, y); y += 16; doc.setFont('helvetica','');
+      const bullets = [
+        'Onsite call-outs (moves/adds/changes/repairs, cabling, training): R450 per visit (travel/after-hours may apply).',
+        'Hardware warranty: 3 years return-to-base (excludes misuse/surge/liquid/physical damage).',
+        'Remote support during business hours included; after-hours best-effort.',
+        'Number porting assisted; timing controlled by donor network; brief downtime at cutover may occur.',
+        'Month-to-month; 30 days’ cancellation notice. Debit order/EFT payments; non-payment may trigger suspension.'
+      ];
+      const wrap = (text, width) => doc.splitTextToSize(text, width);
+      for (const btxt of bullets) { const arr = wrap('• ' + btxt, 500); for (const a of arr) { line(a); } }
+
+      y += 6;
+      // Signature
+      doc.setFont('helvetica','bold'); doc.text('Client Acceptance', margin, y); y += 16; doc.setFont('helvetica','');
+      const sigData = sigPad.toDataURL('image/png');
+      const sigW = 180, sigH = 60; // displayed size in pt
+      doc.text(`Signed by: ${document.getElementById('signName').value}`, margin, y); y += 16;
+      const title = document.getElementById('signTitle').value; if (title) { doc.text(`Position: ${title}`, margin, y); y += 16; }
+      doc.text(`Date: ${document.getElementById('signDate').value}`, margin, y); y += 8;
+      doc.addImage(sigData, 'PNG', margin, y, sigW, sigH);
+
+      return doc;
+    }
+
+    // Download
+    document.getElementById('btnDownload').addEventListener('click', async () => {
+      if (!requireFields()) { document.getElementById('statusMsg').textContent = 'Please complete all required fields, agree to terms, and sign.'; return; }
+      const doc = await buildPdf();
+      const name = document.getElementById('clientName').value || 'Client';
+      const date = document.getElementById('signDate').value.replaceAll('-','');
+      doc.save(`VoIPShop_Service_Agreement_${name.replace(/\s+/g,'_')}_${date}.pdf`);
+      document.getElementById('statusMsg').textContent = 'PDF downloaded.';
+    });
+
+    // Send (placeholder: POST to your backend)
+    document.getElementById('btnSend').addEventListener('click', async () => {
+      if (!requireFields()) { document.getElementById('statusMsg').textContent = 'Please complete all required fields, agree to terms, and sign.'; return; }
+      const doc = await buildPdf();
+      const pdfBlob = doc.output('blob');
+      const form = new FormData();
+      form.append('pdf', pdfBlob, 'service-agreement.pdf');
+      form.append('clientName', document.getElementById('clientName').value);
+      form.append('clientEmail', document.getElementById('clientEmail').value);
+      form.append('clientMobile', document.getElementById('clientMobile').value);
+
+      document.getElementById('statusMsg').textContent = 'Sending…';
+
+      try {
+        // TODO: replace with your API endpoint; ensure HTTPS
+        const res = await fetch('/api/agreements', { method: 'POST', body: form });
+        if (!res.ok) throw new Error('Failed');
+        document.getElementById('statusMsg').textContent = 'Sent! We will email you a copy shortly.';
+      } catch (e) {
+        document.getElementById('statusMsg').textContent = 'Could not send automatically. Please email the downloaded PDF to admin@darkwire.co.za';
+      }
+    });
+  </script>
+</body>
+</html>

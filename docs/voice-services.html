@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Voice-Only Services (BYO Hardware) | VoIP Shop</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Already have phones? Keep your hardware and switch to VoIP Shop. Simple month-to-month voice service, clear support, and easy porting.">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --blue:#0071E3;           /* Apple blue */
+      --border:#e6e6eb;
+      --card-r:18px;
+      --vb3-blue:#0a84ff; --vb3-blue-2:#66a6ff; --vb3-text:#111; --vb3-muted:#515154; --vb3-border:#e5e5ea; --vb3-bg:#fff;
+    }
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+      background:#f5f5f7; color:#111;
+    }
+
+    /* Smooth anchors but respect reduced motion */
+    @media (prefers-reduced-motion:no-preference){
+      html { scroll-behavior:smooth; }
+    }
+    /* Clear anchor jumps below any fixed UI */
+    section[id]{ scroll-margin-top: clamp(56px, 10vh, 100px); }
+
+    /* Cards (unified look) */
+    .card { background:#fff; border:1px solid var(--border); border-radius:var(--card-r); box-shadow:0 2px 10px rgba(0,0,0,.05); }
+    .card-hover { transition:transform .2s ease, box-shadow .2s ease; }
+    .card-hover:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
+
+    /* Buttons */
+    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.75rem 1rem; border-radius:12px; }
+    .btn-primary { background:#111; color:#fff; }
+    .btn-blue { background:var(--blue); color:#fff; }
+    .btn-blue:hover { background:#0066CC; }
+    .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
+
+    /* Kicker, pills, chips */
+    .kicker { letter-spacing:.08em; text-transform:uppercase; font-size:.8rem; color:#6b7280; }
+    .pill { border-radius:999px; background:#f8f8fb; border:1px solid var(--border); }
+    .chip { padding:.35rem .6rem; border-radius:999px; font-size:.8rem; color:#374151; background:#fff; border:1px solid var(--border); }
+
+    /* Segmented tabs */
+    .tab-btn { position: relative; z-index: 1; color:#374151; }
+    [role="tab"][aria-selected="true"] { color:#fff; }
+    #segmented { --fade: 24px; }
+    #segmented .segmented-fade { position:absolute; top:0; width:var(--fade); height:100%; pointer-events:none; opacity:0; transition:opacity .18s ease; }
+    #segmented .segmented-fade.left  { left:0;  background:linear-gradient(to right, rgba(243,244,246,1), rgba(243,244,246,0)); }
+    #segmented .segmented-fade.right { right:0; background:linear-gradient(to left,  rgba(243,244,246,1), rgba(243,244,246,0)); }
+    #seg-pill{ box-shadow:0 6px 16px rgba(0,113,227,.25); }
+    .seg-dots .dot { width:10px; height:10px; border-radius:9999px; background:#d1d5db; transition:all .2s ease; border:0; }
+    .seg-dots .dot.is-active { background:var(--blue); width:18px; border-radius:8px; }
+
+    /* Reveal (kept always visible) */
+    .reveal, .reveal.is-visible { opacity: 1; transform: none; transition: none; }
+
+    /* Stepper */
+    .stepper { display:inline-flex; border:1px solid var(--border); border-radius:12px; background:#fff; }
+    .stepper input{ width:68px; text-align:center; padding:.5rem .25rem; border:0; outline:0; }
+    .stepper button{ width:44px; border:0; background:#f3f4f6; border-left:1px solid var(--border); font-weight:700; font-size:1.05rem; }
+    .stepper button:first-child{ border-left:0; border-right:1px solid var(--border); border-radius:12px 0 0 12px; }
+    .stepper button:last-child{ border-radius:0 12px 12px 0; }
+    .stepper button:active{ background:#e5e7eb; }
+    .stepper button:focus-visible{ outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
+
+    /* VoIP basics shell */
+    #voip-basics{color:var(--vb3-text)}
+    .vb3-card{
+      position:relative; border-radius:16px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,.06);
+      background:linear-gradient(var(--vb3-bg),var(--vb3-bg)) padding-box, linear-gradient(135deg,var(--vb3-blue),var(--vb3-blue-2)) border-box;
+      border:1px solid transparent;
+    }
+
+    /* Blue ring */
+    .next-step-ring{
+      border-color: rgba(0,113,227,.48) !important;
+      box-shadow:
+        0 0 0 2px rgba(0,113,227,.45),
+        0 10px 28px rgba(0,113,227,.22) !important;
+    }
+
+    /* Perf: paint large sections on demand & reserve size to avoid CLS */
+    .hero, #details, #config { content-visibility: auto; contain-intrinsic-size: 800px 1200px; }
+
+    /* Mobile spacing tweaks */
+    @media (max-width: 640px){
+      .btn{ min-height:44px; padding:.75rem 1.125rem; }
+    }
+    @media (prefers-reduced-motion:reduce){
+      *{ transition:none !important; animation:none !important; }
+    }
+  </style>
+</head>
+<body class="antialiased">
+  <!-- Skip to content -->
+  <a href="#details" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-black text-white rounded px-3 py-2">Skip to content</a>
+
+  <!-- Navbar (injected) -->
+  <div id="nav-slot"></div>
+  <script src="./scripts/site.js" defer></script>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="max-w-screen-xl mx-auto px-6 lg:px-16 py-14 sm:py-16">
+      <div class="max-w-3xl mx-auto text-center reveal">
+        <p class="kicker">Voice-only services</p>
+        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Keep your hardware. Upgrade the service.</h1>
+        <p class="mt-4 text-gray-600 text-lg">35c/min local · 55c/min mobile · International varies</p>
+
+        <div class="mt-6 flex items-center justify-center gap-3 flex-wrap">
+          <span class="chip">Porting handled for you</span>
+          <span class="chip">Any SIP device supported</span>
+          <span class="chip">WhatsApp-first support</span>
+        </div>
+
+        <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
+          <a href="#config" class="btn btn-blue font-semibold tracking-tight shadow-sm">Configure now</a>
+          <a href="#details" class="btn btn-primary font-semibold tracking-tight">See details</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- FEATURE STRIPE -->
+<section class="max-w-screen-xl mx-auto px-6 lg:px-16 mt-6 mb-12 relative z-10">
+  <div class="grid gap-6 md:grid-cols-3">
+    
+    <!-- What you get -->
+    <div class="card card-hover p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="rounded-xl bg-[#F59E0B]/10 p-3">
+          <!-- Gift Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#F59E0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8M4 8h16M12 22V8m0-6a3 3 0 1 1 0 6m0-6a3 3 0 1 0 0 6" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900">What you get</h3>
+      </div>
+      <p class="text-gray-700">Hosted PBX platform, number porting, and WhatsApp-first support.</p>
+    </div>
+
+    <!-- How it works -->
+    <div class="card card-hover p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="rounded-xl bg-[#0E5B52]/10 p-3">
+          <!-- Cog Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#0E5B52]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317L9.6 2.1a1 1 0 0 1 .76-1.276l2.64-.528a1 1 0 0 1 1.175.808l.725 2.217a8.003 8.003 0 0 1 3.612 1.857l2.05-1.192a1 1 0 0 1 1.366.366l1.32 2.292a1 1 0 0 1-.366 1.366l-2.05 1.192c.113.582.174 1.18.174 1.785s-.061 1.203-.174 1.785l2.05 1.192a1 1 0 0 1 .366 1.366l-1.32 2.292a1 1 0 0 1-1.366.366l-2.05-1.192a8.003 8.003 0 0 1-3.612 1.857l-.725 2.217a1 1 0 0 1-1.175.808l-2.64-.528a1 1 0 0 1-.76-1.276l.725-2.217A8.003 8.003 0 0 1 6.713 17.9l-2.05 1.192a1 1 0 0 1-1.366-.366l-1.32-2.292a1 1 0 0 1 .366-1.366l2.05-1.192A8.003 8.003 0 0 1 10.325 4.317z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900">How it works</h3>
+      </div>
+      <p class="text-gray-700">Keep your SIP phones. We connect them to our cloud and move your numbers—no new hardware needed.</p>
+    </div>
+
+    <!-- When to use -->
+    <div class="card card-hover p-6">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="rounded-xl bg-[#D97706]/10 p-3">
+          <!-- Clock Icon -->
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#D97706]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0z" />
+          </svg>
+        </div>
+        <h3 class="font-semibold text-gray-900">When to use</h3>
+      </div>
+      <p class="text-gray-700">Ideal if you already own phones or want to switch provider without a full replacement.</p>
+    </div>
+
+  </div>
+</section>
+
+  <!-- DETAILS BAND -->
+  <section id="details" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-14">
+    <div class="grid gap-6 lg:grid-cols-3">
+      <!-- LEFT: Tabs -->
+      <div class="card p-6 lg:col-span-2 reveal">
+        <!-- Segmented control -->
+        <div class="mb-4" id="service-tabs">
+          <div id="segmented" class="relative rounded-2xl bg-gray-100 p-1 overflow-x-auto" role="tablist" aria-label="Service summary tabs" tabindex="0">
+            <span class="segmented-fade left"></span>
+            <span class="segmented-fade right"></span>
+            <div class="seg-inner relative flex gap-1 min-w-max pr-2">
+              <span id="seg-pill" class="absolute rounded-xl bg-[var(--blue)] transition-all duration-200 ease-out" style="top:4px;height:calc(100% - 8px);"></span>
+
+              <button id="tab-overview" type="button" role="tab" aria-selected="true"  aria-controls="panel-overview" data-tab="overview" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Overview</button>
+              <button id="tab-support"  type="button" role="tab" aria-selected="false" aria-controls="panel-support"  data-tab="support"  class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Support & SLA</button>
+              <button id="tab-fees"     type="button" role="tab" aria-selected="false" aria-controls="panel-fees"     data-tab="fees"     class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Fees & Billing</button>
+              <button id="tab-pbx"      type="button" role="tab" aria-selected="false" aria-controls="panel-pbx"      data-tab="pbx"      class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Cloud PBX Features</button>
+              <button id="tab-compat"   type="button" role="tab" aria-selected="false" aria-controls="panel-compat"   data-tab="compat"   class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Compatibility</button>
+              <button id="tab-legal"    type="button" role="tab" aria-selected="false" aria-controls="panel-legal"    data-tab="legal"    class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Legal</button>
+            </div>
+          </div>
+
+          <div class="seg-dots mt-2 mb-4 flex justify-center gap-1.5">
+            <button type="button" data-tab="overview" class="dot is-active" aria-label="Overview"></button>
+            <button type="button" data-tab="support"  class="dot" aria-label="Support & SLA"></button>
+            <button type="button" data-tab="fees"     class="dot" aria-label="Fees & Billing"></button>
+            <button type="button" data-tab="pbx"      class="dot" aria-label="Cloud PBX Features"></button>
+            <button type="button" data-tab="compat"   class="dot" aria-label="Compatibility"></button>
+            <button type="button" data-tab="legal"    class="dot" aria-label="Legal"></button>
+          </div>
+        </div>
+
+        <!-- PANELS -->
+        <div class="text-sm leading-6 text-gray-800">
+          <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">What you get</h4><p>Hosted PBX platform, number porting, and WhatsApp-first support.</p></div>
+              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">How it works</h4><p>Keep your SIP phones. We connect them to our cloud, move your numbers, and you keep calling like normal.</p></div>
+              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">When to use</h4><p>Perfect if you already own phones or want to switch provider without buying new hardware.</p></div>
+            </div>
+          </div>
+
+          <div id="panel-support" role="tabpanel" aria-labelledby="tab-support" tabindex="0" class="hidden">
+            <div class="card p-4">
+              <div class="flex flex-wrap items-center gap-3 text-gray-700">
+                <span class="pill px-3 py-1 text-xs">Hours: 08:00–17:00 SAST (Mon–Fri)</span>
+                <span class="pill px-3 py-1 text-xs">Channel: WhatsApp service desk</span>
+                <span class="pill px-3 py-1 text-xs">Onsite by appointment</span>
+              </div>
+              <div class="mt-4 overflow-hidden rounded-xl border border-gray-200">
+                <table class="w-full text-sm">
+                  <tbody>
+                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Critical</td><td class="px-4 py-3">Service down / major outage</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 30 min</td></tr>
+                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">High</td><td class="px-4 py-3">Multiple users impacted</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 2 hrs</td></tr>
+                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Normal</td><td class="px-4 py-3">Single user / request</td><td class="px-4 py-3 text-right font-semibold">Next business day</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="mt-3 text-gray-600">Onsite work billed separately. Remote work is unlimited within hours.</p>
+            </div>
+          </div>
+
+          <div id="panel-fees" role="tabpanel" aria-labelledby="tab-fees" tabindex="0" class="hidden">
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="card p-4">
+                <h4 class="font-semibold text-gray-900 mb-1">Monthly</h4>
+                <ul class="space-y-1">
+                  <li>• Platform: <strong>R 150</strong> / month</li>
+                  <li>• Extensions: <strong>R 65</strong> / extension / month</li>
+                  <li class="text-gray-600">Calls billed per published rates.</li>
+                </ul>
+              </div>
+              <div class="card p-4">
+                <h4 class="font-semibold text-gray-900 mb-1">Once-off</h4>
+                <ul class="space-y-1">
+                  <li>• Installation: <strong>Free</strong></li>
+                  <li>• Onsite call-out (JHB): <strong>R 450</strong></li>
+                  <li class="text-gray-600">Other regions quoted on request.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div id="panel-pbx" role="tabpanel" aria-labelledby="tab-pbx" tabindex="0" class="hidden">
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Core</h4><ul class="text-sm text-gray-700 space-y-1"><li>• IVR / Auto-attendant</li><li>• Ring groups & hunt lists</li><li>• Voicemail (to email)</li><li>• Call transfer, park, pickup</li></ul></div>
+              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Queues & routing</h4><ul class="text-sm text-gray-700 space-y-1"><li>• Queues with music on hold</li><li>• Time-based routing</li><li>• Caller ID / block lists</li><li>• Failover to mobile</li></ul></div>
+              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Apps & recording</h4><ul class="text-sm text-gray-700 space-y-1"><li>• Softphone & mobile apps</li><li>• Web admin portal</li><li>• Call recording*</li><li>• Basic analytics & reports</li></ul><p class="mt-2 text-xs text-gray-400">* Subject to storage policy & compliance.</p></div>
+            </div>
+          </div>
+
+          <div id="panel-compat" role="tabpanel" aria-labelledby="tab-compat" tabindex="0" class="hidden">
+            <div class="card p-4">
+              <h4 class="font-semibold text-gray-900 mb-1">Devices we support</h4>
+              <p>Any SIP-capable desk or cordless phone (e.g., Yealink, Grandstream, Fanvil). Analogue phones require an ATA.</p>
+              <p class="mt-2 text-gray-600">Need help? We can remotely configure most supported models.</p>
+            </div>
+          </div>
+
+          <div id="panel-legal" role="tabpanel" aria-labelledby="tab-legal" tabindex="0" class="hidden">
+            <div class="card p-4">
+              <h4 class="font-semibold text-gray-900 mb-1">Service Agreement</h4>
+              <p class="text-gray-700">Warranty applies to hardware supplied by us (3 years). BYO hardware is best-effort support.</p>
+              <a href="service-agreement.html" class="inline-flex mt-3 items-center gap-2 rounded-lg bg-[var(--blue)] px-4 py-2 text-white text-sm font-semibold hover:bg-[#0066CC]">
+                View full Service Agreement & SLA
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Quick Summary -->
+      <aside class="card p-6 reveal">
+        <p class="kicker">At a glance</p>
+        <h3 class="text-xl font-semibold tracking-tight">Simple service. Clear support.</h3>
+
+        <ul class="mt-4 space-y-2 text-sm text-gray-700">
+          <li class="pill px-3 py-1 inline-flex">Unlimited remote support</li>
+          <li class="pill px-3 py-1 inline-flex mt-1">R450 onsite call-out (JHB)</li>
+          <li class="pill px-3 py-1 inline-flex mt-1">Porting handled for you</li>
+          <li class="pill px-3 py-1 inline-flex mt-1">Any SIP device supported</li>
+          <li class="pill px-3 py-1 inline-flex mt-1">Local: 35c/min • Mobile: 55c/min</li>
+        </ul>
+
+        <div class="mt-6 space-y-2 text-sm">
+          <div class="flex items-center justify-between"><span>Platform (monthly)</span><strong>R 150</strong></div>
+          <div class="flex items-center justify-between"><span>Per extension (monthly)</span><strong>R 65</strong></div>
+          <div class="flex items-center justify-between"><span>Installation</span><strong>Free</strong></div>
+        </div>
+
+        <a href="#config" class="mt-6 btn btn-blue w-full font-semibold tracking-tight">Start configuration</a>
+      </aside>
+    </div>
+  </section>
+
+  <!-- CONFIGURATOR -->
+  <section id="config" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-16">
+    <div class="card p-8 sm:p-10 text-center reveal">
+      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
+      <h2 class="mt-2 text-2xl font-semibold tracking-tight">Configure your voice service</h2>
+      <p class="mt-3 text-gray-600">Enter your number of extensions. Totals update automatically. You can proceed straight to porting.</p>
+
+      <!-- Pills -->
+      <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
+        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
+          Phone Setup Included
+        </div>
+        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
+          Support Included
+        </div>
+        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
+          Calls Excluded
+        </div>
+      </div>
+
+      <!-- Stepper -->
+      <div class="mt-6 flex flex-col items-center">
+        <div class="inline-flex items-center gap-2">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Extensions</span>
+          <div class="stepper" role="group" aria-label="Choose number of extensions">
+            <button type="button" id="ext-dec" aria-label="Decrease">–</button>
+            <input id="vs-ext" type="text" inputmode="numeric" pattern="[0-9]*"
+                  oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="3" aria-live="polite" />
+            <button type="button" id="ext-inc" aria-label="Increase">+</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Totals -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <div class="inline-flex items-baseline gap-2 pill px-4 py-3">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500">once-off</span>
+          <span id="vs-total-onceoff" class="text-xl font-semibold text-gray-900">R 0</span>
+        </div>
+        <div class="inline-flex items-baseline gap-2 pill px-4 py-3">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500">monthly</span>
+          <span id="vs-total-monthly" class="text-xl font-semibold text-gray-900">R 0</span>
+        </div>
+      </div>
+
+      <!-- CTAs -->
+      <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
+        <a id="vs-porting-btn" href="porting.html"
+          class="inline-flex items-center gap-3 rounded-xl bg-[var(--blue)] px-6 py-3 text-white font-semibold tracking-tight shadow-sm transition-colors duration-200 hover:bg-[#0066CC] focus:outline-none focus:ring-2 focus:ring-[var(--blue)]/30">
+          <span>Proceed to Porting</span>
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <a href="build-solution.html" target="_blank" class="btn btn-primary">Add Hardware</a>
+      </div>
+
+      <p class="mt-3 text-xs text-gray-500">We’ll carry your selections into porting.</p>
+    </div>
+  </section>
+
+  <footer class="text-center text-xs text-gray-500 py-8">
+    <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>
+  </footer>
+
+  <!-- BYO Calculator (no remote provisioning; installation is free) -->
+  <script>
+  (function(){
+    // Pricing
+    const BASE_FEE_MONTHLY = 150;   // PBX platform (monthly)
+    const PER_EXT_MONTHLY  = 65;    // per extension (monthly)
+    const ONCE_OFF_FREE    = 0;     // installation free
+
+    // Elements
+    const extInput  = document.getElementById('vs-ext');
+    const decBtn    = document.getElementById('ext-dec');
+    const incBtn    = document.getElementById('ext-inc');
+    const onceOffEl = document.getElementById('vs-total-onceoff');
+    const monthlyEl = document.getElementById('vs-total-monthly');
+    const portBtn   = document.getElementById('vs-porting-btn');
+
+    // Format "R 1,234"
+    const R = (num) => 'R ' + Number(num || 0).toLocaleString('en-ZA');
+
+    function clampExt(n){
+      const x = parseInt(n, 10);
+      return isFinite(x) && x > 0 ? x : 1;
+    }
+
+    function startFreshOrder(){
+      try {
+        localStorage.removeItem('voip:selectedPackage');
+        localStorage.removeItem('voip:customBuild');
+        localStorage.removeItem('voip:virtualNumber');
+      } catch {}
+    }
+
+    function persistForNextSteps(ext, monthly, onceoff){
+      // wipe stale items first
+      startFreshOrder();
+
+      // Save a “selected package” with explicit extension count and a voice-only flag
+      const payload = {
+        label: `Voice-only (BYO) — ${ext} extension${ext>1?'s':''}`,
+        name:  'Voice-only (BYO)',
+        monthly: monthly,   // informational
+        onceOff: onceoff,   // informational (will be 0)
+        extensions: ext,    // for checkout's countExtensions()
+        isVoiceOnly: true,  // tells checkout about voice-only
+        tags: ['voice-only'],
+        devices: [],        // BYO = no hardware items
+        minutesIncluded: null,
+        meta: { mode:'byoh' }
+      };
+      try { localStorage.setItem('voip:selectedPackage', JSON.stringify(payload)); } catch {}
+
+      // No remote provisioning/custom once-off lines anymore
+      try { localStorage.setItem('voip:customBuild', JSON.stringify([])); } catch {}
+    }
+
+    function updatePortingLink(ext, monthly, onceoff){
+      const params = new URLSearchParams({
+        mode: 'byoh',
+        ext: String(ext),
+        monthly: String(monthly),
+        onceoff: String(onceoff)
+      });
+      if (portBtn) portBtn.href = 'porting.html?' + params.toString();
+    }
+
+    function recalc(){
+      const ext = clampExt(extInput.value);
+      const monthly = BASE_FEE_MONTHLY + (PER_EXT_MONTHLY * ext);
+      const onceoff = ONCE_OFF_FREE;
+
+      if (monthlyEl) monthlyEl.textContent = R(monthly);
+      if (onceOffEl) onceOffEl.textContent = R(onceoff);
+
+      persistForNextSteps(ext, monthly, onceoff);
+      updatePortingLink(ext, monthly, onceoff);
+    }
+
+    // Stepper wiring
+    decBtn?.addEventListener('click', ()=>{
+      extInput.value = Math.max(1, clampExt(extInput.value) - 1);
+      recalc();
+      extInput.focus();
+    });
+    incBtn?.addEventListener('click', ()=>{
+      extInput.value = clampExt(extInput.value) + 1;
+      recalc();
+      extInput.focus();
+    });
+    extInput?.addEventListener('input', recalc);
+
+    // Initial paint
+    recalc();
+
+    // Footer year
+    try { document.getElementById('y').textContent = new Date().getFullYear(); } catch {}
+  })();
+  </script>
+
+  <!-- Segmented tabs logic (mobile-friendly + a11y) -->
+  <script>
+(function(){
+  // ------- Elements -------
+  const segmented   = document.getElementById('segmented');
+  if (!segmented) return;
+
+  const segInner    = segmented.querySelector('.seg-inner');
+  const pill        = document.getElementById('seg-pill');
+  const tabBtns     = Array.from(segmented.querySelectorAll('.tab-btn[role="tab"]'));
+  const dots        = Array.from(document.querySelectorAll('.seg-dots .dot'));
+
+  const panels = {
+    overview: document.getElementById('panel-overview'),
+    support : document.getElementById('panel-support'),
+    fees    : document.getElementById('panel-fees'),
+    pbx     : document.getElementById('panel-pbx'),
+    compat  : document.getElementById('panel-compat'),
+    legal   : document.getElementById('panel-legal')
+  };
+
+  // ------- Helpers -------
+  function showPanel(key){
+    Object.entries(panels).forEach(([k, el])=>{
+      if (!el) return;
+      const isActive = (k === key);
+      el.classList.toggle('hidden', !isActive);
+      el.setAttribute('tabindex', isActive ? '0' : '-1');
+    });
+  }
+
+  // Move the blue pill under the active tab
+  function movePillTo(tab){
+    if (!pill || !tab || !segInner) return;
+    const tabRect = tab.getBoundingClientRect();
+    const innerRect = segInner.getBoundingClientRect();
+    const left = (tabRect.left - innerRect.left) + segInner.scrollLeft; // account for horizontal scroll
+    pill.style.transform = `translateX(${left}px)`;
+    pill.style.width = `${tabRect.width}px`;
+  }
+
+  function setActive(tabKey){
+    // tabs
+    tabBtns.forEach(btn=>{
+      const isActive = btn.dataset.tab === tabKey;
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      if (isActive) movePillTo(btn);
+    });
+
+    // dots
+    dots.forEach(d=> d.classList.toggle('is-active', d.dataset.tab === tabKey));
+
+    // panels
+    showPanel(tabKey);
+
+    // ensure active tab is visible
+    const activeBtn = tabBtns.find(b => b.dataset.tab === tabKey);
+    if (activeBtn) activeBtn.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
+
+    // update hash (optional, non-destructive)
+    history.replaceState(null, '', `#${tabKey}`);
+  }
+
+  // Fades on scroll (the little gradient edges)
+  function updateFades(){
+    const leftFade  = segmented.querySelector('.segmented-fade.left');
+    const rightFade = segmented.querySelector('.segmented-fade.right');
+    if (!leftFade || !rightFade) return;
+    const max = segInner.scrollWidth - segInner.clientWidth;
+    const x = segInner.scrollLeft;
+    leftFade.style.opacity  = x > 2 ? '1' : '0';
+    rightFade.style.opacity = (max - x) > 2 ? '1' : '0';
+  }
+
+  // ------- Wire up clicks -------
+  tabBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      setActive(btn.dataset.tab);
+      btn.focus();
+    });
+  });
+  dots.forEach(dot=>{
+    dot.addEventListener('click', ()=>{
+      setActive(dot.dataset.tab);
+      const match = tabBtns.find(b=>b.dataset.tab===dot.dataset.tab);
+      match?.focus();
+    });
+  });
+
+  // ------- Keyboard nav (← →) -------
+  segmented.addEventListener('keydown', (e)=>{
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const idx = tabBtns.findIndex(b => b.getAttribute('aria-selected') === 'true');
+    if (idx < 0) return;
+    const next = e.key === 'ArrowRight'
+      ? Math.min(idx + 1, tabBtns.length - 1)
+      : Math.max(idx - 1, 0);
+    setActive(tabBtns[next].dataset.tab);
+    tabBtns[next].focus();
+  });
+
+  // ------- Keep pill aligned on resize/scroll -------
+  window.addEventListener('resize', ()=>{
+    const active = tabBtns.find(b => b.getAttribute('aria-selected') === 'true') || tabBtns[0];
+    movePillTo(active);
+    updateFades();
+  });
+  segInner.addEventListener('scroll', updateFades, { passive: true });
+
+  // ------- Initial state -------
+  const hashKey = (location.hash || '').replace('#','');
+  const initialKey = tabBtns.some(b => b.dataset.tab === hashKey) ? hashKey : 'overview';
+  requestAnimationFrame(()=>{
+    setActive(initialKey);
+    updateFades();
+  });
+})();
+</script>
+<!-- ✅ Floating WhatsApp Help Button (all devices, mobile-optimised) -->
+<a
+  href="https://wa.me/27683510074?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
+  target="_blank" rel="noopener"
+  aria-label="Chat to VoIP Shop on WhatsApp"
+  class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
+         px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
+         focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
+         right-4 bottom-4
+         md:right-5 md:bottom-5
+         [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
+         select-none"
+  style="backdrop-filter:saturate(140%)"
+>
+  <!-- Icon (SVG) -->
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+       class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
+    <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
+  </svg>
+
+  <span class="text-sm font-semibold">Need help?</span>
+</a>
+</body>
+</html>
