@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isWireless: true,
       tags: ["wireless"],
       name: "Wireless Combo",
-      imageBase: "Assets/wireless Combo", // keep as-is if your files include the space
+      imageBase: "Assets/Wireless Combo", // keep as-is if your files include the space
       devices: [
         { device: "Yealink T31W", number: 1 },
         { device: "Yealink AX83H", number: 1 }

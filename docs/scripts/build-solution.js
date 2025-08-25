@@ -63,7 +63,7 @@ const hardwareItems = {
   main: [
     { id:'yealink-t44u', category:'Switchboard', name:'Yealink T73U',
       description:'Entry reception phone • 1–5 users • 8 programmable transfer keys',
-      imageBase:'Assets/yealinkT73U', alt:'Yealink T73U phone',
+      imageBase:'Assets/YealinkT73U', alt:'Yealink T73U phone',
       basePrice:1995, basePriceEx:1995, isBaseStation:false,
       imgAdjust:{ h:230, scale:1.3, y:33, fit:'contain', origin:'center bottom' } },
 
@@ -93,7 +93,7 @@ const hardwareItems = {
 
     { id:'deskphone-placeholder-2', category:'Desk Phone', name:'Yealink T73U',
       description:'Executive desk phone • 10 programmable keys • colour screen',
-      imageBase:'Assets/yealinkT73U', alt:'Yealink T73U phone',
+      imageBase:'Assets/YealinkT73U', alt:'Yealink T73U phone',
       basePrice:1995, basePriceEx:1995, isBaseStation:false,
       imgAdjust:{ h:225, scale:1.3, y:33, fit:'contain', origin:'center bottom' } },
 
