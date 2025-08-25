@@ -1,64 +1,66 @@
 // ===============================
-// build-solution.js  (responsive images upgrade)
+// build-solution.js  (responsive images + LAZY LOADING)
 // ===============================
 
-// ---------- Responsive image helpers (same approach as packages.js) ----------
+// ---------- Responsive image helpers ----------
 const IMAGE_BREAKPOINTS = [480, 800, 1200];
 const IMAGE_SIZES_ATTR  = "(max-width: 600px) 480px, (max-width: 1024px) 800px, 1200px";
 
+// 1x1 transparent SVG (keeps layout stable before real image loads)
+const TRANSPARENT_PLACEHOLDER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='1'/%3E";
+
 /**
- * Build {src, srcset, sizes} from either:
- *  - imageBase: "Assets/yealinkT73U"  (preferred)  -> looks for *_480.webp, *_800.webp, *_1200.webp
- *  - image: "Assets/yealinkT73U.png"  (legacy)     -> uses this single file, no srcset
+ * Build {src, srcset, sizes, fallback} from either:
+ *  - imageBase: "Assets/Yealink T73U" -> looks for *_480.webp, *_800.webp, *_1200.webp
+ *  - image: "Assets/yealinkT73U.png"  -> uses this single file, no srcset
  * You can also pass an explicit { image: { src, srcset, sizes } } to fully override.
  */
 function buildImageSources(item) {
-  // Full override path (image object with src+srcset)
+  // Full override
   if (item.image && typeof item.image === "object" && item.image.src) {
     return {
       src: item.image.src,
       srcset: item.image.srcset || "",
-      sizes: item.image.sizes || IMAGE_SIZES_ATTR
+      sizes: item.image.sizes || IMAGE_SIZES_ATTR,
+      fallback: "" // unknown
     };
   }
 
   // Preferred: imageBase (no extension)
   if (item.imageBase) {
     const base = String(item.imageBase).replace(/\.(png|jpe?g|webp|avif)$/i, "");
-    const src = encodeURI(`${base}_800.webp`);
-    const srcset = IMAGE_BREAKPOINTS
-      .map(w => `${encodeURI(`${base}_${w}.webp`)} ${w}w`)
-      .join(", ");
-    return { src, srcset, sizes: IMAGE_SIZES_ATTR };
+    const enc  = (p) => encodeURI(p);
+    const src  = enc(`${base}_800.webp`);
+    const srcset = IMAGE_BREAKPOINTS.map(w => `${enc(`${base}_${w}.webp`)} ${w}w`).join(", ");
+    // Try a sensible PNG fallback path if a WebP ever fails
+    const fallback = enc(`${base}_800.png`);
+    return { src, srcset, sizes: IMAGE_SIZES_ATTR, fallback };
   }
 
-  // Legacy: single image path → no srcset
+  // Legacy single file path → no srcset
   if (item.image && typeof item.image === "string") {
-    return { src: encodeURI(item.image), srcset: "", sizes: IMAGE_SIZES_ATTR };
+    return { src: encodeURI(item.image), srcset: "", sizes: IMAGE_SIZES_ATTR, fallback: "" };
   }
 
-  return { src: "", srcset: "", sizes: IMAGE_SIZES_ATTR };
+  return { src: "", srcset: "", sizes: IMAGE_SIZES_ATTR, fallback: "" };
 }
 
 function imgStyle(adj = {}) {
-  const h = adj.h != null ? `height:${adj.h}px;` : "";
-  const fit = adj.fit ? `object-fit:${adj.fit};` : "object-fit:contain;";
-  const scale = adj.scale != null ? adj.scale : 1;
-  const y = adj.y != null ? adj.y : 0;
-  const x = adj.x != null ? adj.x : 0;
+  const h      = adj.h != null ? `height:${adj.h}px;` : "";
+  const fit    = adj.fit ? `object-fit:${adj.fit};` : "object-fit:contain;";
+  const scale  = adj.scale != null ? adj.scale : 1;
+  const y      = adj.y != null ? adj.y : 0;
+  const x      = adj.x != null ? adj.x : 0;
   const origin = adj.origin || "center bottom";
   const transform = (scale !== 1 || y !== 0 || x !== 0)
     ? `transform: translate(${x}px, ${y}px) scale(${scale}); transform-origin:${origin};`
     : `transform-origin:${origin};`;
-  // add max-width and display to avoid layout quirks
   return `${h} width:auto; max-width:100%; display:block; ${fit} ${transform}`;
 }
 
 
 // ---- Data ---------------------------------------------------------
-// Switch every item to use `imageBase` (no extension). If a name has spaces, keep them:
-// e.g. "Assets/Yealink T74u" → exports must be "Yealink T74u_480.webp", etc.
-// If you only have a single PNG for now, keep `image:"Assets/whatever.png"` and it will still render.
 const hardwareItems = {
   main: [
     { id:'yealink-t44u', category:'Switchboard', name:'Yealink T73U',
@@ -117,7 +119,7 @@ const hardwareItems = {
   ]
 };
 
-// ---- Globals (single source of truth) -----------------------------
+// ---- Globals ------------------------------------------------------
 window.selectedHardware = window.selectedHardware || {};
 const SH = window.selectedHardware;
 
@@ -127,8 +129,8 @@ function money(v){ return 'R ' + Math.round(n(v)).toLocaleString('en-ZA'); }
 function slug(s){ return String(s||'').toLowerCase().replace(/\s+/g,'-').replace(/[^\w\-]+/g,''); }
 function isBaseStationLike(s=''){ return /w70b|base\s*station|dect\s*base/i.test(String(s)); }
 
-// ---- Cards --------------------------------------------------------
-function cardHTML(item){
+// ---- Card template ------------------------------------------------
+function cardHTML(item, idx = 0){
   const isBS = !!item.isBaseStation || isBaseStationLike(item.id) || isBaseStationLike(item.name);
   const a = item.imgAdjust || {};
   const wrapperH = (a.h ?? 200) + 'px';
@@ -137,6 +139,9 @@ function cardHTML(item){
 
   const img = buildImageSources(item);
   const style = imgStyle(a);
+
+  // make first couple of images eager/high priority for faster LCP
+  const eager = idx < 2;
 
   return `
   <div class="hardware-card voip-card"
@@ -153,11 +158,15 @@ function cardHTML(item){
     <div class="card-image-wrapper" style="height:${wrapperH};display:flex;align-items:center;justify-content:center;overflow:hidden;">
       <img
         class="hardware-img img-${slug(item.id || item.name)}"
-        src="${img.src}"
-        ${img.srcset ? `srcset="${img.srcset}"` : ""}
-        sizes="${img.sizes}"
+        src="${eager ? img.src : TRANSPARENT_PLACEHOLDER}"
+        ${eager && img.srcset ? `srcset="${img.srcset}"` : ""}
+        ${eager ? `sizes="${img.sizes}" fetchpriority="high" loading="eager"` : `loading="lazy" fetchpriority="low"`}
+        ${!eager ? `data-src="${img.src}"` : ""}
+        ${!eager && img.srcset ? `data-srcset="${img.srcset}"` : ""}
+        ${!eager ? `data-sizes="${img.sizes}"` : ""}
+        ${img.fallback ? `data-fallback="${img.fallback}"` : ""}
         alt="${(item.alt || item.name || '').replace(/"/g,'&quot;')}"
-        loading="lazy" decoding="async"
+        decoding="async"
         style="${style}"
       />
     </div>
@@ -170,11 +179,11 @@ function cardHTML(item){
 
       <div class="hardware-qty-container">
         <button class="hardware-minus" onclick="updateHardware(event,false)" aria-label="Decrease">
-          <img src="Assets/plus 2.png" alt="Decrease">
+          <img src="Assets/minus.png" alt="Decrease">
         </button>
         <div class="hardware-qty" data-qty="0">0</div>
         <button class="hardware-add" onclick="updateHardware(event,true)" aria-label="Increase">
-          <img src="Assets/plus 1.png" alt="Increase">
+          <img src="Assets/Plus.png" alt="Increase">
         </button>
       </div>
     </div>
@@ -187,9 +196,9 @@ function renderCards(){
     'Desk Phone' : document.getElementById('deskphone-container'),
     'Cordless'   : document.getElementById('cordless-container'),
   };
-  hardwareItems.main.forEach(item=>{
+  hardwareItems.main.forEach((item, idx)=>{
     const c = containers[item.category];
-    if (c) c.insertAdjacentHTML('beforeend', cardHTML(item));
+    if (c) c.insertAdjacentHTML('beforeend', cardHTML(item, idx));
   });
 }
 
@@ -353,16 +362,71 @@ window.updateHardware = function updateHardware(e, inc){
   setRing(card, q > 0);
 };
 
+// ---- LAZY LOADER --------------------------------------------------
+// Uses IntersectionObserver to swap data-src/srcset into real src/srcset
+function installLazyLoader(){
+  const supportsIO = "IntersectionObserver" in window;
+  const imgs = Array.from(document.querySelectorAll('img.hardware-img'));
+
+  if (!supportsIO) {
+    // Fallback: load all immediately
+    imgs.forEach(loadImgNow);
+    return;
+  }
+
+  const io = new IntersectionObserver((entries, obs) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      const img = entry.target;
+      loadImgNow(img);
+      obs.unobserve(img);
+    }
+  }, { root: null, rootMargin: "200px 0px", threshold: 0.01 });
+
+  imgs.forEach(img => {
+    // First two may be eager/high already; only observe lazies
+    if (!img.dataset.src && !img.dataset.srcset) return;
+    io.observe(img);
+  });
+}
+
+function loadImgNow(img){
+  const dataSrc    = img.getAttribute('data-src');
+  const dataSrcset = img.getAttribute('data-srcset');
+  const dataSizes  = img.getAttribute('data-sizes');
+  const fallback   = img.getAttribute('data-fallback');
+
+  if (dataSrc)    img.src = dataSrc;
+  if (dataSrcset) img.srcset = dataSrcset;
+  if (dataSizes)  img.sizes = dataSizes;
+
+  // Try decoding for smoother reveal; ignore errors
+  if (img.decode) { img.decode().catch(()=>{}); }
+
+  // If a WebP ever fails, try PNG fallback (best-effort)
+  if (fallback) {
+    img.onerror = () => {
+      img.onerror = null;
+      img.srcset = "";
+      img.src = fallback;
+    };
+  }
+}
+
 // ---- Boot ---------------------------------------------------------
 document.addEventListener('DOMContentLoaded', () => {
   renderCards();
   recalcTotals();
   ensureBumpStyles();
 
+  // Apply selected ring state for any prefilled qty
   document.querySelectorAll('.hardware-card').forEach(card => {
     const q = qtyFrom(card);
     setRing(card, q > 0);
   });
+
+  // Install lazy loader after cards are in the DOM
+  installLazyLoader();
 });
 
 // ---- Stable left-rail scroll-spy ---------------------------------
@@ -450,21 +514,18 @@ document.addEventListener('DOMContentLoaded', () => {
   computeActive();
 });
 
-// ---- Write unified totals to localStorage + notify any listeners ----
+// ---- Unified totals persistence -----------------------------------
 function saveSolutionTotals({ monthly, onceOff }) {
   const toNum = (v) => Number(String(v).replace(/[^\d.-]/g, '')) || 0;
 
-  const payload = {
-    monthly: toNum(monthly),
-    onceOff: toNum(onceOff)
-  };
+  const payload = { monthly: toNum(monthly), onceOff: toNum(onceOff) };
 
   try { localStorage.setItem('voip:solutionTotals', JSON.stringify(payload)); } catch {}
 
   try { window.dispatchEvent(new Event('voip:totals')); } catch {}
 }
 
-// ---- Build → Checkout: snapshot & persist custom build ------------
+// ---- Build → Checkout snapshot -----------------------------------
 function snapshotCustomBuildFromDOM() {
   const items = [];
 
@@ -475,12 +536,12 @@ function snapshotCustomBuildFromDOM() {
     const qty   = Number(qtyEl?.dataset?.qty || qtyEl?.textContent || 0) || 0;
     if (!id || !name || qty <= 0) return;
 
-    // Use the image src shown in the card (already responsive/final)
-    const img   = card.querySelector('img.hardware-img')?.getAttribute('src') || '';
+    const img   = card.querySelector('img.hardware-img');
+    const src   = img?.currentSrc || img?.getAttribute('src') || '';
     const unit  = Number(card.querySelector('.price-value')?.dataset?.basePriceEx) || 0; // EX VAT
     const isBS  = card.hasAttribute('data-base-station') || isBaseStationLike(id) || isBaseStationLike(name);
 
-    items.push({ id, name, qty, unitOnceOff: unit, image: img, isBaseStation: !!isBS });
+    items.push({ id, name, qty, unitOnceOff: unit, image: src, isBaseStation: !!isBS });
   });
 
   return items;
@@ -507,3 +568,5 @@ window.addEventListener('beforeunload', () => {
     saveSolutionTotals({ monthly: exts > 0 ? BASE_MONTHLY + PER_EXT*exts : 0, onceOff });
   } catch {}
 });
+
+
