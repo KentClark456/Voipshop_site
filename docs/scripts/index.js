@@ -528,17 +528,54 @@ document.addEventListener("DOMContentLoaded", () => {
       if (onceoffEl) onceoffEl.textContent = fmtR(o);
       if (periodEl)  periodEl.textContent  = '/mo.';
 
-      const payload = { label, name: label, monthly: m, onceOff: o, devices, minutesIncluded };
-      window.__selectedPackage = payload;
+   // NEW: include image info for checkout
+let imageBase = null, imgAdjust = null, image = null;
 
-      try { localStorage.setItem('voip:selectedPackage', JSON.stringify(payload)); }
-      catch (e) { console.warn('localStorage failed:', e); }
+try {
+  // If caller passed the actual package object, grab its image data
+  if (arg1 && typeof arg1 === 'object' && (arg1.name || arg1.label) && (arg1.imageBase || arg1.image || arg1.imgAdjust)) {
+    imageBase = arg1.imageBase || null;
+    imgAdjust = arg1.imgAdjust || null;
+    image = (typeof buildImageSources === 'function') ? buildImageSources(arg1) : null;
+  } else {
+    // Fallback: find the package by label in window.packages
+    const pkgMatch = (window.VoIPHome?.packages || window.packages || []).find(
+      p => (p.name || '').trim() === (label || '').trim()
+    );
+    if (pkgMatch) {
+      imageBase = pkgMatch.imageBase || null;
+      imgAdjust = pkgMatch.imgAdjust || null;
+      image = (typeof buildImageSources === 'function') ? buildImageSources(pkgMatch) : null;
+    }
+  }
+} catch (e) {
+  console.warn('Image payload build failed:', e);
+}
 
-      highlightInvokerCard(invokerEl, label);
-      setSummaryHighlight(true);
-      scrollToSummary();
+const payload = {
+  label,
+  name: label,
+  monthly: m,
+  onceOff: o,
+  devices,
+  minutesIncluded,
+  // NEW fields for checkout rendering:
+  imageBase,
+  imgAdjust,
+  image // { src, srcset, sizes }
+};
 
-      return false;
+window.__selectedPackage = payload;
+
+try { localStorage.setItem('voip:selectedPackage', JSON.stringify(payload)); }
+catch (e) { console.warn('localStorage failed:', e); }
+
+highlightInvokerCard(invokerEl, label);
+setSummaryHighlight(true);
+scrollToSummary();
+
+return false;
+
     };
 
     setSummaryHighlight(false);
