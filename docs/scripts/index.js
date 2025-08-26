@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: "Desk Duo",
       imageBase: "Assets/Deskduo",
       devices: [{ device: "Yealink T33G", number: 2 }],
-      onceOff: 2500,
+      onceOff: 2900,
       monthly: 430,
       minutesIncluded: 500,
       idealFor: "Two desk phones • Ideal for small offices",
@@ -88,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { device: "Yealink W73P", number: 1 },
         { device: "Yealink W73H", number: 1 }
       ],
-      onceOff: 3450,
+      onceOff: 3550,
       monthly: 430,
       minutesIncluded: 500,
       idealFor: "Two cordless phones • Flexible, mobile setup",
@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { device: "Yealink W73P", number: 1 },
         { device: "Yealink W73H", number: 1 }
       ],
-      onceOff: 4950,
+      onceOff: 5000,
       monthly: 495,
       minutesIncluded: 500,
       idealFor: "Desk + 2 cordless phones • Small teams",
@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { device: "Yealink W73P", number: 1 },
         { device: "Yealink W73H", number: 2 }
       ],
-      onceOff: 4750,
+      onceOff: 4850,
       monthly: 495,
       minutesIncluded: 500,
       idealFor: "Three cordless phones • Mobile team solution",

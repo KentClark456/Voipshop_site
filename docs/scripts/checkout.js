@@ -1,6 +1,20 @@
 // docs/scripts/checkout.js
 (function () {
   'use strict';
+    // ---- Single Source of Truth for Pricing ----
+  window.PRICE_CATALOG = {
+    "YEALINK_T31P": { name: "Yealink T31P", unit_price: 110000 },   // R1100.00
+    "YEALINK_T33G": { name: "Yealink T33G", unit_price: 145000 },   // R1450.00
+    "YEALINK_T73U": { name: "Yealink T73U", unit_price: 199500 },   // R1995.00
+    "YEALINK_T74U": { name: "Yealink T74U", unit_price: 299500 },   // R2995.00
+    "YEALINK_T77U": { name: "Yealink T77U", unit_price: 399500 },   // R3995.00
+    "YEALINK_W73P": { name: "Yealink W73P (Base + Handset)", unit_price: 225000 }, // R2250.00
+    "YEALINK_W73H": { name: "Yealink W73H (Extra Handset)", unit_price: 130000 },  // R1300.00
+    "YEALINK_W70B": { name: "Yealink W70B Base Station", unit_price: 93000 },      // R930.00
+    "YEALINK_W59R": { name: "Yealink W59R (Rugged Handset)", unit_price: 245000 }, // R2450.00
+    "YEALINK_T31W": { name: "Yealink T31W (Wi-Fi)", unit_price: 125000 },          // R1250.00
+    "YEALINK_AX83H": { name: "Yealink AX83H", unit_price: 220000 }                 // R2200.00
+  };
 
   // ---------- Image catalog (SKU or Name -> 480px WEBP path) ----------
   window.IMAGE_CATALOG = {
