@@ -598,18 +598,190 @@
     }
   })();
 
-  // ---------- Checkout completion ----------
-  document.getElementById('quick-checkout-form')?.addEventListener('submit', (e) => {
-    if (e.target.checkValidity ? e.target.checkValidity() : true) {
-      e.preventDefault();
-      window.location.href = 'post-checkout.html';
+// ---------- Checkout completion (REPLACEMENT: sends invoice+SLA+porting, then redirects) ----------
+(() => {
+  const API_BASE = 'https://voipshop-quote-api.vercel.app';
+  const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
+
+  // Minimal helpers (local to this block)
+  const $ = (sel) => document.querySelector(sel);
+  const text = (el) => (el?.textContent || '').trim();
+  const getVal = (sel) => ($(sel)?.value || '').trim();
+  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+  const parseZAR = (str) => {
+    let s = String(str||'')
+      .replace(/\u00A0/g,' ')
+      .replace(/\/mo.*$/i,'')
+      .replace(/[^\d.,-]/g,'');
+    const hasComma = s.includes(',');
+    const hasDot   = s.includes('.');
+    if (hasComma && hasDot) {
+      const lastComma = s.lastIndexOf(','), lastDot = s.lastIndexOf('.');
+      s = (lastDot > lastComma) ? s.replace(/,/g,'') : s.replace(/\./g,'').replace(',', '.');
+    } else if (hasComma && !hasDot) {
+      s = s.replace(/\./g,'').replace(',', '.');
     } else {
-      e.preventDefault();
-      e.target.reportValidity && e.target.reportValidity();
+      s = s.replace(/,/g,'');
+    }
+    const n = Number(s);
+    return Number.isFinite(n) ? n : 0;
+  };
+
+  // Try to read items from your tables (mirrors your Email Quote logic)
+  function collectItems(containerId){
+    const items = [];
+    const root = document.getElementById(containerId);
+    if (!root) return items;
+
+    root.querySelectorAll('[data-item]').forEach((row)=>{
+      const name  = row.getAttribute('data-name') || (row.querySelector('[data-cell="name"]')?.textContent ?? '').trim() || 'Item';
+      const qtyTxt= row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || (row.querySelector('[data-cell="qty"]')?.textContent ?? '').trim() || '1';
+      const qty   = num(qtyTxt);
+      const unitA = row.getAttribute('data-unit');
+      const totalA= row.getAttribute('data-total') || (row.querySelector('[data-cell="total"]')?.textContent ?? '');
+      const unit  = unitA != null ? num(unitA) : (parseZAR(totalA) / Math.max(qty,1));
+      items.push({ name, qty, unit: Math.max(0, unit) });
+    });
+
+    if (items.length === 0) {
+      root.querySelectorAll('.table-row').forEach((row)=>{
+        const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
+        const qtyCell   = row.querySelector('[data-cell="qty"]');
+        const totalCell = row.querySelector('[data-cell="total"], .amount');
+        const nameTxt   = (nameCell?.textContent || '').trim();
+        const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || (qtyCell?.textContent || '').match(/\d+/);
+        const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
+        const total     = parseZAR(totalCell?.textContent || '');
+        const unit      = total / Math.max(qty,1);
+        if (nameTxt || total) items.push({ name: nameTxt || 'Item', qty, unit: Math.max(0, unit) });
+      });
+    }
+    return items;
+  }
+
+  // Build payload for /api/complete-order
+  function buildCompleteOrderPayload() {
+    const customer = {
+      name:    getVal('input[name="businessName"]') || getVal('input[name="name"]'),
+      company: getVal('input[name="company"]'),
+      email:   getVal('input[name="email"]'),
+      phone:   getVal('input[name="phone"]'),
+      address: getVal('input[name="address"]')
+    };
+
+    // Items (from your DOM)
+    const itemsOnceOff = collectItems('onceoff-rows');
+    const itemsMonthly = collectItems('monthly-rows');
+
+    const onceOffSubtotalExVAT = parseZAR($('#subtotal-onceoff')?.textContent || '0');
+    const monthlySubtotalExVAT = parseZAR($('#subtotal-monthly')?.textContent || '0');
+
+    // SLA service counts (use your qty inputs if present; else infer defaults)
+    const monthlyControls = {
+      cloudPbxQty: num(getVal('#qty-cloud-pbx') || 1),
+      extensions:  num(getVal('#qty-extensions') || 3),
+      didQty:      num(getVal('#qty-did') || 1),
+      minutes:     num(getVal('#qty-minutes') || 250),
+    };
+
+    // Debit order (optional)
+    const debit = {
+      accountName:   getVal('#debit-account-name'),
+      bank:          getVal('#debit-bank'),
+      branchCode:    getVal('#debit-branch'),
+      accountNumber: getVal('#debit-account-number'),
+      accountType:   getVal('#debit-account-type'),
+      dayOfMonth:    num(getVal('#debit-day') || 28)
+    };
+
+    // Porting (optional)
+    const port = {
+      provider:        getVal('#port-provider'),
+      accountNumber:   getVal('#port-account'),
+      numbers:         (getVal('#port-numbers') || '')
+                        .split(',')
+                        .map(s => s.trim())
+                        .filter(Boolean),
+      serviceAddress:  getVal('#service-address'),
+      pbxLocation:     getVal('#pbx-location'),
+      contactNumber:   getVal('#port-contact') || customer.phone,
+      idNumber:        getVal('#id-number'),
+      authorisedName:  getVal('#auth-name'),
+      authorisedTitle: getVal('#auth-title')
+    };
+
+    return {
+      // optional ids; backend can generate if missing
+      orderNumber:   getVal('#order-number')   || undefined,
+      invoiceNumber: getVal('#invoice-number') || undefined,
+
+      customer,
+      onceOff: {
+        items: itemsOnceOff,
+        totals: { exVat: onceOffSubtotalExVAT }
+      },
+      monthly: {
+        items: itemsMonthly,
+        cloudPbxQty: monthlyControls.cloudPbxQty,
+        extensions:  monthlyControls.extensions,
+        didQty:      monthlyControls.didQty,
+        minutes:     monthlyControls.minutes,
+        totals: { exVat: monthlySubtotalExVAT }
+      },
+      debit,
+      port
+    };
+  }
+
+  // Submit handler
+  const form = document.getElementById('quick-checkout-form');
+  form?.addEventListener('submit', async (e) => {
+    const f = e.target;
+    const valid = (typeof f.checkValidity === 'function') ? f.checkValidity() : true;
+    e.preventDefault();
+
+    if (!valid) {
+      f.reportValidity && f.reportValidity();
+      return;
+    }
+
+    // Make sure we have an email
+    const email = getVal('input[name="email"]');
+    if (!email || !/.+@.+\..+/.test(email)) {
+      alert('Please enter a valid client email before completing the order.');
+      return;
+    }
+
+    // Disable the submit button while sending
+    const submitBtn = f.querySelector('[type="submit"]');
+    const origText = submitBtn ? submitBtn.textContent : '';
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+
+    try {
+      const payload = buildCompleteOrderPayload();
+
+      const res = await fetch(COMPLETE_ORDER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || `HTTP ${res.status}`);
+      }
+      // Success → redirect to your confirmation page
+      window.location.href = 'post-checkout.html';
+    } catch (err) {
+      console.error('[CompleteOrder] Error:', err);
+      alert('Failed to complete order: ' + (err?.message || err));
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
     }
   });
+})();   // closes the inner complete-order IIFE
 
-})(); // closes the IIFE
+})();   // closes the outer "(function () { 'use strict'; ... })()" IIFE
 
 // === Email Quote (PDFKit attach) — drop-in ===
 if (!window.__EMAIL_QUOTE_WIRED__) {
