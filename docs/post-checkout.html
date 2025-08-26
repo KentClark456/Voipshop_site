@@ -251,12 +251,23 @@
       }
     });
   </script>
-  <script>
+<script>
 (function hydrateOrderReceived() {
-  // 1) Read params passed in the redirect (from the checkout page)
-  const url   = new URL(window.location.href);
-  const email = url.searchParams.get('email') || 'you@example.com';
-  const order = url.searchParams.get('order') || 'VS-000000';
+  // 1) Try query params first, then sessionStorage, then fallback text
+  const url = new URL(window.location.href);
+  const qp = {
+    email: url.searchParams.get('email'),
+    order: url.searchParams.get('order'),
+    invoice: url.searchParams.get('invoice')
+  };
+
+  // Optional: read what checkout.js stored for us
+  let meta = null;
+  try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch { meta = null; }
+
+  const email = qp.email || meta?.email || 'you@example.com';
+  const order = qp.order || meta?.orderNumber || 'VS-000000';
+  const invoiceNumber = qp.invoice || meta?.invoiceNumber || '';
 
   // 2) Fill text on the page
   const emailEl = document.getElementById('customer-email');
@@ -264,16 +275,13 @@
   if (emailEl) emailEl.textContent = email;
   if (orderEl) orderEl.textContent = order;
 
-  // 3) Find buttons
-  const btnDownload = document.getElementById('btn-download-invoice');
-  const btnView     = document.getElementById('btn-view-invoice');
+  // 3) Buttons (ensure these IDs exist in your HTML)
+  const btnInvoiceDownload = document.getElementById('btn-download-invoice');  // e.g. “Download Invoice (PDF)”
+  const btnSlaDownload     = document.getElementById('btn-download-sla');      // e.g. “Download SLA”
+  const btnPortingDownload = document.getElementById('btn-download-porting');  // e.g. “Download Porting Document”
 
-  // 4) Get invoice URL (best case: set by checkout page when /api/send-invoice ran with alsoLink:true)
-  //    We also accept ?invoiceUrl=... as a query param fallback.
-  const urlFromParam = url.searchParams.get('invoiceUrl');
-  const invoiceUrl   = urlFromParam || sessionStorage.getItem('lastInvoiceUrl') || '';
-
-  function wireButtonAsLink(anchorEl, href) {
+  // 4) Helper to wire a button to open a PDF endpoint in a new tab
+  function linkToPdf(anchorEl, href) {
     if (!anchorEl) return;
     anchorEl.href = href;
     anchorEl.target = '_blank';
@@ -281,28 +289,45 @@
     anchorEl.setAttribute('download', '');
   }
 
-  function wireButtonAsNotice(anchorEl, message) {
-    if (!anchorEl) return;
-    anchorEl.removeAttribute('href');
-    anchorEl.addEventListener('click', function (e) {
-      e.preventDefault();
-      alert(message);
-    }, { once: true });
-  }
+  // 5) Point buttons to lightweight preview endpoints.
+  //    If your preview handlers accept identifiers, tack them on as query params.
+  const q = new URLSearchParams();
+  if (order)         q.set('order', order);
+  if (invoiceNumber) q.set('invoice', invoiceNumber);
 
-  if (invoiceUrl) {
-    // Link both buttons to the invoice
-    wireButtonAsLink(btnDownload, invoiceUrl);
-    wireButtonAsLink(btnView, invoiceUrl);
-  } else {
-    // Graceful fallback: tell the user to check their email (the invoice was attached there)
-    wireButtonAsNotice(btnDownload, 'Your invoice has been emailed to you. If you need a copy, please reply to the email.');
-    wireButtonAsNotice(btnView,     'Your invoice has been emailed to you. If you need a copy, please reply to the email.');
-  }
+  const invoicePreview = '/api/preview-invoice' + (q.toString() ? `?${q}` : '');
+  const slaPreview     = '/api/preview-sla'     + (q.toString() ? `?${q}` : '');
+  const portingPreview = '/api/preview-porting' + (q.toString() ? `?${q}` : '');
 
-  // Optional: if you want to clear the stored link after use, uncomment:
-  // if (invoiceUrl) sessionStorage.removeItem('lastInvoiceUrl');
+  linkToPdf(btnInvoiceDownload, invoicePreview);
+  linkToPdf(btnSlaDownload,     slaPreview);
+  linkToPdf(btnPortingDownload, portingPreview);
+
+  // Optional: if you still want a “View Invoice” button somewhere:
+  const btnViewInvoice = document.getElementById('btn-view-invoice');
+  if (btnViewInvoice) linkToPdf(btnViewInvoice, invoicePreview);
+
+  // If you previously used sessionStorage to pass around an invoice link,
+  // it’s safe to clear it now.
+  sessionStorage.removeItem('lastInvoiceUrl');
 })();
 </script>
+  <script>
+    (function(){
+      const url=new URL(location.href);
+      const email=url.searchParams.get('email')||'you@example.com';
+      const order=url.searchParams.get('order')||'VS-000000';
+      const emailEl=document.getElementById('customer-email'); if(emailEl) emailEl.textContent=email;
+      const orderEl=document.getElementById('order-number'); if(orderEl) orderEl.textContent=order;
+      const invoiceUrl=sessionStorage.getItem('lastInvoiceUrl')||url.searchParams.get('invoiceUrl')||'';
+      const d=document.getElementById('btn-download-invoice'); const v=document.getElementById('btn-view-invoice');
+      function asLink(a,href){ if(!a) return; a.href=href; a.target='_blank'; a.rel='noopener'; a.setAttribute('download',''); }
+      function asNotice(a,msg){ if(!a) return; a.removeAttribute('href'); a.addEventListener('click',e=>{e.preventDefault(); alert(msg);},{once:true}); }
+      if(invoiceUrl){ asLink(d,invoiceUrl); asLink(v,invoiceUrl); } else { asNotice(d,'Your invoice was emailed to you with the SLA and Porting docs attached.'); asNotice(v,'Your invoice was emailed to you with the SLA and Porting docs attached.'); }
+      const sla=document.getElementById('lnk-sla'); const loa=document.getElementById('lnk-loa');
+      if(sla && !sla.href) sla.href='/docs/sla.pdf';
+      if(loa && !loa.href) loa.href='/docs/porting-letter-of-authority.pdf';
+    })();
+  </script>
 </body>
 </html>
