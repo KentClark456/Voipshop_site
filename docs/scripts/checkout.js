@@ -641,111 +641,137 @@
     return Number.isFinite(n) ? n : 0;
   };
 
-  // Try to read items from your tables (mirrors your Email Quote logic)
-  function collectItems(containerId){
-    const items = [];
-    const root = document.getElementById(containerId);
-    if (!root) return items;
+ // Try to read items from your tables (mirrors your Email Quote logic)
+function collectItems(containerId){
+  const items = [];
+  const root = document.getElementById(containerId);
+  if (!root) return items;
 
-    root.querySelectorAll('[data-item]').forEach((row)=>{
-      const name  = row.getAttribute('data-name') || (row.querySelector('[data-cell="name"]')?.textContent ?? '').trim() || 'Item';
-      const qtyTxt= row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || (row.querySelector('[data-cell="qty"]')?.textContent ?? '').trim() || '1';
-      const qty   = num(qtyTxt);
-      const unitA = row.getAttribute('data-unit');
-      const totalA= row.getAttribute('data-total') || (row.querySelector('[data-cell="total"]')?.textContent ?? '');
-      const unit  = unitA != null ? num(unitA) : (parseZAR(totalA) / Math.max(qty,1));
-      items.push({ name, qty, unit: Math.max(0, unit) });
+  // Primary path: rows with [data-item]
+  root.querySelectorAll('[data-item]').forEach((row)=>{
+    const name   = row.getAttribute('data-name') || (row.querySelector('[data-cell="name"]')?.textContent ?? '').trim() || 'Item';
+    const qtyTxt = row.getAttribute('data-qty')  || row.querySelector('[data-cell="qty"]')?.dataset?.qty || (row.querySelector('[data-cell="qty"]')?.textContent ?? '').trim() || '1';
+    const qty    = num(qtyTxt);
+    const unitA  = row.getAttribute('data-unit');
+    const totalA = row.getAttribute('data-total') || (row.querySelector('[data-cell="total"]')?.textContent ?? '');
+    const unit   = unitA != null ? num(unitA) : (parseZAR(totalA) / Math.max(qty,1));
+
+    // ✅ Detect Calls row and attach minutes info (bundles of 250 minutes)
+    const isCalls = row.dataset.calls === '1' || /^calls$/i.test(String(name).trim());
+    const BUNDLE_SIZE = 250;
+    const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
+
+    items.push({
+      name,
+      qty,
+      unit: Math.max(0, unit),
+      ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
     });
+  });
 
-    if (items.length === 0) {
-      root.querySelectorAll('.table-row').forEach((row)=>{
-        const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
-        const qtyCell   = row.querySelector('[data-cell="qty"]');
-        const totalCell = row.querySelector('[data-cell="total"], .amount');
-        const nameTxt   = (nameCell?.textContent || '').trim();
-        const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || (qtyCell?.textContent || '').match(/\d+/);
-        const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
-        const total     = parseZAR(totalCell?.textContent || '');
-        const unit      = total / Math.max(qty,1);
-        if (nameTxt || total) items.push({ name: nameTxt || 'Item', qty, unit: Math.max(0, unit) });
-      });
-    }
-    return items;
+  // Fallback path: if no [data-item] rows found
+  if (items.length === 0) {
+    root.querySelectorAll('.table-row').forEach((row)=>{
+      const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
+      const qtyCell   = row.querySelector('[data-cell="qty"]');
+      const totalCell = row.querySelector('[data-cell="total"], .amount');
+      const nameTxt   = (nameCell?.textContent || '').trim();
+      const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || (qtyCell?.textContent || '').match(/\d+/);
+      const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
+      const total     = parseZAR(totalCell?.textContent || '');
+      const unit      = total / Math.max(qty,1);
+
+      const isCalls = /^calls$/i.test(nameTxt);
+      const BUNDLE_SIZE = 250;
+      const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
+
+      if (nameTxt || total) {
+        items.push({
+          name: nameTxt || 'Item',
+          qty,
+          unit: Math.max(0, unit),
+          ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
+        });
+      }
+    });
   }
+  return items;
+}
 
-  // Build payload for /api/complete-order
-  function buildCompleteOrderPayload() {
-    const customer = {
-      name:    getVal('input[name="businessName"]') || getVal('input[name="name"]'),
-      company: getVal('input[name="company"]'),
-      email:   getVal('input[name="email"]'),
-      phone:   getVal('input[name="phone"]'),
-      address: getVal('input[name="address"]')
-    };
+// Build payload for /api/complete-order
+function buildCompleteOrderPayload() {
+  const customer = {
+    name:    getVal('input[name="businessName"]') || getVal('input[name="name"]'),
+    company: getVal('input[name="company"]'),
+    email:   getVal('input[name="email"]'),
+    phone:   getVal('input[name="phone"]'),
+    address: getVal('input[name="address"]')
+  };
 
-    // Items (from your DOM)
-    const itemsOnceOff = collectItems('onceoff-rows');
-    const itemsMonthly = collectItems('monthly-rows');
+  // Items (from your DOM)
+  const itemsOnceOff = collectItems('onceoff-rows');
+  const itemsMonthly = collectItems('monthly-rows'); // now includes isCalls, minutes, bundleSize for Calls
 
-    const onceOffSubtotalExVAT = parseZAR($('#subtotal-onceoff')?.textContent || '0');
-    const monthlySubtotalExVAT = parseZAR($('#subtotal-monthly')?.textContent || '0');
+  const onceOffSubtotalExVAT = parseZAR($('#subtotal-onceoff')?.textContent || '0');
+  const monthlySubtotalExVAT = parseZAR($('#subtotal-monthly')?.textContent || '0');
 
-    // SLA service counts (use your qty inputs if present; else infer defaults)
-    const monthlyControls = {
-      cloudPbxQty: num(getVal('#qty-cloud-pbx') || 1),
-      extensions:  num(getVal('#qty-extensions') || 3),
-      didQty:      num(getVal('#qty-did') || 1),
-      minutes:     num(getVal('#qty-minutes') || 250),
-    };
+  // SLA service counts (use your qty inputs if present; else infer defaults)
+  const monthlyControls = {
+    cloudPbxQty: num(getVal('#qty-cloud-pbx') || 1),
+    extensions:  num(getVal('#qty-extensions') || 3),
+    didQty:      num(getVal('#qty-did') || 1),
+    minutes:     num(getVal('#qty-minutes') || 250),
+  };
 
-    // Debit order (optional)
-    const debit = {
-      accountName:   getVal('#debit-account-name'),
-      bank:          getVal('#debit-bank'),
-      branchCode:    getVal('#debit-branch'),
-      accountNumber: getVal('#debit-account-number'),
-      accountType:   getVal('#debit-account-type'),
-      dayOfMonth:    num(getVal('#debit-day') || 28)
-    };
+  // Debit order (optional)
+  const debit = {
+    accountName:   getVal('#debit-account-name'),
+    bank:          getVal('#debit-bank'),
+    branchCode:    getVal('#debit-branch'),
+    accountNumber: getVal('#debit-account-number'),
+    accountType:   getVal('#debit-account-type'),
+    dayOfMonth:    num(getVal('#debit-day') || 28)
+  };
 
-    // Porting (optional)
-    const port = {
-      provider:        getVal('#port-provider'),
-      accountNumber:   getVal('#port-account'),
-      numbers:         (getVal('#port-numbers') || '')
-                        .split(',')
-                        .map(s => s.trim())
-                        .filter(Boolean),
-      serviceAddress:  getVal('#service-address'),
-      pbxLocation:     getVal('#pbx-location'),
-      contactNumber:   getVal('#port-contact') || customer.phone,
-      idNumber:        getVal('#id-number'),
-      authorisedName:  getVal('#auth-name'),
-      authorisedTitle: getVal('#auth-title')
-    };
+  // Porting (optional)
+  const port = {
+    provider:        getVal('#port-provider'),
+    accountNumber:   getVal('#port-account'),
+    numbers:         (getVal('#port-numbers') || '')
+                      .split(',')
+                      .map(s => s.trim())
+                      .filter(Boolean),
+    serviceAddress:  getVal('#service-address'),
+    pbxLocation:     getVal('#pbx-location'),
+    contactNumber:   getVal('#port-contact') || customer.phone,
+    idNumber:        getVal('#id-number'),
+    authorisedName:  getVal('#auth-name'),
+    authorisedTitle: getVal('#auth-title')
+  };
 
-    return {
-      // optional ids; backend can generate if missing
-      orderNumber:   getVal('#order-number')   || undefined,
-      invoiceNumber: getVal('#invoice-number') || undefined,
+  return {
+    // optional ids; backend can generate if missing
+    orderNumber:   getVal('#order-number')   || undefined,
+    invoiceNumber: getVal('#invoice-number') || undefined,
 
-      customer,
-      onceOff: {
-        items: itemsOnceOff,
-        totals: { exVat: onceOffSubtotalExVAT }
-      },
-      monthly: {
-        items: itemsMonthly,
-        cloudPbxQty: monthlyControls.cloudPbxQty,
-        extensions:  monthlyControls.extensions,
-        didQty:      monthlyControls.didQty,
-        minutes:     monthlyControls.minutes,
-        totals: { exVat: monthlySubtotalExVAT }
-      },
-      debit,
-      port
-    };
-  }
+    customer,
+    onceOff: {
+      items: itemsOnceOff,
+      totals: { exVat: onceOffSubtotalExVAT }
+    },
+    monthly: {
+      items: itemsMonthly,                    // <— carries minutes info per Calls row
+      cloudPbxQty: monthlyControls.cloudPbxQty,
+      extensions:  monthlyControls.extensions,
+      didQty:      monthlyControls.didQty,
+      minutes:     monthlyControls.minutes,   // <— overall minutes control still included
+      totals: { exVat: monthlySubtotalExVAT }
+    },
+    debit,
+    port
+  };
+}
+
 
   // Submit handler
   const form = document.getElementById('quick-checkout-form');
