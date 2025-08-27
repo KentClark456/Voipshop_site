@@ -698,7 +698,55 @@ function collectItems(containerId){
   return items;
 }
 
-// Build payload for /api/complete-order
+// ===== Helpers (add above buildCompleteOrderPayload) =====
+function isMinutesLine(item) {
+  const name = String(item?.name || '');
+  const hasExplicitMinutes = Number(
+    item.minutes ??
+    item.minutesIncluded ??
+    item.includedMinutes ??
+    item.qtyMinutes ??
+    item.qty_min ??
+    item.qtyMin ?? 0
+  ) > 0;
+  return hasExplicitMinutes || /call|min(ute)?s?/i.test(name);
+}
+
+function normalizeMonthlyItem(item, globalMinutes = 0) {
+  const name = String(item?.name || '');
+  const unit = item?.unit || 'ea';
+
+  // Coalesce to one minutes number (plus an alias the SLA understands)
+  const minutes =
+    Number(
+      item.minutes ??
+      item.minutesIncluded ??
+      item.includedMinutes ??
+      item.qtyMinutes ??
+      item.qty_min ??
+      item.qtyMin ?? 0
+    ) || (isMinutesLine(item) ? Number(globalMinutes || 0) : 0);
+
+  if (isMinutesLine(item)) {
+    const m = Math.max(0, Number(minutes || 0));
+    return {
+      name,
+      unit: 'minutes',
+      minutes: m,        // canonical
+      qtyMinutes: m,     // alias (recognized by SLA)
+      note: m ? `Includes ${m} minutes` : (item.note || '')
+    };
+  }
+
+  return {
+    name,
+    qty: Math.max(1, Number(item?.qty ?? 1)),
+    unit,
+    note: item?.note || ''
+  };
+}
+
+// ===== Build payload for /api/complete-order (UPDATED) =====
 function buildCompleteOrderPayload() {
   const customer = {
     name:    getVal('input[name="businessName"]') || getVal('input[name="name"]'),
@@ -710,7 +758,7 @@ function buildCompleteOrderPayload() {
 
   // Items (from your DOM)
   const itemsOnceOff = collectItems('onceoff-rows');
-  const itemsMonthly = collectItems('monthly-rows'); // now includes isCalls, minutes, bundleSize for Calls
+  const itemsMonthly = collectItems('monthly-rows'); // may include isCalls/minutes/bundleSize
 
   const onceOffSubtotalExVAT = parseZAR($('#subtotal-onceoff')?.textContent || '0');
   const monthlySubtotalExVAT = parseZAR($('#subtotal-monthly')?.textContent || '0');
@@ -722,6 +770,11 @@ function buildCompleteOrderPayload() {
     didQty:      num(getVal('#qty-did') || 1),
     minutes:     num(getVal('#qty-minutes') || 250),
   };
+
+  // Normalize monthly lines so SLA sees minutes properly (no server changes needed)
+  const normalizedMonthly = (itemsMonthly || []).map(it =>
+    normalizeMonthlyItem(it, monthlyControls.minutes)
+  );
 
   // Debit order (optional)
   const debit = {
@@ -760,11 +813,11 @@ function buildCompleteOrderPayload() {
       totals: { exVat: onceOffSubtotalExVAT }
     },
     monthly: {
-      items: itemsMonthly,                    // <— carries minutes info per Calls row
+      items: normalizedMonthly,                  // <— normalized for SLA (minutes rows carry minutes/qtyMinutes)
       cloudPbxQty: monthlyControls.cloudPbxQty,
       extensions:  monthlyControls.extensions,
       didQty:      monthlyControls.didQty,
-      minutes:     monthlyControls.minutes,   // <— overall minutes control still included
+      minutes:     monthlyControls.minutes,      // <— also send overall fallback minutes
       totals: { exVat: monthlySubtotalExVAT }
     },
     debit,
@@ -773,57 +826,59 @@ function buildCompleteOrderPayload() {
 }
 
 
-  // Submit handler
-  const form = document.getElementById('quick-checkout-form');
-  form?.addEventListener('submit', async (e) => {
-    const f = e.target;
-    const valid = (typeof f.checkValidity === 'function') ? f.checkValidity() : true;
-    e.preventDefault();
+// ===== Submit handler (unchanged) =====
+const form = document.getElementById('quick-checkout-form');
+form?.addEventListener('submit', async (e) => {
+  const f = e.target;
+  const valid = (typeof f.checkValidity === 'function') ? f.checkValidity() : true;
+  e.preventDefault();
 
-    if (!valid) {
-      f.reportValidity && f.reportValidity();
-      return;
+  if (!valid) {
+    f.reportValidity && f.reportValidity();
+    return;
+  }
+
+  // Make sure we have an email
+  const email = getVal('input[name="email"]');
+  if (!email || !/.+@.+\..+/.test(email)) {
+    alert('Please enter a valid client email before completing the order.');
+    return;
+  }
+
+  // Disable the submit button while sending
+  const submitBtn = f.querySelector('[type="submit"]');
+  const origText = submitBtn ? submitBtn.textContent : '';
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+
+  try {
+    const payload = buildCompleteOrderPayload();
+
+    const res = await fetch(COMPLETE_ORDER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || `HTTP ${res.status}`);
     }
+    // Success → redirect to your confirmation page
+    window.location.href = 'post-checkout.html';
+  } catch (err) {
+    console.error('[CompleteOrder] Error:', err);
+    alert('Failed to complete order: ' + (err?.message || err));
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
+  }
+});
 
-    // Make sure we have an email
-    const email = getVal('input[name="email"]');
-    if (!email || !/.+@.+\..+/.test(email)) {
-      alert('Please enter a valid client email before completing the order.');
-      return;
-    }
-
-    // Disable the submit button while sending
-    const submitBtn = f.querySelector('[type="submit"]');
-    const origText = submitBtn ? submitBtn.textContent : '';
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
-
-    try {
-      const payload = buildCompleteOrderPayload();
-
-      const res = await fetch(COMPLETE_ORDER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || `HTTP ${res.status}`);
-      }
-      // Success → redirect to your confirmation page
-      window.location.href = 'post-checkout.html';
-    } catch (err) {
-      console.error('[CompleteOrder] Error:', err);
-      alert('Failed to complete order: ' + (err?.message || err));
-    } finally {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
-    }
-  });
 })();   // closes the inner complete-order IIFE
 
 })();   // closes the outer "(function () { 'use strict'; ... })()" IIFE
 
-// === Email Quote (PDFKit attach) — drop-in ===
+
+// === Email Quote (PDFKit attach) — left UNCHANGED on purpose ===
 if (!window.__EMAIL_QUOTE_WIRED__) {
   window.__EMAIL_QUOTE_WIRED__ = true;
 
