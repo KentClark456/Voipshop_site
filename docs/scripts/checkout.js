@@ -612,10 +612,11 @@
     }
   })();
 
-// ---------- Checkout completion (invoice+SLA+porting) ----------
-(function checkoutCompletion(){
-  // ✅ Use relative path so it always hits the same project’s API
-  const COMPLETE_ORDER_URL = '/api/complete-order';
+// ---------- Checkout completion (REPLACEMENT: sends invoice+SLA+porting, then redirects) ----------
+(() => {
+  const API_BASE = 'https://voipshop-quote-api.vercel.app';
+  const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
+
 
 
     // Minimal helpers — namespaced to avoid collisions
