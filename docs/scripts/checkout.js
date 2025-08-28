@@ -1,7 +1,8 @@
 // docs/scripts/checkout.js
 (function () {
   'use strict';
-    // ---- Single Source of Truth for Pricing ----
+
+  // ---- Single Source of Truth for Pricing ----
   window.PRICE_CATALOG = {
     "YEALINK_T31P": { name: "Yealink T31P", unit_price: 110000 },   // R1100.00
     "YEALINK_T33G": { name: "Yealink T33G", unit_price: 145000 },   // R1450.00
@@ -101,7 +102,6 @@
   const _CAT = window.PRICE_CATALOG || {};
   const _INDEX_BY_NAME = {}; // exact, lowercase name -> sku
   const _INDEX_BY_NORM = {}; // normalized (a-z0-9 only) name -> sku
-
   function _norm(s=''){ return String(s).toLowerCase().replace(/[^a-z0-9]/g, ''); }
 
   for (const [sku, rec] of Object.entries(_CAT)) {
@@ -126,7 +126,7 @@
       return centsToRands(_CAT[byExactNameSku].unit_price);
     }
 
-    // 3) Normalized name (remove spaces, parentheses, +, etc.)
+    // 3) Normalized name
     const norm = _norm(raw);
     const byNormSku = _INDEX_BY_NORM[norm];
     if (byNormSku && _CAT[byNormSku]?.unit_price != null) {
@@ -485,7 +485,7 @@
       const isCallsRow = !!it.isCalls || /^\s*calls\s*$/i.test(String(it.name || ''));
       const included = it.included || it.unitMonthly === 0;
 
-      const unit = included ? 0 : (isCallsRow ? 100 : Number(it.unitMonthly || 0));
+      const unit = included ? 0 : Number(it.unitMonthly ?? it.unit ?? 0);
       const initialMinutes = Number(selected?.minutesIncluded || 0);
       const qty = included
         ? 1
@@ -561,13 +561,13 @@
   }
   function updateRightSummary(onceSum, monthSum){
     const VAT_RATE = 0.15;
-    const fmtZAR = n => 'R' + Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const fmtZARx = n => 'R' + Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    setText('subtotal-onceoff', fmtZAR(onceSum));
-    setText('subtotal-monthly', fmtZAR(monthSum));
+    setText('subtotal-onceoff', fmtZARx(onceSum));
+    setText('subtotal-monthly', fmtZARx(monthSum));
     const vatFirst = Math.round(((onceSum + monthSum) * VAT_RATE) * 100) / 100;
-    setText('vat-first-month', fmtZAR(vatFirst));
-    setText('total-first-month', fmtZAR(onceSum + monthSum + vatFirst));
+    setText('vat-first-month', fmtZARx(vatFirst));
+    setText('total-first-month', fmtZARx(onceSum + monthSum + vatFirst));
   }
   function updateTableFooters(onceSum, monthSum){
     const fmtFooter = v => 'R ' + Math.round(Number(v||0)).toLocaleString('en-ZA');
@@ -612,412 +612,413 @@
     }
   })();
 
-// ---------- Checkout completion (REPLACEMENT: sends invoice+SLA+porting, then redirects) ----------
-(() => {
-  const API_BASE = 'https://voipshop-quote-api.vercel.app';
-  const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
+  // ---------- Checkout completion (invoice+SLA+porting) ----------
+  (function checkoutCompletion(){
+    const API_BASE = 'https://voipshop-quote-api.vercel.app';
+    const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
 
-  // Minimal helpers (local to this block)
-  const $ = (sel) => document.querySelector(sel);
-  const text = (el) => (el?.textContent || '').trim();
-  const getVal = (sel) => ($(sel)?.value || '').trim();
-  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
-  const parseZAR = (str) => {
-    let s = String(str||'')
-      .replace(/\u00A0/g,' ')
-      .replace(/\/mo.*$/i,'')
-      .replace(/[^\d.,-]/g,'');
-    const hasComma = s.includes(',');
-    const hasDot   = s.includes('.');
-    if (hasComma && hasDot) {
-      const lastComma = s.lastIndexOf(','), lastDot = s.lastIndexOf('.');
-      s = (lastDot > lastComma) ? s.replace(/,/g,'') : s.replace(/\./g,'').replace(',', '.');
-    } else if (hasComma && !hasDot) {
-      s = s.replace(/\./g,'').replace(',', '.');
-    } else {
-      s = s.replace(/,/g,'');
-    }
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  };
+    // Minimal helpers — namespaced to avoid collisions
+    const $ = (sel) => document.querySelector(sel);
+    const getVal2 = (sel) => ($(sel)?.value || '').trim();
+    const num2 = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+    const parseZARMoney = (str) => {
+      let s = String(str||'')
+        .replace(/\u00A0/g,' ')
+        .replace(/\/mo.*$/i,'')
+        .replace(/[^\d.,-]/g,'');
+      const hasComma = s.includes(',');
+      const hasDot   = s.includes('.');
+      if (hasComma && hasDot) {
+        const lastComma = s.lastIndexOf(','), lastDot = s.lastIndexOf('.');
+        s = (lastDot > lastComma) ? s.replace(/,/g,'') : s.replace(/\./g,'').replace(',', '.');
+      } else if (hasComma && !hasDot) {
+        s = s.replace(/\./g,'').replace(',', '.');
+      } else {
+        s = s.replace(/,/g,'');
+      }
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
+    };
 
- // Try to read items from your tables (mirrors your Email Quote logic)
-function collectItems(containerId){
-  const items = [];
-  const root = document.getElementById(containerId);
-  if (!root) return items;
+    function collectItemsOrder(containerId){
+      const items = [];
+      const root = document.getElementById(containerId);
+      if (!root) return items;
 
-  // Primary path: rows with [data-item]
-  root.querySelectorAll('[data-item]').forEach((row)=>{
-    const name   = row.getAttribute('data-name') || (row.querySelector('[data-cell="name"]')?.textContent ?? '').trim() || 'Item';
-    const qtyTxt = row.getAttribute('data-qty')  || row.querySelector('[data-cell="qty"]')?.dataset?.qty || (row.querySelector('[data-cell="qty"]')?.textContent ?? '').trim() || '1';
-    const qty    = num(qtyTxt);
-    const unitA  = row.getAttribute('data-unit');
-    const totalA = row.getAttribute('data-total') || (row.querySelector('[data-cell="total"]')?.textContent ?? '');
-    const unit   = unitA != null ? num(unitA) : (parseZAR(totalA) / Math.max(qty,1));
+      // Primary path: rows with [data-item]
+      root.querySelectorAll('[data-item]').forEach((row)=>{
+        const name   = row.getAttribute('data-name') || (row.querySelector('[data-cell="name"]')?.textContent ?? '').trim() || 'Item';
+        const qtyTxt = row.getAttribute('data-qty')  || row.querySelector('[data-cell="qty"]')?.dataset?.qty || (row.querySelector('[data-cell="qty"]')?.textContent ?? '').trim() || '1';
+        const qty    = num2(qtyTxt);
+        const unitA  = row.getAttribute('data-unit');
+        const totalA = row.getAttribute('data-total') || (row.querySelector('[data-cell="total"]')?.textContent ?? '');
+        const unit   = unitA != null ? num2(unitA) : (parseZARMoney(totalA) / Math.max(qty,1));
 
-    // ✅ Detect Calls row and attach minutes info (bundles of 250 minutes)
-    const isCalls = row.dataset.calls === '1' || /^calls$/i.test(String(name).trim());
-    const BUNDLE_SIZE = 250;
-    const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
+        // Detect Calls row and attach minutes info (bundles of 250 minutes)
+        const isCalls = row.dataset.calls === '1' || /^calls$/i.test(String(name).trim());
+        const BUNDLE_SIZE = 250;
+        const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
 
-    items.push({
-      name,
-      qty,
-      unit: Math.max(0, unit),
-      ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
-    });
-  });
-
-  // Fallback path: if no [data-item] rows found
-  if (items.length === 0) {
-    root.querySelectorAll('.table-row').forEach((row)=>{
-      const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
-      const qtyCell   = row.querySelector('[data-cell="qty"]');
-      const totalCell = row.querySelector('[data-cell="total"], .amount');
-      const nameTxt   = (nameCell?.textContent || '').trim();
-      const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || (qtyCell?.textContent || '').match(/\d+/);
-      const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
-      const total     = parseZAR(totalCell?.textContent || '');
-      const unit      = total / Math.max(qty,1);
-
-      const isCalls = /^calls$/i.test(nameTxt);
-      const BUNDLE_SIZE = 250;
-      const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
-
-      if (nameTxt || total) {
         items.push({
-          name: nameTxt || 'Item',
+          name,
           qty,
           unit: Math.max(0, unit),
           ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
         });
+      });
+
+      // Fallback path
+      if (items.length === 0) {
+        root.querySelectorAll('.table-row').forEach((row)=>{
+          const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
+          const qtyCell   = row.querySelector('[data-cell="qty"]');
+          const totalCell = row.querySelector('[data-cell="total"], .amount');
+          const nameTxt   = (nameCell?.textContent || '').trim();
+          const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || (qtyCell?.textContent || '').match(/\d+/);
+          const qty       = qtyMatch ? num2(qtyMatch[1] || qtyMatch[0]) : 1;
+          const total     = parseZARMoney(totalCell?.textContent || '');
+          const unit      = total / Math.max(qty,1);
+
+          const isCalls = /^calls$/i.test(nameTxt);
+          const BUNDLE_SIZE = 250;
+          const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
+
+          if (nameTxt || total) {
+            items.push({
+              name: nameTxt || 'Item',
+              qty,
+              unit: Math.max(0, unit),
+              ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
+            });
+          }
+        });
+      }
+      return items;
+    }
+
+    function isMinutesLineOrder(item) {
+      const name = String(item?.name || '');
+      const hasExplicitMinutes = Number(
+        item?.minutes ??
+        item?.minutesIncluded ??
+        item?.includedMinutes ??
+        item?.qtyMinutes ??
+        item?.qty_min ??
+        item?.qtyMin ?? 0
+      ) > 0;
+      return hasExplicitMinutes || /call|min(ute)?s?/i.test(name);
+    }
+
+    function normalizeMonthlyItem(item, globalMinutes = 0) {
+      const name = String(item?.name || '');
+
+      const unit = Number(
+        item?.unit ??
+        item?.unitMonthly ??
+        item?.priceMonthly ??
+        item?.price_ex_vat ??
+        item?.priceExVat ??
+        item?.price ??
+        0
+      ) || 0;
+
+      const isMinutes =
+        (typeof isMinutesLineOrder === 'function' ? isMinutesLineOrder(item) : /minute|call/i.test(name));
+
+      let m = Number(
+        item?.minutes ??
+        item?.minutesIncluded ??
+        item?.includedMinutes ??
+        item?.qtyMinutes ??
+        item?.qty_min ??
+        item?.qtyMin ??
+        0
+      );
+      if (!Number.isFinite(m) || m < 0) m = 0;
+      if (isMinutes && !m) m = Number(globalMinutes || 0);
+
+      const qty = Math.max(1, Number(item?.qty ?? 1));
+
+      if (isMinutes) {
+        const bundleSize = Number(item?.bundleSize || 250);
+        return {
+          name,
+          qty,
+          unit,
+          minutes: m,
+          qtyMinutes: m,
+          isCalls: true,
+          bundleSize,
+          note: m ? `Includes ${m} minutes` : (item?.note || '')
+        };
+      }
+
+      return { name, qty, unit, note: item?.note || '' };
+    }
+
+    function buildCompleteOrderPayload() {
+      const customer = {
+        name:    getVal2('input[name="businessName"]') || getVal2('input[name="name"]'),
+        company: getVal2('input[name="company"]'),
+        email:   getVal2('input[name="email"]'),
+        phone:   getVal2('input[name="phone"]'),
+        address: getVal2('input[name="address"]')
+      };
+
+      // Items (from DOM)
+      const itemsOnceOff = collectItemsOrder('onceoff-rows');
+      const itemsMonthly = collectItemsOrder('monthly-rows');
+
+      const onceOffSubtotalExVAT = parseZARMoney(document.querySelector('#subtotal-onceoff')?.textContent || '0');
+      const monthlySubtotalExVAT = parseZARMoney(document.querySelector('#subtotal-monthly')?.textContent || '0');
+
+      // SLA service counts
+      const monthlyControls = {
+        cloudPbxQty: num2(getVal2('#qty-cloud-pbx') || 1),
+        extensions:  num2(getVal2('#qty-extensions') || 3),
+        didQty:      num2(getVal2('#qty-did') || 1),
+        minutes:     num2(getVal2('#qty-minutes') || 250),
+      };
+
+      const normalizedMonthly = (itemsMonthly || []).map(it =>
+        normalizeMonthlyItem(it, monthlyControls.minutes)
+      );
+
+      // Debit order (optional)
+      const debit = {
+        accountName:   getVal2('#debit-account-name'),
+        bank:          getVal2('#debit-bank'),
+        branchCode:    getVal2('#debit-branch'),
+        accountNumber: getVal2('#debit-account-number'),
+        accountType:   getVal2('#debit-account-type'),
+        dayOfMonth:    num2(getVal2('#debit-day') || 28)
+      };
+
+      // Porting (optional)
+      const port = {
+        provider:        getVal2('#port-provider'),
+        accountNumber:   getVal2('#port-account'),
+        numbers:         (getVal2('#port-numbers') || '')
+                          .split(',')
+                          .map(s => s.trim())
+                          .filter(Boolean),
+        serviceAddress:  getVal2('#service-address'),
+        pbxLocation:     getVal2('#pbx-location'),
+        contactNumber:   getVal2('#port-contact') || customer.phone,
+        idNumber:        getVal2('#id-number'),
+        authorisedName:  getVal2('#auth-name'),
+        authorisedTitle: getVal2('#auth-title')
+      };
+
+      return {
+        orderNumber:   getVal2('#order-number')   || undefined,
+        invoiceNumber: getVal2('#invoice-number') || undefined,
+        customer,
+        onceOff: {
+          items: itemsOnceOff,
+          totals: { exVat: onceOffSubtotalExVAT }
+        },
+        monthly: {
+          items: normalizedMonthly,
+          cloudPbxQty: monthlyControls.cloudPbxQty,
+          extensions:  monthlyControls.extensions,
+          didQty:      monthlyControls.didQty,
+          minutes:     monthlyControls.minutes,
+          totals: { exVat: monthlySubtotalExVAT }
+        },
+        debit,
+        port
+      };
+    }
+
+    // Submit handler
+    const form = document.getElementById('quick-checkout-form');
+    form?.addEventListener('submit', async (e) => {
+      const f = e.target;
+      const valid = (typeof f.checkValidity === 'function') ? f.checkValidity() : true;
+      e.preventDefault();
+
+      if (!valid) {
+        f.reportValidity && f.reportValidity();
+        return;
+      }
+
+      const email = getVal2('input[name="email"]');
+      if (!email || !/.+@.+\..+/.test(email)) {
+        alert('Please enter a valid client email before completing the order.');
+        return;
+      }
+
+      const submitBtn = f.querySelector('[type="submit"]');
+      const origText = submitBtn ? submitBtn.textContent : '';
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+
+      try {
+        const payload = buildCompleteOrderPayload();
+        const url = '/api/complete-order'; // Prefer relative; your API project can proxy if needed
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const msg = await res.text();
+          throw new Error(msg || `HTTP ${res.status}`);
+        }
+        window.location.href = 'post-checkout.html';
+      } catch (err) {
+        console.error('[CompleteOrder] Error:', err);
+        alert('Failed to complete order: ' + (err?.message || err));
+      } finally {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
       }
     });
-  }
-  return items;
-}
+  })();
 
-// ===== Helpers (add above buildCompleteOrderPayload) =====
-function isMinutesLine(item) {
-  const name = String(item?.name || '');
-  const hasExplicitMinutes = Number(
-    item.minutes ??
-    item.minutesIncluded ??
-    item.includedMinutes ??
-    item.qtyMinutes ??
-    item.qty_min ??
-    item.qtyMin ?? 0
-  ) > 0;
-  return hasExplicitMinutes || /call|min(ute)?s?/i.test(name);
-}
+  // === Email Quote (PDFKit attach) ===
+  (function emailQuoteWiring(){
+    if (window.__EMAIL_QUOTE_WIRED__) return;
+    window.__EMAIL_QUOTE_WIRED__ = true;
 
-function normalizeMonthlyItem(item, globalMinutes = 0) {
-  const name = String(item?.name || '');
-  const unit = item?.unit || 'ea';
+    const API_BASE = 'https://voipshop-quote-api.vercel.app';
+    const SEND_QUOTE_URL = `${API_BASE}/api/send-quote`;
 
-  // Coalesce to one minutes number (plus an alias the SLA understands)
-  const minutes =
-    Number(
-      item.minutes ??
-      item.minutesIncluded ??
-      item.includedMinutes ??
-      item.qtyMinutes ??
-      item.qty_min ??
-      item.qtyMin ?? 0
-    ) || (isMinutesLine(item) ? Number(globalMinutes || 0) : 0);
+    const text = (el)=> (el?.textContent || '').trim();
+    const num  = (v)=> { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 
-  if (isMinutesLine(item)) {
-    const m = Math.max(0, Number(minutes || 0));
-    return {
-      name,
-      unit: 'minutes',
-      minutes: m,        // canonical
-      qtyMinutes: m,     // alias (recognized by SLA)
-      note: m ? `Includes ${m} minutes` : (item.note || '')
+    function makeQuoteNumber(){
+      const d = new Date(); const pad = (n)=>String(n).padStart(2,'0');
+      return `VOIP-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${Math.floor(Math.random()*9e5+1e5)}`;
+    }
+
+    const parseZAR_Q = (str)=>{
+      let s = String(str||'')
+        .replace(/\u00A0/g,' ')
+        .replace(/\/mo.*$/i,'')
+        .replace(/[^\d.,-]/g,'');
+      const hasComma = s.includes(',');
+      const hasDot   = s.includes('.');
+      if (hasComma && hasDot) {
+        const lastComma = s.lastIndexOf(','), lastDot = s.lastIndexOf('.');
+        s = (lastDot > lastComma) ? s.replace(/,/g,'') : s.replace(/\./g,'').replace(',', '.');
+      } else if (hasComma && !hasDot) {
+        s = s.replace(/\./g,'').replace(',', '.');
+      } else {
+        s = s.replace(/,/g,'');
+      }
+      const n = Number(s);
+      return Number.isFinite(n) ? n : 0;
     };
-  }
 
-  return {
-    name,
-    qty: Math.max(1, Number(item?.qty ?? 1)),
-    unit,
-    note: item?.note || ''
-  };
-}
+    function collectItemsQuote(containerId){
+      const items = [];
+      const root = document.getElementById(containerId);
+      if (!root) return items;
 
-// ===== Build payload for /api/complete-order (UPDATED) =====
-function buildCompleteOrderPayload() {
-  const customer = {
-    name:    getVal('input[name="businessName"]') || getVal('input[name="name"]'),
-    company: getVal('input[name="company"]'),
-    email:   getVal('input[name="email"]'),
-    phone:   getVal('input[name="phone"]'),
-    address: getVal('input[name="address"]')
-  };
-
-  // Items (from your DOM)
-  const itemsOnceOff = collectItems('onceoff-rows');
-  const itemsMonthly = collectItems('monthly-rows'); // may include isCalls/minutes/bundleSize
-
-  const onceOffSubtotalExVAT = parseZAR($('#subtotal-onceoff')?.textContent || '0');
-  const monthlySubtotalExVAT = parseZAR($('#subtotal-monthly')?.textContent || '0');
-
-  // SLA service counts (use your qty inputs if present; else infer defaults)
-  const monthlyControls = {
-    cloudPbxQty: num(getVal('#qty-cloud-pbx') || 1),
-    extensions:  num(getVal('#qty-extensions') || 3),
-    didQty:      num(getVal('#qty-did') || 1),
-    minutes:     num(getVal('#qty-minutes') || 250),
-  };
-
-  // Normalize monthly lines so SLA sees minutes properly (no server changes needed)
-  const normalizedMonthly = (itemsMonthly || []).map(it =>
-    normalizeMonthlyItem(it, monthlyControls.minutes)
-  );
-
-  // Debit order (optional)
-  const debit = {
-    accountName:   getVal('#debit-account-name'),
-    bank:          getVal('#debit-bank'),
-    branchCode:    getVal('#debit-branch'),
-    accountNumber: getVal('#debit-account-number'),
-    accountType:   getVal('#debit-account-type'),
-    dayOfMonth:    num(getVal('#debit-day') || 28)
-  };
-
-  // Porting (optional)
-  const port = {
-    provider:        getVal('#port-provider'),
-    accountNumber:   getVal('#port-account'),
-    numbers:         (getVal('#port-numbers') || '')
-                      .split(',')
-                      .map(s => s.trim())
-                      .filter(Boolean),
-    serviceAddress:  getVal('#service-address'),
-    pbxLocation:     getVal('#pbx-location'),
-    contactNumber:   getVal('#port-contact') || customer.phone,
-    idNumber:        getVal('#id-number'),
-    authorisedName:  getVal('#auth-name'),
-    authorisedTitle: getVal('#auth-title')
-  };
-
-  return {
-    // optional ids; backend can generate if missing
-    orderNumber:   getVal('#order-number')   || undefined,
-    invoiceNumber: getVal('#invoice-number') || undefined,
-
-    customer,
-    onceOff: {
-      items: itemsOnceOff,
-      totals: { exVat: onceOffSubtotalExVAT }
-    },
-    monthly: {
-      items: normalizedMonthly,                  // <— normalized for SLA (minutes rows carry minutes/qtyMinutes)
-      cloudPbxQty: monthlyControls.cloudPbxQty,
-      extensions:  monthlyControls.extensions,
-      didQty:      monthlyControls.didQty,
-      minutes:     monthlyControls.minutes,      // <— also send overall fallback minutes
-      totals: { exVat: monthlySubtotalExVAT }
-    },
-    debit,
-    port
-  };
-}
-
-
-// ===== Submit handler (unchanged) =====
-const form = document.getElementById('quick-checkout-form');
-form?.addEventListener('submit', async (e) => {
-  const f = e.target;
-  const valid = (typeof f.checkValidity === 'function') ? f.checkValidity() : true;
-  e.preventDefault();
-
-  if (!valid) {
-    f.reportValidity && f.reportValidity();
-    return;
-  }
-
-  // Make sure we have an email
-  const email = getVal('input[name="email"]');
-  if (!email || !/.+@.+\..+/.test(email)) {
-    alert('Please enter a valid client email before completing the order.');
-    return;
-  }
-
-  // Disable the submit button while sending
-  const submitBtn = f.querySelector('[type="submit"]');
-  const origText = submitBtn ? submitBtn.textContent : '';
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
-
-  try {
-    const payload = buildCompleteOrderPayload();
-
-    const res = await fetch(COMPLETE_ORDER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const msg = await res.text();
-      throw new Error(msg || `HTTP ${res.status}`);
-    }
-    // Success → redirect to your confirmation page
-    window.location.href = 'post-checkout.html';
-  } catch (err) {
-    console.error('[CompleteOrder] Error:', err);
-    alert('Failed to complete order: ' + (err?.message || err));
-  } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
-  }
-});
-
-})();   // closes the inner complete-order IIFE
-
-})();   // closes the outer "(function () { 'use strict'; ... })()" IIFE
-
-
-// === Email Quote (PDFKit attach) — left UNCHANGED on purpose ===
-if (!window.__EMAIL_QUOTE_WIRED__) {
-  window.__EMAIL_QUOTE_WIRED__ = true;
-
-  const API_BASE = 'https://voipshop-quote-api.vercel.app';
-  const SEND_QUOTE_URL = `${API_BASE}/api/send-quote`;
-  const DEFAULT_VAT = 0.15;
-
-  function text(el){ return (el?.textContent || '').trim(); }
-  function num(v){ const n = Number(v); return Number.isFinite(n) ? n : 0; }
-  function makeQuoteNumber(){
-    const d = new Date(); const pad = (n)=>String(n).padStart(2,'0');
-    return `VOIP-${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}-${Math.floor(Math.random()*9e5+1e5)}`;
-  }
-  function parseZAR(str){
-    let s = String(str||'')
-      .replace(/\u00A0/g,' ')
-      .replace(/\/mo.*$/i,'')
-      .replace(/[^\d.,-]/g,'');
-    const hasComma = s.includes(',');
-    const hasDot = s.includes('.');
-    if (hasComma && hasDot) {
-      const lastComma = s.lastIndexOf(',');
-      const lastDot = s.lastIndexOf('.');
-      s = (lastDot > lastComma) ? s.replace(/,/g,'') : s.replace(/\./g,'').replace(',', '.');
-    } else if (hasComma && !hasDot) {
-      s = s.replace(/\./g,'').replace(',', '.');
-    } else {
-      s = s.replace(/,/g,'');
-    }
-    const n = Number(s);
-    return Number.isFinite(n) ? n : 0;
-  }
-
-  function collectItems(containerId){
-    const items = [];
-    const root = document.getElementById(containerId);
-    if (!root) return items;
-
-    root.querySelectorAll('[data-item]').forEach((row)=>{
-      const name  = row.getAttribute('data-name') || text(row.querySelector('[data-cell="name"]')) || 'Item';
-      const qty   = num(row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || text(row.querySelector('[data-cell="qty"]')) || 1);
-      const unitA = row.getAttribute('data-unit');
-      const totalA= row.getAttribute('data-total') || text(row.querySelector('[data-cell="total"]'));
-      const unit  = unitA != null ? num(unitA) : (parseZAR(totalA) / Math.max(qty,1));
-      items.push({ name, qty, unit: Math.max(0, unit) });
-    });
-
-    if (items.length === 0) {
-      root.querySelectorAll('.table-row').forEach((row)=>{
-        const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
-        const qtyCell   = row.querySelector('[data-cell="qty"]');
-        const totalCell = row.querySelector('[data-cell="total"], .amount');
-        const nameTxt   = text(nameCell);
-        const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || text(qtyCell).match(/\d+/);
-        const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
-        const total     = parseZAR(text(totalCell));
-        const unit      = total / Math.max(qty,1);
-        if (nameTxt || total) items.push({ name: nameTxt || 'Item', qty, unit: Math.max(0, unit) });
+      root.querySelectorAll('[data-item]').forEach((row)=>{
+        const name  = row.getAttribute('data-name') || text(row.querySelector('[data-cell="name"]')) || 'Item';
+        const qty   = num(row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || text(row.querySelector('[data-cell="qty"]')) || 1);
+        const unitA = row.getAttribute('data-unit');
+        const totalA= row.getAttribute('data-total') || text(row.querySelector('[data-cell="total"]'));
+        const unit  = unitA != null ? num(unitA) : (parseZAR_Q(totalA) / Math.max(qty,1));
+        items.push({ name, qty, unit: Math.max(0, unit) });
       });
+
+      if (items.length === 0) {
+        root.querySelectorAll('.table-row').forEach((row)=>{
+          const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
+          const qtyCell   = row.querySelector('[data-cell="qty"]');
+          const totalCell = row.querySelector('[data-cell="total"], .amount');
+          const nameTxt   = text(nameCell);
+          const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || text(qtyCell).match(/\d+/);
+          const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
+          const total     = parseZAR_Q(text(totalCell));
+          const unit      = total / Math.max(qty,1);
+          if (nameTxt || total) items.push({ name: nameTxt || 'Item', qty, unit: Math.max(0, unit) });
+        });
+      }
+      return items;
     }
-    return items;
-  }
 
-  function buildQuotePayload(){
-    const businessName = document.querySelector('input[name="businessName"]')?.value?.trim() || '';
-    const email        = document.querySelector('input[name="email"]')?.value?.trim() || '';
-    const phone        = document.querySelector('input[name="phone"]')?.value?.trim() || '';
-    const companyName  = document.querySelector('input[name="company"]')?.value?.trim() || '';
-    const address      = document.querySelector('input[name="address"]')?.value?.trim() || '';
+    function buildQuotePayload(){
+      const businessName = document.querySelector('input[name="businessName"]')?.value?.trim() || '';
+      const email        = document.querySelector('input[name="email"]')?.value?.trim() || '';
+      const phone        = document.querySelector('input[name="phone"]')?.value?.trim() || '';
+      const companyName  = document.querySelector('input[name="company"]')?.value?.trim() || '';
+      const address      = document.querySelector('input[name="address"]')?.value?.trim() || '';
 
-    const itemsOnceOffRaw = collectItems('onceoff-rows');
-    const itemsMonthlyRaw = collectItems('monthly-rows');
+      const itemsOnceOffRaw = collectItemsQuote('onceoff-rows');
+      const itemsMonthlyRaw = collectItemsQuote('monthly-rows');
 
-    const onceOffSubtotalExVAT = parseZAR(document.getElementById('subtotal-onceoff')?.textContent);
-    const monthlySubtotalExVAT = parseZAR(document.getElementById('subtotal-monthly')?.textContent);
+      const onceOffSubtotalExVAT = parseZAR_Q(document.getElementById('subtotal-onceoff')?.textContent);
+      const monthlySubtotalExVAT = parseZAR_Q(document.getElementById('subtotal-monthly')?.textContent);
 
-    const itemsOnceOff  = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
-    const itemsMonthly  = itemsMonthlyRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
+      const itemsOnceOff  = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
+      const itemsMonthly  = itemsMonthlyRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
 
-    return {
-      delivery: 'attach',
-      quoteNumber: makeQuoteNumber(),
-      dateISO: new Date().toISOString(),
-      client: { name: businessName || email, email, phone, company: companyName, address },
-      itemsOnceOff,
-      itemsMonthly,
-      subtotals: { onceOff: onceOffSubtotalExVAT, monthly: monthlySubtotalExVAT },
-      notes: 'Generated from VoIP Shop cart.'
-    };
-  }
+      return {
+        delivery: 'attach',
+        quoteNumber: makeQuoteNumber(),
+        dateISO: new Date().toISOString(),
+        client: { name: businessName || email, email, phone, company: companyName, address },
+        itemsOnceOff,
+        itemsMonthly,
+        subtotals: { onceOff: onceOffSubtotalExVAT, monthly: monthlySubtotalExVAT },
+        notes: 'Generated from VoIP Shop cart.'
+      };
+    }
 
-  async function postJSON(url, body, timeoutMs = 15000){
-    const ctrl = new AbortController();
-    const t = setTimeout(()=>ctrl.abort(), timeoutMs);
-    try{
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: ctrl.signal
-      });
-      const ct = res.headers.get('content-type') || '';
-      const data = ct.includes('application/json') ? await res.json() : await res.text();
-      if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
-      return data || { ok: true };
-    } finally { clearTimeout(t); }
-  }
-
-  function bindEmailQuote(){
-    const btn = document.getElementById('email-quote-btn');
-    if (!btn || btn.__bound) return;
-    btn.__bound = true;
-
-    btn.addEventListener('click', async ()=>{
-      const email = document.querySelector('input[name="email"]')?.value?.trim();
-      if (!email || !/.+@.+\..+/.test(email)) { alert('Please enter a valid email.'); return; }
-
-      if (btn.__sending) return;
-      btn.__sending = true;
-      const orig = btn.textContent;
-      btn.disabled = true; btn.textContent = 'Sending…';
-
+    async function postJSON(url, body, timeoutMs = 15000){
+      const ctrl = new AbortController();
+      const t = setTimeout(()=>ctrl.abort(), timeoutMs);
       try{
-        const payload = buildQuotePayload();
-        const resp = await postJSON(SEND_QUOTE_URL, payload, 20000);
-        alert('Quote sent successfully.');
-        console.log('[EmailQuote] OK:', resp);
-      }catch(err){
-        console.error('[EmailQuote] Error:', err);
-        alert('Failed to send quote: ' + (err.message||err));
-      }finally{
-        btn.disabled = false; btn.textContent = orig; btn.__sending = false;
-      }
-    });
-  }
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: ctrl.signal
+        });
+        const ct = res.headers.get('content-type') || '';
+        const data = ct.includes('application/json') ? await res.json() : await res.text();
+        if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
+        return data || { ok: true };
+      } finally { clearTimeout(t); }
+    }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindEmailQuote);
-  } else {
-    bindEmailQuote();
-  }
-}
+    function bindEmailQuote(){
+      const btn = document.getElementById('email-quote-btn');
+      if (!btn || btn.__bound) return;
+      btn.__bound = true;
+
+      btn.addEventListener('click', async ()=>{
+        const email = document.querySelector('input[name="email"]')?.value?.trim();
+        if (!email || !/.+@.+\..+/.test(email)) { alert('Please enter a valid email.'); return; }
+
+        if (btn.__sending) return;
+        btn.__sending = true;
+        const orig = btn.textContent;
+        btn.disabled = true; btn.textContent = 'Sending…';
+
+        try{
+          const payload = buildQuotePayload();
+          const resp = await postJSON(SEND_QUOTE_URL, payload, 20000);
+          alert('Quote sent successfully.');
+          console.log('[EmailQuote] OK:', resp);
+        }catch(err){
+          console.error('[EmailQuote] Error:', err);
+          alert('Failed to send quote: ' + (err.message||err));
+        }finally{
+          btn.disabled = false; btn.textContent = orig; btn.__sending = false;
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bindEmailQuote);
+    } else {
+      bindEmailQuote();
+    }
+  })();
+
+})(); // end outer IIFE
