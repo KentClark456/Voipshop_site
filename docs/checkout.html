@@ -4,15 +4,32 @@
   <meta charset="utf-8" />
   <title>VoIP Shop — Shopping Cart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- reCAPTCHA v3 (standard, not enterprise) -->
-<script src="https://www.google.com/recaptcha/api.js?render=6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw"></script>
 
+  <!-- reCAPTCHA v3 (standard) — keep ONLY this loader -->
+  <script src="https://www.google.com/recaptcha/api.js?render=6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw"></script>
+
+  <!-- Diagnostic helper (optional) -->
+  <script>
+    window.__rcDiag = async function(action='send_quote'){
+      try {
+        console.log('[rc] grecaptcha type:', typeof grecaptcha);
+        const ready = new Promise((resolve)=>grecaptcha.ready(resolve));
+        const timeout = new Promise((_,rej)=>setTimeout(()=>rej(new Error('ready_timeout')),8000));
+        await Promise.race([ready, timeout]);
+        const t = await grecaptcha.execute('6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw', {action});
+        console.log('[rc] token len:', t.length, 'sample:', t.slice(0,25)+'…');
+        return t;
+      } catch (e) {
+        console.error('[rc] failure:', e);
+        throw e;
+      }
+    };
+  </script>
 
   <!-- Performance hints -->
   <meta http-equiv="x-dns-prefetch-control" content="on" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-
   <style>
     /* =========================
        Base + Performance

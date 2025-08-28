@@ -829,52 +829,55 @@
     };
   }
 
-  // Submit handler (Complete Order)
-  const form = document.getElementById('quick-checkout-form');
-  form?.addEventListener('submit', async (e) => {
-    const f = e.target;
-    const valid = (typeof f.checkValidity === 'function') ? f.checkValidity() : true;
-    e.preventDefault();
+// Submit handler (Complete Order)
+const form = document.getElementById('quick-checkout-form');
+form?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const f = e.target;
 
-    if (!valid) {
-      f.reportValidity && f.reportValidity();
-      return;
+  if (typeof f.checkValidity === 'function' && !f.checkValidity()) {
+    f.reportValidity && f.reportValidity();
+    return;
+  }
+  const email = (document.querySelector('input[name="email"]')?.value || '').trim();
+  if (!/.+@.+\..+/.test(email)) { alert('Please enter a valid client email before completing the order.'); return; }
+
+  const submitBtn = f.querySelector('[type="submit"]');
+  const origText = submitBtn?.textContent || '';
+  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+
+  try {
+    const payload = buildCompleteOrderPayload(); // your existing builder
+
+    const recaptchaAction = 'complete_order';
+    const recaptchaToken  = await getRcToken(recaptchaAction);
+    payload.recaptchaAction = recaptchaAction;
+    payload.recaptchaToken  = recaptchaToken;
+
+    const API_BASE = 'https://voipshop-quote-api.vercel.app';
+    const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
+    const res = await fetch(COMPLETE_ORDER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      const msg = await res.text();
+      throw new Error(msg || `HTTP ${res.status}`);
     }
+    window.location.href = 'post-checkout.html';
+  } catch (err) {
+    console.error('[CompleteOrder] Error:', err);
+    alert('Failed to complete order: ' + (err?.message || err));
+  } finally {
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
+  }
+});
 
-    const email = getVal2('input[name="email"]');
-    if (!email || !/.+@.+\..+/.test(email)) {
-      alert('Please enter a valid client email before completing the order.');
-      return;
-    }
-
-    const submitBtn = f.querySelector('[type="submit"]');
-    const origText = submitBtn ? submitBtn.textContent : '';
-    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
-
-    try {
-      const payload = buildCompleteOrderPayload();
-      const url = COMPLETE_ORDER_URL;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || `HTTP ${res.status}`);
-      }
-      window.location.href = 'post-checkout.html';
-    } catch (err) {
-      console.error('[CompleteOrder] Error:', err);
-      alert('Failed to complete order: ' + (err?.message || err));
-    } finally {
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
-    }
-  });
 })(); // ✅ CLOSE the complete-order IIFE properly
 
-// === Email Quote (PDFKit attach) ===
+// === Email Quote (PDFKit attach, v3 reCAPTCHA) ===
 (function emailQuoteWiring() {
   if (window.__EMAIL_QUOTE_WIRED__) return;
   window.__EMAIL_QUOTE_WIRED__ = true;
@@ -883,7 +886,7 @@
   const SEND_QUOTE_URL = `${API_BASE}/api/send-quote`;
 
   const text = (el) => (el?.textContent || '').trim();
-  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
+  const num  = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0; };
 
   function makeQuoteNumber() {
     const d = new Date(); const pad = (n) => String(n).padStart(2, '0');
@@ -913,25 +916,27 @@
     const root = document.getElementById(containerId);
     if (!root) return items;
 
+    // Preferred path (rows rendered by checkout.js)
     root.querySelectorAll('[data-item]').forEach((row) => {
-      const name = row.getAttribute('data-name') || text(row.querySelector('[data-cell="name"]')) || 'Item';
-      const qty = num(row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || text(row.querySelector('[data-cell="qty"]')) || 1);
-      const unitA = row.getAttribute('data-unit');
+      const name   = row.getAttribute('data-name') || text(row.querySelector('[data-cell="name"]')) || 'Item';
+      const qty    = num(row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || text(row.querySelector('[data-cell="qty"]')) || 1);
+      const unitA  = row.getAttribute('data-unit');
       const totalA = row.getAttribute('data-total') || text(row.querySelector('[data-cell="total"]'));
-      const unit = unitA != null ? num(unitA) : (parseZAR_Q(totalA) / Math.max(qty, 1));
+      const unit   = unitA != null ? num(unitA) : (parseZAR_Q(totalA) / Math.max(qty, 1));
       items.push({ name, qty, unit: Math.max(0, unit) });
     });
 
+    // Fallback (older markup)
     if (items.length === 0) {
       root.querySelectorAll('.table-row').forEach((row) => {
-        const nameCell = row.querySelector('[data-cell="name"], .name') || row;
-        const qtyCell = row.querySelector('[data-cell="qty"]');
+        const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
+        const qtyCell   = row.querySelector('[data-cell="qty"]');
         const totalCell = row.querySelector('[data-cell="total"], .amount');
-        const nameTxt = text(nameCell);
-        const qtyMatch = nameTxt.match(/\bx\s?(\d+)\b/i) || text(qtyCell).match(/\d+/);
-        const qty = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
-        const total = parseZAR_Q(text(totalCell));
-        const unit = total / Math.max(qty, 1);
+        const nameTxt   = text(nameCell);
+        const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || text(qtyCell).match(/\d+/);
+        const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
+        const total     = parseZAR_Q(text(totalCell));
+        const unit      = total / Math.max(qty, 1);
         if (nameTxt || total) items.push({ name: nameTxt || 'Item', qty, unit: Math.max(0, unit) });
       });
     }
@@ -940,19 +945,19 @@
 
   function buildQuotePayload() {
     const businessName = document.querySelector('input[name="businessName"]')?.value?.trim() || '';
-    const email = document.querySelector('input[name="email"]')?.value?.trim() || '';
-    const phone = document.querySelector('input[name="phone"]')?.value?.trim() || '';
-    const companyName = document.querySelector('input[name="company"]')?.value?.trim() || '';
-    const address = document.querySelector('input[name="address"]')?.value?.trim() || '';
+    const email        = document.querySelector('input[name="email"]')?.value?.trim() || '';
+    const phone        = document.querySelector('input[name="phone"]')?.value?.trim() || '';
+    const companyName  = document.querySelector('input[name="company"]')?.value?.trim() || '';
+    const address      = document.querySelector('input[name="address"]')?.value?.trim() || '';
 
     const itemsOnceOffRaw = collectItemsQuote('onceoff-rows');
     const itemsMonthlyRaw = collectItemsQuote('monthly-rows');
 
-    const onceOffSubtotalExVAT = parseZAR_Q(document.getElementById('subtotal-onceoff')?.textContent);
-    const monthlySubtotalExVAT = parseZAR_Q(document.getElementById('subtotal-monthly')?.textContent);
+    const onceOffSubtotalExVAT  = parseZAR_Q(document.getElementById('subtotal-onceoff')?.textContent);
+    const monthlySubtotalExVAT  = parseZAR_Q(document.getElementById('subtotal-monthly')?.textContent);
 
-    const itemsOnceOff = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
-    const itemsMonthly = itemsMonthlyRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
+    const itemsOnceOff  = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
+    const itemsMonthly  = itemsMonthlyRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
 
     return {
       delivery: 'attach',
@@ -966,7 +971,7 @@
     };
   }
 
-  async function postJSON(url, body, timeoutMs = 15000) {
+  async function postJSON(url, body, timeoutMs = 20000) {
     const ctrl = new AbortController();
     const t = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
@@ -983,10 +988,13 @@
     } finally { clearTimeout(t); }
   }
 
-  // --- reCAPTCHA v3 helpers ---
-  const RECAPTCHA_SITE_KEY = '6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw'; // site key only
-  async function getRecaptchaToken(action = 'send_quote') {
-    await new Promise((resolve) => grecaptcha.ready(resolve));
+  // --- reCAPTCHA v3 helper (single source of truth) ---
+  const RECAPTCHA_SITE_KEY = '6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw';
+  async function getRcToken(action = 'send_quote') {
+    // Wait for grecaptcha, but fail fast if it never becomes ready
+    const ready = new Promise((resolve) => grecaptcha.ready(resolve));
+    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('recaptcha_ready_timeout')), 8000));
+    await Promise.race([ready, timeout]);
     return grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
   }
 
@@ -998,24 +1006,18 @@
     btn.addEventListener('click', async () => {
       const email = document.querySelector('input[name="email"]')?.value?.trim();
       if (!email || !/.+@.+\..+/.test(email)) { alert('Please enter a valid email.'); return; }
-
       if (btn.__sending) return;
+
       btn.__sending = true;
       const orig = btn.textContent;
       btn.disabled = true; btn.textContent = 'Sending…';
 
       try {
-        // 1. Build payload
         const payload = buildQuotePayload();
+        const recaptchaAction = 'send_quote';
+        payload.recaptchaAction = recaptchaAction;
+        payload.recaptchaToken  = await getRcToken(recaptchaAction);
 
-        // 2. Get reCAPTCHA token
-        const recaptchaToken = await getRecaptchaToken('send_quote');
-
-        // 3. Attach token + action
-        payload.recaptchaToken = recaptchaToken;
-        payload.recaptchaAction = 'send_quote';
-
-        // 4. Send
         const resp = await postJSON(SEND_QUOTE_URL, payload, 20000);
         alert('Quote sent successfully.');
         console.log('[EmailQuote] OK:', resp);
@@ -1033,6 +1035,6 @@
   } else {
     bindEmailQuote();
   }
-})(); // CLOSE the emailQuoteWiring IIFE
+})(); // end emailQuoteWiring IIFE
 
-})(); // CLOSE the top-level wrapper
+})(); // end top-level wrapper
