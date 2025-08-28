@@ -829,53 +829,68 @@
     };
   }
 
-// Submit handler (Complete Order)
-const form = document.getElementById('quick-checkout-form');
-form?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const f = e.target;
+// --- reCAPTCHA v3 helper (shared for all actions) ---
+const RECAPTCHA_SITE_KEY = '6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw';
+async function getRcToken(action) {
+  // Wait for grecaptcha, but fail fast if it never becomes ready
+  const ready = new Promise((resolve) => grecaptcha.ready(resolve));
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('recaptcha_ready_timeout')), 8000)
+  );
+  await Promise.race([ready, timeout]);
+  return grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
+}
 
-  if (typeof f.checkValidity === 'function' && !f.checkValidity()) {
-    f.reportValidity && f.reportValidity();
-    return;
-  }
-  const email = (document.querySelector('input[name="email"]')?.value || '').trim();
-  if (!/.+@.+\..+/.test(email)) { alert('Please enter a valid client email before completing the order.'); return; }
+// === Submit handler (Complete Order) ===
+(function bindCompleteOrder() {
+  const form = document.getElementById('quick-checkout-form');
+  if (!form || form.__boundCompleteOrder) return;
+  form.__boundCompleteOrder = true;
 
-  const submitBtn = f.querySelector('[type="submit"]');
-  const origText = submitBtn?.textContent || '';
-  if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = e.target;
 
-  try {
-    const payload = buildCompleteOrderPayload(); // your existing builder
-
-    const recaptchaAction = 'complete_order';
-    const recaptchaToken  = await getRcToken(recaptchaAction);
-    payload.recaptchaAction = recaptchaAction;
-    payload.recaptchaToken  = recaptchaToken;
-
-    const API_BASE = 'https://voipshop-quote-api.vercel.app';
-    const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
-    const res = await fetch(COMPLETE_ORDER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (!res.ok) {
-      const msg = await res.text();
-      throw new Error(msg || `HTTP ${res.status}`);
+    if (typeof f.checkValidity === 'function' && !f.checkValidity()) {
+      f.reportValidity?.();
+      return;
     }
-    window.location.href = 'post-checkout.html';
-  } catch (err) {
-    console.error('[CompleteOrder] Error:', err);
-    alert('Failed to complete order: ' + (err?.message || err));
-  } finally {
-    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
-  }
-});
+    const email = (document.querySelector('input[name="email"]')?.value || '').trim();
+    if (!/.+@.+\..+/.test(email)) {
+      alert('Please enter a valid client email before completing the order.');
+      return;
+    }
 
-})(); // ✅ CLOSE the complete-order IIFE properly
+    const submitBtn = f.querySelector('[type="submit"]');
+    const origText = submitBtn?.textContent || '';
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
+
+    try {
+      const payload = buildCompleteOrderPayload(); // your existing builder
+      payload.recaptchaAction = 'complete_order';
+      payload.recaptchaToken  = await getRcToken('complete_order');
+
+      const API_BASE = 'https://voipshop-quote-api.vercel.app';
+      const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
+      const res = await fetch(COMPLETE_ORDER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || `HTTP ${res.status}`);
+      }
+      window.location.href = 'post-checkout.html';
+    } catch (err) {
+      console.error('[CompleteOrder] Error:', err);
+      alert('Failed to complete order: ' + (err?.message || err));
+    } finally {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
+    }
+  });
+})();
 
 // === Email Quote (PDFKit attach, v3 reCAPTCHA) ===
 (function emailQuoteWiring() {
@@ -988,16 +1003,6 @@ form?.addEventListener('submit', async (e) => {
     } finally { clearTimeout(t); }
   }
 
-  // --- reCAPTCHA v3 helper (single source of truth) ---
-  const RECAPTCHA_SITE_KEY = '6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw';
-  async function getRcToken(action = 'send_quote') {
-    // Wait for grecaptcha, but fail fast if it never becomes ready
-    const ready = new Promise((resolve) => grecaptcha.ready(resolve));
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('recaptcha_ready_timeout')), 8000));
-    await Promise.race([ready, timeout]);
-    return grecaptcha.execute(RECAPTCHA_SITE_KEY, { action });
-  }
-
   function bindEmailQuote() {
     const btn = document.getElementById('email-quote-btn');
     if (!btn || btn.__bound) return;
@@ -1014,9 +1019,8 @@ form?.addEventListener('submit', async (e) => {
 
       try {
         const payload = buildQuotePayload();
-        const recaptchaAction = 'send_quote';
-        payload.recaptchaAction = recaptchaAction;
-        payload.recaptchaToken  = await getRcToken(recaptchaAction);
+        payload.recaptchaAction = 'send_quote';
+        payload.recaptchaToken  = await getRcToken('send_quote');
 
         const resp = await postJSON(SEND_QUOTE_URL, payload, 20000);
         alert('Quote sent successfully.');
@@ -1035,6 +1039,7 @@ form?.addEventListener('submit', async (e) => {
   } else {
     bindEmailQuote();
   }
+})();
 })(); // end emailQuoteWiring IIFE
 
 })(); // end top-level wrapper
