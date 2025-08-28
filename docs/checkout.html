@@ -295,5 +295,17 @@
     <span style="font-size:14px;font-weight:600">Need help?</span>
   </a>
 </body>
+<!-- Google reCAPTCHA -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
+<form action="/api/send-quote" method="POST">
+  <!-- your existing form fields here -->
+
+  <!-- Add the reCAPTCHA widget -->
+  <div class="g-recaptcha" data-sitekey="6Le1tLUrAAAAAIjkcX2OGSroUsBNzL_69lgnYHXL"></div>
+
+  <button type="submit">Send Quote</button>
+</form>
+
 </html>
 
