@@ -855,14 +855,15 @@
       const origText = submitBtn ? submitBtn.textContent : '';
       if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
 
-      try {
-        const payload = buildCompleteOrderPayload();
-        const url = '/api/complete-order'; // Prefer relative; your API project can proxy if needed
-        const res = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+try {
+  const payload = buildCompleteOrderPayload();
+  const url = COMPLETE_ORDER_URL; // <-- FIXED
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
 
         if (!res.ok) {
           const msg = await res.text();
