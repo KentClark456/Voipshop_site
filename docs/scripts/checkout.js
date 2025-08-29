@@ -1153,7 +1153,7 @@ function collectItemsQuote(containerId) {
   } else {
     bindEmailQuote();
   }
-})();
+  
 })(); // end emailQuoteWiring IIFE
 
 })(); // end top-level wrapper
