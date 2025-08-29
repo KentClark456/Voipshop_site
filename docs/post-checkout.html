@@ -37,7 +37,7 @@
 
       <!-- Quick links -->
       <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <a id="btn-download-invoice" href="#" class="inline-flex items-center rounded-full bg-[#0071E3] px-6 py-3 text-white font-semibold hover:bg-[#0066CC]">Download Invoice (PDF)</a>
+        <a id="btn-download-invoice" href="#" class="inline-flex items-center rounded-full bg-[#0071E3] px-6 py-3 text-white font-semibold hover:bg-[#0066CC]">Download Invoice</a>
         <a id="btn-download-sla" href="#" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download SLA</a>
         <a id="btn-download-porting" href="#" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download Porting Document</a>
       </div>
@@ -192,7 +192,7 @@
     </section>
   </main>
 
-  <!-- Uploads JS -->
+  <!-- Uploads JS (unchanged) -->
   <script>
     // ===== Replace this with your backend endpoint =====
     const UPLOAD_ENDPOINT = '/api/porting/upload';
@@ -252,73 +252,86 @@
       }
     });
   </script>
-<script>
-  (function wireStaticDownloads() {
-    // ▼ USE THIS NOW (works immediately)
-    const API_BASE = 'https://voipshop-quote-api.vercel.app';
 
-    // ▼ WHEN your DNS is ready, you can switch to:
-    // const API_BASE = 'https://api.voipshop.co.za';
+  <!-- Hydrate + wire static PDF buttons -->
+  <script>
+    (function hydrateAndWire() {
+      'use strict';
+      // Use API project now; later you can switch to custom subdomain after DNS
+      const API_BASE = 'https://voipshop-quote-api.vercel.app';
+      // const API_BASE = 'https://api.voipshop.co.za';
 
-    // 1) Read identifiers
-    const url = new URL(window.location.href);
-    const qpEmail = url.searchParams.get('email');
-    const qpOrder = url.searchParams.get('order');
+      // 1) Read identifiers from URL → sessionStorage → localStorage → DOM fallback
+      const url = new URL(location.href);
+      const qp = {
+        order: url.searchParams.get('order'),
+        email: url.searchParams.get('email')
+      };
 
-    let meta = null;
-    try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
+      let ss = null;
+      try { ss = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
+      let ls = null;
+      try { ls = JSON.parse(localStorage.getItem('checkoutMeta') || 'null'); } catch {}
 
-    const email = qpEmail || meta?.email || 'you@example.com';
-    const order = qpOrder || meta?.orderNumber || 'VS-000000';
+      let order =
+        qp.order ||
+        ss?.orderNumber ||
+        ls?.orderNumber ||
+        (document.getElementById('order-number')?.textContent || '').replace(/^#/, '').trim() ||
+        'VS-000000';
 
-    // 2) Fill UI
-    const emailEl = document.getElementById('customer-email');
-    const orderEl = document.getElementById('order-number');
-    if (emailEl) emailEl.textContent = email;
-    if (orderEl) orderEl.textContent = order;
+      let email =
+        qp.email ||
+        ss?.email ||
+        ls?.email ||
+        (document.getElementById('customer-email')?.textContent || '').trim() ||
+        'you@example.com';
 
-    // 3) Helper to wire links
-    function link(a, href) {
-      if (!a) return;
-      a.href = href;
-      a.target = '_blank';
-      a.rel = 'noopener';
-      a.removeAttribute('download'); // open in new tab, not forced download
-    }
-    function warn(a, msg) {
-      if (!a) return;
-      a.removeAttribute('href');
-      a.addEventListener('click', e => { e.preventDefault(); alert(msg); }, { once: true });
-    }
+      // 2) Persist a copy so a new tab still has context
+      try {
+        const subtotals = ss?.subtotals || ls?.subtotals || null;
+        localStorage.setItem('checkoutMeta', JSON.stringify({ orderNumber: order, email, subtotals }));
+      } catch {}
 
-    // 4) Build URLs or warn if placeholder order
-    const hasRealOrder = order && !/^VS-0+$/.test(order);
-    const invHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice`;
-    const slaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`;
-    const loaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting`;
+      // 3) Fill UI (order/email text)
+      const emailEl = document.getElementById('customer-email');
+      const orderEl = document.getElementById('order-number');
+      if (emailEl) emailEl.textContent = email;
+      if (orderEl) orderEl.textContent = order;
 
-    const invoiceBtns = [
-      document.getElementById('btn-download-invoice'),
-      document.getElementById('btn-view-invoice'),
-    ];
-    const slaBtns = [
-      document.getElementById('btn-download-sla'),
-      document.getElementById('btn-download-sla-2'),
-    ];
-    const portingBtns = [
-      document.getElementById('btn-download-porting'),
-      document.getElementById('btn-download-porting-2'),
-    ];
+      // 4) Rehydrate summary (if totals were saved by checkout.js)
+      const subtotals = (ss && ss.subtotals) || (ls && ls.subtotals) || null;
+      const fmt = n => 'R ' + Number(n || 0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (subtotals) {
+        const monthly = document.getElementById('summary-monthly');
+        const onceoff = document.getElementById('summary-onceoff');
+        if (monthly) monthly.textContent = fmt(subtotals.monthly);
+        if (onceoff)  onceoff.textContent  = fmt(subtotals.onceOff);
+      }
 
-    if (hasRealOrder) {
-      invoiceBtns.forEach(a => link(a, invHref));
-      slaBtns.forEach(a => link(a, slaHref));
-      portingBtns.forEach(a => link(a, loaHref));
-    } else {
-      const msg = 'No valid order number yet. Refresh this page after completing checkout.';
-      [...invoiceBtns, ...slaBtns, ...portingBtns].forEach(a => warn(a, msg));
-    }
-  })();
-</script>
+      // 5) Wire links to static API routes (open in a new tab)
+      function link(a, href){
+        if (!a) return;
+        a.href = href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.removeAttribute('download');
+      }
+
+      const invHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice`;
+      const slaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`;
+      const loaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting`;
+
+      link(document.getElementById('btn-download-invoice'), invHref);
+      link(document.getElementById('btn-view-invoice'), invHref);
+      link(document.getElementById('btn-download-sla'), slaHref);
+      link(document.getElementById('btn-download-porting'), loaHref);
+      link(document.getElementById('btn-download-sla-2'), slaHref);
+      link(document.getElementById('btn-download-porting-2'), loaHref);
+
+      // 6) Console debug so you can see what data was used
+      console.log('[post-checkout] hydrated with:', { order, email, subtotals, qp, ss, ls });
+    })();
+  </script>
 </body>
 </html>

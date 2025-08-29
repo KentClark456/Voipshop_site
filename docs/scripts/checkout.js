@@ -851,6 +851,7 @@ async function getRcToken(action) {
     e.preventDefault();
     const f = e.target;
 
+    // Basic form checks
     if (typeof f.checkValidity === 'function' && !f.checkValidity()) {
       f.reportValidity?.();
       return;
@@ -866,23 +867,54 @@ async function getRcToken(action) {
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Processing…'; }
 
     try {
-      const payload = buildCompleteOrderPayload(); // your existing builder
+      // Build payload & reCAPTCHA
+      const payload = buildCompleteOrderPayload();
       payload.recaptchaAction = 'complete_order';
       payload.recaptchaToken  = await getRcToken('complete_order');
 
+      // API endpoint
       const API_BASE = 'https://voipshop-quote-api.vercel.app';
       const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
+
+      // POST
       const res = await fetch(COMPLETE_ORDER_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || `HTTP ${res.status}`);
+      const ct = res.headers.get('content-type') || '';
+      const data = ct.includes('application/json') ? await res.json() : await res.text();
+
+      if (!res.ok || (data && data.ok === false)) {
+        const msg = (data && data.error) || (typeof data === 'string' ? data : `HTTP ${res.status}`);
+        throw new Error(msg);
       }
-      window.location.href = 'post-checkout.html';
+
+      // Pull identifiers (prefer API values, fall back to what we sent)
+      const orderNumber   = String((data && data.orderNumber)   || payload.orderNumber   || '').trim();
+      const invoiceNumber = String((data && data.invoiceNumber) || payload.invoiceNumber || '').trim();
+      const customerEmail = String(payload?.customer?.email || '').trim();
+
+      // Persist for post-checkout.html to hydrate from
+      const meta = {
+        orderNumber,
+        invoiceNumber,
+        email: customerEmail,
+        subtotals: {
+          onceOff: Number(payload?.onceOff?.totals?.exVat || 0),
+          monthly: Number(payload?.monthly?.totals?.exVat || 0)
+        }
+      };
+      sessionStorage.setItem('checkoutMeta', JSON.stringify(meta));
+      try { localStorage.setItem('checkoutMeta', JSON.stringify(meta)); } catch {}
+
+      // Redirect WITH query params so the page can link static PDF routes immediately
+      const q = new URLSearchParams();
+      if (orderNumber) q.set('order', orderNumber);
+      if (customerEmail) q.set('email', customerEmail);
+
+      window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
     } catch (err) {
       console.error('[CompleteOrder] Error:', err);
       alert('Failed to complete order: ' + (err?.message || err));
@@ -891,6 +923,7 @@ async function getRcToken(action) {
     }
   });
 })();
+
 
 // === Email Quote (PDFKit attach, v3 reCAPTCHA) ===
 (function emailQuoteWiring() {
