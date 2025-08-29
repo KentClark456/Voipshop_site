@@ -252,52 +252,73 @@
       }
     });
   </script>
-
 <script>
-  (function wireStaticDownloads(){
-    // 1) Set the API base to your API project (pick one):
-    // const API_BASE = 'https://voipshop-quote-api.vercel.app';
-    const API_BASE = 'https://api.voipshop.co.za'; // if you point this domain to the API project in Vercel
+  (function wireStaticDownloads() {
+    // ▼ USE THIS NOW (works immediately)
+    const API_BASE = 'https://voipshop-quote-api.vercel.app';
 
-    // 2) Read order/email
+    // ▼ WHEN your DNS is ready, you can switch to:
+    // const API_BASE = 'https://api.voipshop.co.za';
+
+    // 1) Read identifiers
     const url = new URL(window.location.href);
     const qpEmail = url.searchParams.get('email');
     const qpOrder = url.searchParams.get('order');
+
     let meta = null;
     try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
+
     const email = qpEmail || meta?.email || 'you@example.com';
     const order = qpOrder || meta?.orderNumber || 'VS-000000';
 
-    // 3) Fill UI
+    // 2) Fill UI
     const emailEl = document.getElementById('customer-email');
     const orderEl = document.getElementById('order-number');
     if (emailEl) emailEl.textContent = email;
     if (orderEl) orderEl.textContent = order;
 
-    // 4) Build absolute URLs to the API project
-    const invHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice`;
-    const slaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`;
-    const loaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting`;
-
-    // 5) Apply (prefer preview vs forced download)
-    function link(a, href, forceDownload=false){
+    // 3) Helper to wire links
+    function link(a, href) {
       if (!a) return;
       a.href = href;
       a.target = '_blank';
       a.rel = 'noopener';
-      if (forceDownload) a.setAttribute('download', '');
-      else a.removeAttribute('download');
+      a.removeAttribute('download'); // open in new tab, not forced download
     }
-    link(document.getElementById('btn-download-invoice'), invHref, false);
-    link(document.getElementById('btn-download-sla'), slaHref, false);
-    link(document.getElementById('btn-download-porting'), loaHref, false);
-    link(document.getElementById('btn-view-invoice'), invHref, false);
+    function warn(a, msg) {
+      if (!a) return;
+      a.removeAttribute('href');
+      a.addEventListener('click', e => { e.preventDefault(); alert(msg); }, { once: true });
+    }
 
-    // “Download & sign” section
-    link(document.getElementById('btn-download-sla-2'), slaHref, false);
-    link(document.getElementById('btn-download-porting-2'), loaHref, false);
+    // 4) Build URLs or warn if placeholder order
+    const hasRealOrder = order && !/^VS-0+$/.test(order);
+    const invHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice`;
+    const slaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`;
+    const loaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting`;
+
+    const invoiceBtns = [
+      document.getElementById('btn-download-invoice'),
+      document.getElementById('btn-view-invoice'),
+    ];
+    const slaBtns = [
+      document.getElementById('btn-download-sla'),
+      document.getElementById('btn-download-sla-2'),
+    ];
+    const portingBtns = [
+      document.getElementById('btn-download-porting'),
+      document.getElementById('btn-download-porting-2'),
+    ];
+
+    if (hasRealOrder) {
+      invoiceBtns.forEach(a => link(a, invHref));
+      slaBtns.forEach(a => link(a, slaHref));
+      portingBtns.forEach(a => link(a, loaHref));
+    } else {
+      const msg = 'No valid order number yet. Refresh this page after completing checkout.';
+      [...invoiceBtns, ...slaBtns, ...portingBtns].forEach(a => warn(a, msg));
+    }
   })();
 </script>
-
 </body>
 </html>
