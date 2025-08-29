@@ -380,8 +380,8 @@ if (vnum && vnum.mode === 'new') {
   const RP = /remote\s*provision/i;
   const onceToRender  = onceItems.filter(it => isVoiceOnly || !RP.test(String(it?.name || '')));
   const monthToRender = monthlyItems.filter(it => isVoiceOnly || !RP.test(String(it?.name || '')));
-
-  // ---------- Render ----------
+// ---------- Render (run after DOM is ready) ----------
+function initCartUI() {
   const onceWrap  = document.getElementById('onceoff-rows');
   const monthWrap = document.getElementById('monthly-rows');
 
@@ -551,6 +551,18 @@ if (vnum && vnum.mode === 'new') {
       }
     });
   }
+
+  // ensure totals/summary update after initial render
+  if (typeof recalcEverything === 'function') recalcEverything();
+}
+
+// Call render after DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initCartUI, { once: true });
+} else {
+  initCartUI();
+}
+
 
   // ---------- Quantity handlers (event delegation) ----------
   document.addEventListener('click', (e) => {
@@ -880,21 +892,22 @@ async function getRcToken(action) {
 }
 
 // === Submit handler (Complete Order) ===
-(function bindCompleteOrder() {
+function wireCompleteOrder() {
   const form = document.getElementById('quick-checkout-form');
-  if (!form || form.__boundCompleteOrder) return;
-  form.__boundCompleteOrder = true;
+  if (!form || form.dataset.completeOrderBound === '1') return;
+
+  form.dataset.completeOrderBound = '1';
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const f = e.target;
+    const f = e.currentTarget;
 
     // Basic form checks
     if (typeof f.checkValidity === 'function' && !f.checkValidity()) {
       f.reportValidity?.();
       return;
     }
-    const email = (document.querySelector('input[name="email"]')?.value || '').trim();
+    const email = (f.querySelector('input[name="email"]')?.value || '').trim();
     if (!/.+@.+\..+/.test(email)) {
       alert('Please enter a valid client email before completing the order.');
       return;
@@ -910,12 +923,8 @@ async function getRcToken(action) {
       payload.recaptchaAction = 'complete_order';
       payload.recaptchaToken  = await getRcToken('complete_order');
 
-      // API endpoint
-      const API_BASE = 'https://voipshop-quote-api.vercel.app';
-      const COMPLETE_ORDER_URL = `${API_BASE}/api/complete-order`;
-
       // POST
-      const res = await fetch(COMPLETE_ORDER_URL, {
+      const res = await fetch('https://voipshop-quote-api.vercel.app/api/complete-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -934,7 +943,7 @@ async function getRcToken(action) {
       const invoiceNumber = String((data && data.invoiceNumber) || payload.invoiceNumber || '').trim();
       const customerEmail = String(payload?.customer?.email || '').trim();
 
-      // --- Save direct Blob URLs (if provided by the API) for instant downloads ---
+      // Save direct Blob URLs (if provided by the API) for instant downloads
       try {
         const downloads = {
           invoiceUrl: data?.invoiceUrl || '',
@@ -958,12 +967,11 @@ async function getRcToken(action) {
       };
       sessionStorage.setItem('checkoutMeta', JSON.stringify(meta));
 
-// Redirect with query params
-const q = new URLSearchParams();
-if (orderNumber) q.set('order', orderNumber);
-if (customerEmail) q.set('email', customerEmail);
-
-window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
+      // Redirect with query params
+      const q = new URLSearchParams();
+      if (orderNumber) q.set('order', orderNumber);
+      if (customerEmail) q.set('email', customerEmail);
+      window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
 
     } catch (err) {
       console.error('[CompleteOrder] Error:', err);
@@ -972,7 +980,22 @@ window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = origText; }
     }
   });
-})();
+}
+
+// Bind on DOM ready; also retry if the form is injected late
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', wireCompleteOrder, { once: true });
+} else {
+  wireCompleteOrder();
+}
+
+// If your UI injects the form later, observe and bind once it appears
+new MutationObserver(() => {
+  const form = document.getElementById('quick-checkout-form');
+  if (form && form.dataset.completeOrderBound !== '1') {
+    wireCompleteOrder();
+  }
+}).observe(document.documentElement, { childList: true, subtree: true });
 
 
 // === Email Quote (PDFKit attach, v3 reCAPTCHA) ===
@@ -1153,7 +1176,7 @@ function collectItemsQuote(containerId) {
   } else {
     bindEmailQuote();
   }
-  
+})();
 })(); // end emailQuoteWiring IIFE
 
 })(); // end top-level wrapper
