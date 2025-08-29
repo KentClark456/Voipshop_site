@@ -1,9 +1,10 @@
-// docs/scripts/site.js — compatibility layer for new partial nav + legacy fallback
+// docs/scripts/site.js — compatibility layer for new partial nav + legacy fallback (with mobile menu & force flag)
 (function () {
-  // ---------- Helpers shared by both nav versions ----------
+  // ---------- Shared helpers ----------
   function safeParse(key) {
     try { return JSON.parse(localStorage.getItem(key) || 'null'); } catch { return null; }
   }
+
   function getCartCount() {
     const custom   = safeParse('voip:customBuild') || [];
     const selected = safeParse('voip:selectedPackage') || {};
@@ -15,6 +16,7 @@
     }
     return 0;
   }
+
   function updateAllCartBadges() {
     const n = getCartCount();
 
@@ -22,7 +24,7 @@
     document.querySelectorAll('[data-cart-count]').forEach(el => {
       if (n > 0) {
         el.textContent = n;
-        el.setAttribute('data-show', 'true'); // used by new partial CSS
+        el.setAttribute('data-show', 'true');
         el.hidden = false;
       } else {
         el.textContent = '';
@@ -39,38 +41,48 @@
     }
   }
 
-  // Re-run badge updates on load and when storage changes
   document.addEventListener('DOMContentLoaded', updateAllCartBadges);
   window.addEventListener('storage', (e) => {
     if (['voip:customBuild','voip:selectedPackage'].includes(e.key)) updateAllCartBadges();
   });
 
-  // ---------- Decide: new partial present? then skip legacy injection ----------
+  // ---------- Decide: new partial present? ----------
   document.addEventListener('DOMContentLoaded', () => {
-    const hasNewPartial =
-      document.getElementById('mobile-nav') ||           // off-canvas container from new partial
-      document.getElementById('menu-toggle');            // hamburger button from new partial
+    // Set window.NAV_FORCE_LEGACY = true before this script loads if you want to force the legacy header.
+    const forceLegacy = window.NAV_FORCE_LEGACY === true;
 
-    if (hasNewPartial) {
-      console.log('[nav] New partial detected — skipping legacy injection.');
-      return; // ✅ Let the new partial handle everything (including its own JS/CSS)
+    if (!forceLegacy) {
+      const hasNewPartial =
+        document.getElementById('mobile-nav') ||   // off-canvas container from new partial
+        document.getElementById('menu-toggle');    // hamburger button from new partial
+
+      if (hasNewPartial) {
+        console.log('[nav] New partial detected — skipping legacy injection.');
+        return; // Let the new partial handle everything (including its own JS/CSS)
+      }
+    } else {
+      console.log('[nav] Force legacy flag is ON — injecting legacy header.');
     }
 
-    // ---------- Legacy nav injection (only if partial is NOT present) ----------
+    // ---------- Legacy nav injection ----------
 
-    // If you also rely on Tailwind utilities elsewhere, keep a small safelist:
+    // Optional Tailwind safelist (harmless if Tailwind not used). We only load the CDN if it isn't already present.
     const TW_SAFELIST = [
+      'hidden','block','md:hidden','md:flex','overflow-hidden',
       'bg-white/90','border-b','border-gray-200','sticky','top-0','z-50','backdrop-blur',
-      'max-w-screen-xl','mx-auto','px-6','py-4','flex','items-center','justify-between',
-      'gap-3','gap-8','text-sm','font-medium','tracking-tight','text-gray-700',
-      'hover:text-black','relative','text-blue-600','h-5','w-5',
-      'absolute','-top-1','-right-2','bg-blue-600','text-white','text-[10px]','font-bold','px-1.5','rounded-full'
+      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+      'flex','items-center','justify-between','gap-6',
+      'text-sm','font-medium','tracking-tight','text-gray-700','hover:text-black',
+      'space-y-2','text-base'
     ];
 
     function ensureTailwind() {
       return new Promise((resolve, reject) => {
         if (document.querySelector('script[src*="cdn.tailwindcss.com"]')) return resolve();
-        window.tailwind = { config: { safelist: TW_SAFELIST } };
+        // Provide a tiny config so any JS-toggled classes won't be purged.
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = window.tailwind.config || {};
+        window.tailwind.config.safelist = Array.from(new Set([...(window.tailwind.config.safelist || []), ...TW_SAFELIST]));
         const s = document.createElement('script');
         s.src = 'https://cdn.tailwindcss.com';
         s.async = true; s.defer = true;
@@ -91,22 +103,61 @@
     }
 
     function removeLegacyNav() {
+      // Remove any old headers your older templates may have rendered
       document.querySelectorAll('header.site-navbar, header[data-legacy-nav], header[role="banner"]')
         .forEach(el => el.remove());
     }
 
+    // Header-only CSS (scoped to #nav-slot > header so it can’t move your page titles)
     function injectNavCSS() {
       if (document.querySelector('style[data-nav-style]')) return;
       const css = `
         #nav-slot { display:block; }
         #nav-slot > header{
-          max-width:none !important; margin:0 !important; width:100vw !important;
-          margin-left:calc(50% - 50vw) !important; margin-right:calc(50% - 50vw) !important;
+          width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
           position:sticky; top:0; z-index:50;
           background:rgba(255,255,255,.9);
           backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-          border-bottom:1px solid #e5e7eb; text-align:initial !important;
+          border-bottom:1px solid #e5e7eb; text-align:initial;
         }
+        /* LIMIT scope strictly to the injected header */
+        #nav-slot > header, #nav-slot > header * { box-sizing:border-box; }
+        #nav-slot > header .row{
+          width:100%; margin:0;
+          padding:12px 16px 12px 12px;
+          display:flex; align-items:center; justify-content:space-between; gap:24px;
+        }
+        #nav-slot > header nav { display:none; margin-left:auto; align-items:center; gap:24px; }
+        #nav-slot > header a { color:#374151; text-decoration:none; font:500 14px/1.2 system-ui; }
+        #nav-slot > header a:hover { color:#000; }
+        #nav-slot > header nav a[aria-current="page"] { color:#000; }
+        #nav-slot > header svg { display:block; }
+
+        /* Desktop ≥900px: show desktop nav, HIDE burger & mobile panel */
+        @media (min-width:900px){
+          #nav-slot > header nav[data-desktop="true"]{ display:inline-flex; }
+          #nav-slot > header button[data-toggle="mobile"]{ display:none !important; } /* <— important to beat inline */
+          #nav-slot > header #mobileMenu{ display:none !important; }
+        }
+        /* Mobile <900px: hide desktop nav, show burger */
+        @media (max-width:899.98px){
+          #nav-slot > header nav[data-desktop="true"]{ display:none; }
+          #nav-slot > header button[data-toggle="mobile"]{ display:inline-flex; }
+        }
+
+        /* Mobile panel default hidden; JS toggles [hidden] attribute */
+        #nav-slot > header #mobileMenu[hidden] { display:none !important; }
+        #nav-slot > header #mobileMenu{
+          background:#fff; border-top:1px solid #e5e7eb;
+        }
+        #nav-slot > header #mobileMenu ul{
+          list-style:none; margin:0; padding:12px 16px;
+        }
+        #nav-slot > header #mobileMenu a{
+          display:block; padding:10px 4px; color:#111827; text-decoration:none;
+          font:500 16px/1.2 system-ui;
+        }
+        #nav-slot > header #mobileMenu a:hover{ color:#000; }
       `;
       const style = document.createElement('style');
       style.setAttribute('data-nav-style', '1');
@@ -114,92 +165,128 @@
       document.head.appendChild(style);
     }
 
-    function injectNavLock() {
-      if (document.querySelector('style[data-nav-style-lock]')) return;
-      const css = `
-        #nav-slot, #nav-slot * { box-sizing:border-box; max-width:none !important; }
-        #nav-slot { font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif !important; }
-        #nav-slot > header { text-align:initial !important; }
-        #nav-slot > header > div{
-          margin:0 !important; width:100% !important;
-          display:flex !important; align-items:center !important; justify-content:space-between !important; gap:24px !important;
-          padding:12px 24px 12px 12px !important;
-        }
-        #nav-slot nav { margin-left:auto !important; display:inline-flex !important; align-items:center !important; gap:32px !important; }
-        #nav-slot a { color:#374151 !important; text-decoration:none !important; font:500 14px/1.2 system-ui !important; letter-spacing:0 !important; }
-        #nav-slot a:hover { color:#000 !important; }
-        #nav-slot nav a[aria-current="page"] { color:#000 !important; }
-        #nav-slot svg { display:block !important; }
-      `;
-      const style = document.createElement('style');
-      style.setAttribute('data-nav-style-lock', '1');
-      style.appendChild(document.createTextNode(css));
-      document.head.appendChild(style);
-    }
-
     const NAV_HTML = `
-<header style="
-  width:100vw; margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw);
-  position:sticky; top:0; z-index:50;
-  background:rgba(255,255,255,.9); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-  border-bottom:1px solid #e5e7eb; text-align:initial;">
-  <div style="
-    width:100%; max-width:none; margin:0;
-    padding:12px 24px 12px 12px; box-sizing:border-box;
-    display:flex; align-items:center; gap:24px; justify-content:space-between;">
-    <a href="index.html" aria-label="VoIP Shop — Home"
-       style="display:inline-flex; align-items:center; gap:12px; text-decoration:none; margin-left:12px !important;">
-      <img src="Assets/Group 1642logo (1).png" alt="VoIP Shop Logo"
-           style="height:32px; width:auto; object-fit:contain; display:block;">
+<header>
+  <div class="row">
+    <!-- Brand -->
+    <a href="index.html" aria-label="VoIP Shop — Home" style="display:inline-flex;align-items:center;gap:12px;text-decoration:none;margin-left:12px">
+      <img src="Assets/Group 1642logo (1).png" alt="VoIP Shop Logo" style="height:32px;width:auto;object-fit:contain;display:block">
     </a>
-    <nav aria-label="Primary"
-         style="margin-left:auto; display:inline-flex; align-items:center; gap:32px;">
-      <a href="packages.html"          style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Packages</a>
-      <a href="build-solution.html"    style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Custom Build</a>
-      <a href="voice-services.html"    style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Voice Services</a>
-      <a href="mobile-app.html"        style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Mobile App</a>
-      <a href="contact.html"           style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Contact Us</a>
 
-      <a href="checkout.html" title="Cart"
-         style="position:relative; display:inline-flex; align-items:center; color:#0B63E6; text-decoration:none;">
-        <svg viewBox="0 0 24 24" aria-hidden="true" style="height:20px; width:20px; display:block;">
-          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7h13l-1.5-7M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm8 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+    <!-- Desktop nav -->
+    <nav data-desktop="true" aria-label="Primary">
+      <a href="packages.html">Packages</a>
+      <a href="build-solution.html">Custom Build</a>
+      <a href="voice-services.html">Voice Services</a>
+      <a href="mobile-app.html">Mobile App</a>
+      <a href="contact.html">Contact Us</a>
+
+      <a href="checkout.html" title="Cart" style="position:relative;display:inline-flex;align-items:center;color:#0B63E6;margin-left:6px">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="height:20px;width:20px">
+          <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 7h13l-1.5-7M9 21a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <span id="cart-count" hidden
-              style="position:absolute; top:-6px; right:-8px; background:#0B63E6; color:#fff;
-                     font:700 10px/1 system-ui; padding:2px 6px; border-radius:999px;"></span>
+              style="position:absolute;top:-6px;right:-8px;background:#0B63E6;color:#fff;font:700 10px/1 system-ui;padding:2px 6px;border-radius:999px"></span>
       </a>
-
-      <a href="login.html" title="Account" aria-label="Account"
-         style="display:inline-flex; align-items:center; color:#374151; text-decoration:none;">
-        <svg viewBox="0 0 24 24" aria-hidden="true" style="height:20px; width:20px; display:block;">
+      <a href="login.html" title="Account" aria-label="Account" style="display:inline-flex;align-items:center;color:#374151;text-decoration:none">
+        <svg viewBox="0 0 24 24" aria-hidden="true" style="height:20px;width:20px">
           <circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="2"/>
           <path d="M5.5 21a6.5 6.5 0 0 1 13 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
       </a>
     </nav>
+
+    <!-- Mobile hamburger -->
+    <button data-toggle="mobile"
+            id="navToggle"
+            aria-label="Toggle menu"
+            aria-controls="mobileMenu"
+            aria-expanded="false"
+            style="margin-left:auto;display:inline-flex;align-items:center;justify-content:center;height:40px;width:44px;border:1px solid #e5e7eb;border-radius:12px;background:#fff">
+      <svg xmlns="http://www.w3.org/2000/svg" style="height:24px;width:24px" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile panel -->
+  <div id="mobileMenu" hidden>
+    <ul>
+      <li><a href="packages.html">Packages</a></li>
+      <li><a href="build-solution.html">Custom Build</a></li>
+      <li><a href="voice-services.html">Voice Services</a></li>
+      <li><a href="mobile-app.html">Mobile App</a></li>
+      <li><a href="contact.html">Contact Us</a></li>
+      <li><a href="checkout.html">Cart</a></li>
+      <li><a href="login.html">Account</a></li>
+    </ul>
   </div>
 </header>`.trim();
 
-    function highlightActive(slot) {
+    function highlightActive(root) {
       const current = location.pathname.replace(/index\.html$/, '').replace(/\/+$/, '');
-      slot.querySelectorAll('nav a[href]').forEach(a => {
+      root.querySelectorAll('nav a[href], #mobileMenu a[href]').forEach(a => {
         const href = new URL(a.getAttribute('href'), location.href)
           .pathname.replace(/index\.html$/, '').replace(/\/+$/, '');
         if (href === current) a.setAttribute('aria-current', 'page');
       });
     }
 
+    function wireMobileToggle(root) {
+      const btn  = root.querySelector('#navToggle');
+      const menu = root.querySelector('#mobileMenu');
+      if (!btn || !menu) return;
+
+      // Use inline overflow lock (works without Tailwind)
+      let prevOverflow = '';
+      function setOpen(open) {
+        btn.setAttribute('aria-expanded', String(open));
+        if (open) {
+          menu.removeAttribute('hidden');
+          prevOverflow = document.documentElement.style.overflow;
+          document.documentElement.style.overflow = 'hidden';
+        } else {
+          menu.setAttribute('hidden', '');
+          document.documentElement.style.overflow = prevOverflow || '';
+        }
+      }
+
+      btn.addEventListener('click', () => setOpen(menu.hasAttribute('hidden')));
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false); });
+      menu.addEventListener('click', (e) => { if (e.target.closest('a')) setOpen(false); });
+
+      // Close menu if we resize up to desktop while open
+      let lastW = window.innerWidth;
+      window.addEventListener('resize', () => {
+        const w = window.innerWidth;
+        if (w !== lastW && w >= 900) setOpen(false);
+        lastW = w;
+      });
+    }
+
+    // Inject
     ensureTailwind().finally(() => {
       injectNavCSS();
-      injectNavLock();
       removeLegacyNav();
       const slot = ensureNavSlot();
       slot.innerHTML = NAV_HTML;
       highlightActive(slot);
+      wireMobileToggle(slot);
       updateAllCartBadges();
-      console.log('[nav] Legacy header injected (no partial found).');
+
+      // ---- JS safety net to hide burger on desktop right now ----
+      const burg = slot.querySelector('button[data-toggle="mobile"]');
+      if (window.innerWidth >= 900 && burg) burg.style.display = 'none';
+
+      window.addEventListener('resize', () => {
+        if (!burg) return;
+        if (window.innerWidth >= 900) burg.style.display = 'none';
+        else burg.style.display = 'inline-flex';
+      });
+
+      console.log('[nav] Legacy header injected.');
     });
   });
 })();

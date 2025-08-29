@@ -971,7 +971,9 @@ function wireCompleteOrder() {
       const q = new URLSearchParams();
       if (orderNumber) q.set('order', orderNumber);
       if (customerEmail) q.set('email', customerEmail);
-      window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
+      const qs = q.toString();
+window.location.href = `post-checkout.html${qs ? `?${qs}` : ''}`;
+
 
     } catch (err) {
       console.error('[CompleteOrder] Error:', err);
