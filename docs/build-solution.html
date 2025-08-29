@@ -10,26 +10,42 @@
   <!-- End Google Tag Manager -->
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- keep -->
   <title>VoIP Shop - Build a Solution</title>
   <meta name="description" content="Build a custom PBX setup: choose reception, desk and cordless phones. Professional install, remote support, and simple monthly service." />
+
+  <!-- NEW: Mobile & PWA niceties -->
+  <meta name="theme-color" content="#0A84FF" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0A84FF" media="(prefers-color-scheme: dark)" />
+  <meta name="format-detection" content="telephone=no,address=no,email=no"> <!-- avoid aggressive iOS linking -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
   <!-- Preload CSS for faster first paint + fallback -->
   <link rel="preload" as="style" href="style.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="style.css"></noscript>
 
   <link rel="icon" type="image/png" href="Assets/icon _voice_.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
 
   <!-- Page-scoped responsive + perf polish (rail removed, full-width grid + slider) -->
   <style>
-    :root{ --navH: 72px; }
+    :root{ --navH: 72px; --safe: env(safe-area-inset-bottom, 0px); }
 
-    /* Prevent sticky ancestors from being clipped or broken */
+    /* NEW: system behaviors for mobile */
+    html { scroll-behavior: smooth; }
     html, body { height: auto; min-height: 100%; overflow-y: auto; }
-    body { -webkit-tap-highlight-color: transparent; }
+    body {
+      -webkit-tap-highlight-color: transparent;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+      touch-action: manipulation; /* removes 300ms delay on some browsers */
+      background: #f3f4f6; /* bg-gray-100 */
+      color: #111827;
+      font-family: Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+    }
 
     /* Clear anchor jumps below sticky UI */
     section[id] { scroll-margin-top: max(56px, var(--navH)); }
@@ -76,6 +92,9 @@
       min-height: 360px;
       padding: clamp(12px, 2.2vw, 20px);
       box-sizing: border-box;
+      background: #fff; /* ensure cards contrast on mobile */
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
     }
 
     /* Paint sections only when needed */
@@ -85,9 +104,19 @@
       padding-block: 4px;
     }
 
-    /* Animations (respect reduced motion) */
+    /* Reduce motion where requested */
     @media (prefers-reduced-motion: reduce){
-      * { animation: none !important; transition: none !important; }
+      * { animation: none !important; transition: none !important; scroll-behavior: auto; }
+    }
+
+    /* Dark mode support (keeps it subtle) */
+    @media (prefers-color-scheme: dark) {
+      body { background: #0b0b0c; color: #e5e7eb; }
+      .hardware-container > *{ background:#111214; border-color:#1f2429; }
+      .hardware-section-title .highlighted-text{
+        background:#0c1b30; color:#8ab9ff; border-color:#163861;
+      }
+      .hardware-divider{ border-top-color:#252a30; }
     }
 
     #intro .border-t{ border-color: rgba(229,231,235,.6); }
@@ -100,8 +129,9 @@
       transform: translateY(-50%);
       z-index: 60;
       display: none; /* show on desktop only */
+      will-change: transform; /* perf hint */
     }
-    @media (min-width: 1024px){ #section-slider{ display:flex; } }
+    @media (min-width: 1024px){ #section-slider{ display:flex; } } /* CHANGED: desktop-only */
 
     #section-slider .slider-shell{
       display:flex; flex-direction:column; align-items:center; gap:8px;
@@ -113,8 +143,8 @@
       box-shadow: 0 10px 28px rgba(0,0,0,.08);
     }
     #section-slider .arrow{
-      width:38px; height:38px; display:grid; place-items:center;
-      border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer;
+      width:44px; height:44px; display:grid; place-items:center; /* bigger tap target */
+      border-radius:12px; border:1px solid #e5e7eb; background:#fff; cursor:pointer;
       font-weight:700; line-height:1;
     }
     #section-slider .arrow:hover{ background:#f9fafb; }
@@ -123,25 +153,77 @@
     #section-slider .links{
       display:flex; flex-direction:column; gap:6px; align-items:stretch;
       max-height: min(60vh, 520px); overflow:auto;
+      -webkit-overflow-scrolling: touch;
     }
     #section-slider .link{
       display:flex; align-items:center; gap:10px;
       border:1px solid #f0f0f0; background:#fff;
-      padding:8px 10px; border-radius:12px; text-decoration:none; color:#111827;
+      padding:12px 12px; border-radius:12px; text-decoration:none; color:#111827;
       font:600 13px/1.2 system-ui; white-space:nowrap;
+      min-width: 160px;
     }
     #section-slider .link:hover{ background:#f9fafb; }
     #section-slider .link[aria-current="true"]{
       border-color:#cfe2ff; background:#eef5ff; color:#0b63e6;
     }
     #section-slider .icon{ width:18px; height:18px; }
+
+    /* NEW: Mobile sticky summary & CTA (visible under 1024px) */
+    #mobile-cta {
+      position: sticky;
+      bottom: 0;
+      z-index: 70;
+      padding: 10px clamp(12px, 4vw, 20px);
+      padding-bottom: calc(10px + var(--safe));
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(10px) saturate(140%);
+      border-top: 1px solid rgba(17,24,39,.08);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+    #mobile-cta .totals {
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+    #mobile-cta .pill {
+      display:inline-flex; align-items:baseline; gap:6px;
+      background:#f3f4f6; border:1px solid #e5e7eb; border-radius:999px;
+      padding:8px 10px; font-weight:600; font-size:13px;
+    }
+    #mobile-cta .pill span.small {
+      font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#6b7280; font-weight:700;
+    }
+    #mobile-cta .cta-btn {
+      display:inline-flex; align-items:center; gap:10px;
+      border:none; border-radius:12px; padding:12px 16px; font-weight:700;
+      background:#0071E3; color:#fff; text-decoration:none;
+      box-shadow: 0 6px 14px rgba(0,113,227,.3);
+    }
+    #mobile-cta .cta-btn:active { transform: translateY(1px); }
+    @media (min-width: 1024px){ #mobile-cta { display:none; } } /* desktop hides it */
+
+    /* NEW: Hide the large Step 2 card on small screens (we have sticky CTA) */
+    @media (max-width: 1023.98px){
+      #step-2 .rounded-2xl { display:none; }
+    }
+
+    /* NEW: Hover-only styles should not reduce contrast on touch devices */
+    @media (hover: none) {
+      #section-slider .link:hover { background:#fff; }
+    }
+
+    /* Animation helpers */
+    @keyframes fadeInUp { 0%{opacity:0;transform:translateY(12px);} 100%{opacity:1;transform:translateY(0);} }
+    .animate-fadeInUp { opacity:0; animation: fadeInUp .6s ease-out forwards; }
+    .delay-100 { animation-delay:.1s; } .delay-200 { animation-delay:.2s; } .delay-300 { animation-delay:.3s; }
   </style>
 </head>
 
 <body class="bg-gray-100 text-black">
   <!-- Google Tag Manager (noscript) -->
   <noscript>
-    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKKDK54F" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+    <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKKDK54F" height="0" width="0" style="display:none;visibility:hidden" loading="lazy"></iframe>
   </noscript>
 
   <!-- Navbar (your shared script still handles this) -->
@@ -149,7 +231,7 @@
 
   <!-- ===== Left-center slider ===== -->
   <nav id="section-slider" aria-label="Quick sections">
-    <div class="slider-shell">
+    <div class="slider-shell" role="navigation">
       <button class="arrow" id="slide-up" aria-label="Previous section">▲</button>
       <div class="links" id="slider-links">
         <a class="link" href="#switchboards" data-section-link>
@@ -193,13 +275,6 @@
           <div class="mt-6 border-t"></div>
         </div>
       </section>
-
-      <!-- Animation helpers (kept for compatibility) -->
-      <style>
-        @keyframes fadeInUp { 0%{opacity:0;transform:translateY(12px);} 100%{opacity:1;transform:translateY(0);} }
-        .animate-fadeInUp { opacity:0; animation: fadeInUp .6s ease-out forwards; }
-        .delay-100 { animation-delay:.1s; } .delay-200 { animation-delay:.2s; } .delay-300 { animation-delay:.3s; }
-      </style>
 
       <!-- Switchboards -->
       <section class="hardware-step" id="switchboards">
@@ -295,6 +370,20 @@
     </div> <!-- /.content -->
   </div> <!-- /.flow-layout -->
 
+  <!-- NEW: Sticky mobile CTA (mirrors your totals) -->
+  <div id="mobile-cta" role="region" aria-label="Order summary and porting action">
+    <div class="totals">
+      <div class="pill"><span class="small">Monthly</span> <span id="m-total-monthly">R 0</span> <span class="small">/mo.</span></div>
+      <div class="pill"><span class="small">Once-off</span> <span id="m-total-onceoff">R 0</span></div>
+    </div>
+    <a href="porting.html" class="cta-btn" aria-label="Proceed to Porting">
+      Porting
+      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+
   <!-- External scripts (deferred, order preserved) -->
   <script src="scripts/packages.js" defer></script>
   <script src="scripts/solution-helpers.js" defer></script>
@@ -321,8 +410,16 @@
       containers.forEach(c => io.observe(c));
     })();
 
-    // Left slider behavior: highlight, smooth-scroll, up/down buttons
+    // Left slider behavior: init only on desktop to avoid mobile overhead
     (function(){
+      const DESKTOP = () => window.matchMedia('(min-width:1024px)').matches;
+      if (!DESKTOP()) {
+        // Make sure slider doesn't trap focus on mobile
+        const slider = document.getElementById('section-slider');
+        if (slider) slider.inert = true; // ignored by browsers that don't support it
+        return;
+      }
+
       const links = Array.from(document.querySelectorAll('[data-section-link]'));
       const sections = links
         .map(a => document.querySelector(a.getAttribute('href')))
@@ -372,6 +469,41 @@
 
       sections.forEach(s => obs.observe(s));
       setActiveById(sections[0]?.id || '');
+    })();
+
+    // NEW: Keep mobile sticky CTA totals in sync with your existing totals
+    (function(){
+      const monthlySrc = document.getElementById('total-footer-price');
+      const monthlyPer = document.getElementById('total-cost-period');
+      const onceOffSrc = document.getElementById('total-onceoff');
+
+      const mMonthly = document.getElementById('m-total-monthly');
+      const mOnce = document.getElementById('m-total-onceoff');
+
+      const pull = () => {
+        if (monthlySrc && mMonthly) {
+          const mo = (monthlySrc.textContent || '').trim();
+          const per = (monthlyPer?.textContent || '').trim();
+          mMonthly.textContent = mo || 'R 0';
+          // small “/mo.” badge already present in pill
+        }
+        if (onceOffSrc && mOnce) {
+          mOnce.textContent = (onceOffSrc.textContent || '').trim() || 'R 0';
+        }
+      };
+
+      // Initial
+      pull();
+
+      // Watch for dynamic changes from your JS
+      const moObs = new MutationObserver(pull);
+      const ofObs = new MutationObserver(pull);
+      if (monthlySrc) moObs.observe(monthlySrc, { childList:true, characterData:true, subtree:true });
+      if (monthlyPer) moObs.observe(monthlyPer, { childList:true, characterData:true, subtree:true });
+      if (onceOffSrc) ofObs.observe(onceOffSrc, { childList:true, characterData:true, subtree:true });
+
+      // Also update on visibility (e.g., back/forward cache)
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
     })();
   </script>
 
@@ -430,7 +562,7 @@
     class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
            px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
            focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
-           right-4 bottom-4
+           right-4 bottom-20  /* CHANGED: sits above sticky CTA */
            md:right-5 md:bottom-5
            [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
            select-none"
