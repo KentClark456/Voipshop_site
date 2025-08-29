@@ -896,7 +896,19 @@ async function getRcToken(action) {
       const invoiceNumber = String((data && data.invoiceNumber) || payload.invoiceNumber || '').trim();
       const customerEmail = String(payload?.customer?.email || '').trim();
 
-      // Persist for post-checkout.html to hydrate from
+      // --- Save direct Blob URLs (if provided by the API) for instant downloads ---
+      try {
+        const downloads = {
+          invoiceUrl: data?.invoiceUrl || '',
+          slaUrl:     data?.slaUrl     || '',
+          portingUrl: data?.portingUrl || ''
+        };
+        if (downloads.invoiceUrl || downloads.slaUrl || downloads.portingUrl) {
+          sessionStorage.setItem('orderDownloads', JSON.stringify(downloads));
+        }
+      } catch {}
+
+      // Persist meta for post-checkout.html
       const meta = {
         orderNumber,
         invoiceNumber,
@@ -907,14 +919,14 @@ async function getRcToken(action) {
         }
       };
       sessionStorage.setItem('checkoutMeta', JSON.stringify(meta));
-      try { localStorage.setItem('checkoutMeta', JSON.stringify(meta)); } catch {}
 
-      // Redirect WITH query params so the page can link static PDF routes immediately
-      const q = new URLSearchParams();
-      if (orderNumber) q.set('order', orderNumber);
-      if (customerEmail) q.set('email', customerEmail);
+// Redirect with query params
+const q = new URLSearchParams();
+if (orderNumber) q.set('order', orderNumber);
+if (customerEmail) q.set('email', customerEmail);
 
-      window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
+window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
+
     } catch (err) {
       console.error('[CompleteOrder] Error:', err);
       alert('Failed to complete order: ' + (err?.message || err));
