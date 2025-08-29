@@ -253,50 +253,51 @@
     });
   </script>
 
-  <!-- Static route wiring (Step 2C) -->
-  <script>
-    (function wireStaticDownloads(){
-      // 1) Pull identifiers from URL, then sessionStorage
-      const url = new URL(window.location.href);
-      const qpEmail = url.searchParams.get('email');
-      const qpOrder = url.searchParams.get('order');
+<script>
+  (function wireStaticDownloads(){
+    // 1) Set the API base to your API project (pick one):
+    // const API_BASE = 'https://voipshop-quote-api.vercel.app';
+    const API_BASE = 'https://api.voipshop.co.za'; // if you point this domain to the API project in Vercel
 
-      let meta = null;
-      try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch { meta = null; }
+    // 2) Read order/email
+    const url = new URL(window.location.href);
+    const qpEmail = url.searchParams.get('email');
+    const qpOrder = url.searchParams.get('order');
+    let meta = null;
+    try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
+    const email = qpEmail || meta?.email || 'you@example.com';
+    const order = qpOrder || meta?.orderNumber || 'VS-000000';
 
-      const email = qpEmail || meta?.email || 'you@example.com';
-      const order = qpOrder || meta?.orderNumber || 'VS-000000';
+    // 3) Fill UI
+    const emailEl = document.getElementById('customer-email');
+    const orderEl = document.getElementById('order-number');
+    if (emailEl) emailEl.textContent = email;
+    if (orderEl) orderEl.textContent = order;
 
-      // 2) Fill visible fields
-      const emailEl = document.getElementById('customer-email');
-      const orderEl = document.getElementById('order-number');
-      if (emailEl) emailEl.textContent = email;
-      if (orderEl) orderEl.textContent = order;
+    // 4) Build absolute URLs to the API project
+    const invHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice`;
+    const slaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`;
+    const loaHref = `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting`;
 
-      // 3) Build static API paths
-      const invHref = `/api/orders/${encodeURIComponent(order)}/invoice`;
-      const slaHref = `/api/orders/${encodeURIComponent(order)}/sla`;
-      const loaHref = `/api/orders/${encodeURIComponent(order)}/porting`;
+    // 5) Apply (prefer preview vs forced download)
+    function link(a, href, forceDownload=false){
+      if (!a) return;
+      a.href = href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      if (forceDownload) a.setAttribute('download', '');
+      else a.removeAttribute('download');
+    }
+    link(document.getElementById('btn-download-invoice'), invHref, false);
+    link(document.getElementById('btn-download-sla'), slaHref, false);
+    link(document.getElementById('btn-download-porting'), loaHref, false);
+    link(document.getElementById('btn-view-invoice'), invHref, false);
 
-      // 4) Apply to all buttons
-      function link(a, href, download=false){
-        if (!a) return;
-        a.href = href;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        if (download) a.setAttribute('download', '');
-      }
+    // “Download & sign” section
+    link(document.getElementById('btn-download-sla-2'), slaHref, false);
+    link(document.getElementById('btn-download-porting-2'), loaHref, false);
+  })();
+</script>
 
-      // Top row
-      link(document.getElementById('btn-download-invoice'), invHref, true);
-      link(document.getElementById('btn-download-sla'), slaHref, true);
-      link(document.getElementById('btn-download-porting'), loaHref, true);
-      link(document.getElementById('btn-view-invoice'), invHref, false);
-
-      // “Download & sign” section
-      link(document.getElementById('btn-download-sla-2'), slaHref, true);
-      link(document.getElementById('btn-download-porting-2'), loaHref, true);
-    })();
-  </script>
 </body>
 </html>
