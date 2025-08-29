@@ -178,6 +178,16 @@
   const custom    = safeParse(localStorage.getItem('voip:customBuild')) || [];
   const buildMeta = safeParse(localStorage.getItem('voip:buildMeta')) || {};
   const vnum      = safeParse(localStorage.getItem('voip:virtualNumber')) || null;
+  // ---- App-only flags & helpers (from the "Professional Number (App)" page) ----
+const isAppOnly = selected?.isAppOnly === true
+  || selected?.meta?.mode === 'app'
+  || (Array.isArray(selected?.tags) && selected.tags.includes('app-only'));
+
+const skipPlatformFee = selected?.skipPlatformFee === true || isAppOnly;
+
+// Use the app count if present, else fall back to extensions logic later
+const appsQtyFromPkg = Number(selected?.meta?.apps || selected?.extensions || 0) || 0;
+
 
   const hasCustom = Array.isArray(custom) && custom.length > 0;
   const usePackageDevices = !hasCustom && Array.isArray(selected.devices) && selected.devices.length > 0;
@@ -275,16 +285,44 @@
   }
 
   // ---------- Freebies ----------
-  if (!wirelessMode && !isVoiceOnly && extQty >= 2) {
-    onceItems.push({ name: 'Network Switch', image: 'Assets/server-network.png', qty: 1, unitOnceOff: 0, included: true });
-  }
-  if (!wirelessMode) {
-    onceItems.push({ name: 'Installation', image: 'Assets/construct2.png', qty: 1, unitOnceOff: 0, included: true });
-  }
+if (!isAppOnly && !wirelessMode && !isVoiceOnly && extQty >= 2) {
+  onceItems.push({ name: 'Network Switch', image: 'Assets/server-network.png', qty: 1, unitOnceOff: 0, included: true });
+}
+if (!isAppOnly && !wirelessMode) {
+  onceItems.push({ name: 'Installation', image: 'Assets/construct2.png', qty: 1, unitOnceOff: 0, included: true });
+}
 
-  // ---------- Monthly: platform + per-extension ----------
-  monthlyItems.push({ name: 'Cloud PBX Platform', image: 'Assets/cloud2.png', qty: 1, unitMonthly: PLATFORM_FEE, included: false });
-  monthlyItems.push({ name: 'Extension Fee', image: 'Assets/mingcute_transfer-vertical-line copy.png', qty: extQty, unitMonthly: EXT_FEE, included: false });
+// ---------- Monthly: platform + extensions/apps (app-only aware) ----------
+if (!skipPlatformFee) {
+  monthlyItems.push({
+    name: 'Cloud PBX Platform',
+    image: 'Assets/cloud2.png',
+    qty: 1,
+    unitMonthly: PLATFORM_FEE,
+    included: false
+  });
+}
+
+if (isAppOnly) {
+  // Show “Mobile App xN @ R65” with mobile icon
+  const appsQty = appsQtyFromPkg || extQty || 1;
+  monthlyItems.push({
+    name: 'Mobile App',
+    image: getImage('MOBILE_APP'),
+    qty: appsQty,
+    unitMonthly: 65,
+    included: false
+  });
+} else {
+  // Normal PBX path: per-extension fee
+  monthlyItems.push({
+    name: 'Extension Fee',
+    image: 'Assets/mingcute_transfer-vertical-line copy.png',
+    qty: extQty,
+    unitMonthly: EXT_FEE,
+    included: false
+  });
+}
 
   // ===================== Calls info row (bundle-aware & adjustable) =====================
   const LOCAL_RATE_PER_MIN  = BILLING.rates.localPerMin;
@@ -315,17 +353,17 @@
     subtext: callsSubtext
   });
 
-  // ---------- Monthly: virtual number hosting (optional) ----------
-  if (vnum && vnum.mode === 'new') {
-    const label = `Virtual Number${vnum.region ? ' — ' + vnum.region : ''}`;
-    monthlyItems.push({
-      name: label,
-      image: 'Assets/hashtag3.png',
-      qty: 1,
-      unitMonthly: DEFAULT_VN_PRICE,
-      included: false
-    });
-  }
+if (vnum && vnum.mode === 'new') {
+  const label = `Geographic number${vnum.region ? ' — ' + vnum.region : ''}`;
+  monthlyItems.push({
+    name: label,
+    image: 'Assets/hashtag3.png',
+    qty: 1,
+    unitMonthly: Number(vnum.monthly ?? DEFAULT_VN_PRICE) || DEFAULT_VN_PRICE, // usually 25
+    included: false
+  });
+}
+
 
   if (vnum && vnum.mode === 'port') {
     const label = `Number Hosting (Ported)${Array.isArray(vnum.numbers) && vnum.numbers[0] ? ' — ' + vnum.numbers[0] : ''}`;

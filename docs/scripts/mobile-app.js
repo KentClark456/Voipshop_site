@@ -1,12 +1,13 @@
 /* mobile-app.js — Professional Number (App) page
-   - Calculator & persistence (R65 x apps now; R25 added in Step 2)
+   - Calculator & persistence (R65 x apps now; +R25 added in Step 2)
+   - Flags so checkout shows the mobile-app icon and skips Cloud PBX fee
    - Segmented tabs logic
 */
 (() => {
   'use strict';
 
   // ---------- Calculator + Persistence ----------
-  const NUMBER_MONTHLY   = 25; // added in Step 2 only
+  const NUMBER_MONTHLY   = 25; // added in Step 2 only (when user chooses the geo number)
   const PER_APP_MONTHLY  = 65; // per app per month
   const ONCE_OFF_FREE    = 0;  // setup free
 
@@ -35,19 +36,37 @@
   function persistForNextSteps(apps, monthlyNow, onceoff){
     startFreshOrder();
 
+    // ⬇️ Payload shaped so checkout can:
+    // - render a mobile app icon
+    // - skip platform/PBX fee (R150)
+    // - continue to Step 2 to add the +R25 number rental
     const payload = {
       label: `Professional Number (App) — ${apps} app${apps>1?'s':''}`,
       name:  'Professional Number (App)',
-      monthly: monthlyNow,   // R65 x apps (number added next step)
-      onceOff: onceoff,      // 0
-      extensions: apps,      // reuse checkout counter as "apps"
+      icon:  'mobile',                 // <-- hint for UI icon
+      monthly: monthlyNow,             // R65 x apps (number added in next step)
+      onceOff: onceoff,                // 0
+      extensions: apps,                // re-use checkout counter
+      // product flags
       isAppOnly: true,
       isVoiceOnly: false,
       isNewGeoNumber: true,
-      tags: ['app-only','new-number'],
-      devices: [],
+      skipPlatformFee: true,           // <-- tell checkout NOT to add PBX R150
+      platformMonthly: 0,              // <-- explicit guard (belt + braces)
+      // tags that some UIs use to decorate line-items/icons
+      tags: ['app-only','mobile-app','new-number','no-pbx'],
+      // add a "software device" line so the UI shows the small mobile-app icon
+      devices: [
+        { kind:'software', sku:'app-license', label:'Mobile App', qty: apps, icon:'mobile' }
+      ],
       minutesIncluded: null,
-      meta: { mode:'app', apps, numberMonthly: NUMBER_MONTHLY }
+      meta: {
+        mode: 'app',
+        apps,
+        numberMonthly: NUMBER_MONTHLY, // R25 to be added in Step 2
+        platformMonthly: 0,
+        showAppIcon: true
+      }
     };
 
     try { localStorage.setItem('voip:selectedPackage', JSON.stringify(payload)); } catch {}
@@ -55,14 +74,15 @@
   }
 
   function updateNumberLink(apps, monthlyNow, onceoff){
+    // Keep Step 2 on the "choose geographic number" flow
     const params = new URLSearchParams({
-      mode: 'new',           // choose new geographic number
+      mode: 'new',
       product: 'app',
       apps: String(apps),
       monthly: String(monthlyNow), // only R65 x apps for now
       onceoff: String(onceoff)
     });
-    if (numberBtn) numberBtn.href = 'virtual-number.html?' + params.toString();
+    if (numberBtn) numberBtn.href = 'porting.html?' + params.toString();
   }
 
   function recalc(){
