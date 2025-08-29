@@ -26,187 +26,147 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet" />
-<script>
-  window.tailwind = window.tailwind || {};
-  window.tailwind.config = {
-    safelist: [
-      'hidden','block','md:hidden','md:flex','overflow-hidden',
-      'sticky','top-0','z-50','backdrop-blur',
-      'border-b','border-gray-200',
-      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-      'flex','items-center','justify-between','gap-6',
-      'text-sm','font-medium','text-gray-700','hover:text-black',
-      'space-y-2','text-base'
-    ]
-  };
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Tailwind (CDN) -->
+  <!-- Tailwind (with safelist for injected header) -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      safelist: [
+        'hidden','block','md:hidden','md:flex','overflow-hidden',
+        'sticky','top-0','z-50','backdrop-blur',
+        'border-b','border-gray-200',
+        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+        'flex','items-center','justify-between','gap-6',
+        'text-sm','font-medium','text-gray-700','hover:text-black',
+        'space-y-2','text-base'
+      ]
+    };
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Flowbite -->
+  <!-- Flowbite (unchanged) -->
   <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
   <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js" defer></script>
 
+  <!-- Page CSS (rail removed, full-width grid, left slider) -->
   <style>
-    /* ---------- Mobile & Tablet Polish (keeps desktop intact) ---------- */
-
-    :root{
-      --rail-w: 250px;
-    }
+    :root{ --navH: 72px; }
 
     body { -webkit-tap-highlight-color: transparent; }
-    .rail .icon { width: 20px; height: 20px; }
+    section[id]{ scroll-margin-top: max(56px, var(--navH)); }
 
-    /* Keep anchor jumps clear of any fixed header you may inject */
-    section[id]{ scroll-margin-top: clamp(56px, 9vh, 96px); }
+    /* Single-column page layout (no side rail) */
+    .flow-layout{ display:block; }
 
-    /* Flow layout: rail + content on desktop; stacked on mobile */
-    .flow-layout{
-      display: grid;
-      grid-template-columns: var(--rail-w) 1fr;
-      gap: 0;
-    }
-    .flow-layout .content{
-      min-width: 0;
+    /* Full-bleed section wrappers so cards can breathe */
+    .package-container-outer,
+    .hardware-container-outer{
+      max-width:none; width:100%;
+      padding-inline: clamp(12px, 3vw, 32px);
     }
 
-    /* Rail base */
-    .rail{
-      position: sticky;
-      top: 0;
-      height: 100dvh;
-      background: #fff;
-      border-right: 1px solid #e5e7eb;
-      padding: 12px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      z-index: 30;
-      contain: layout paint;
-    }
-    .rail .rail-toggle{
-      display: inline-flex; align-items:center; justify-content:center;
-      width: 38px; height: 38px; border-radius: 10px;
-      border: 1px solid #e5e7eb; background:#fff;
-      cursor: pointer;
-    }
-    .rail-list{
-      list-style: none; margin: 8px 0 0; padding: 0;
-      display: flex; flex-direction: column; gap: 4px;
-      overflow: auto;
-    }
-    .rail-list a{
-      display: grid; grid-template-columns: 22px auto; align-items:center;
-      gap: 10px;
-      padding: 10px 12px; border-radius: 12px;
-      color: #111827; text-decoration: none;
-      border: 1px solid transparent;
-    }
-    .rail-list a:hover{ background:#f9fafb; border-color:#e5e7eb; }
-    .rail-list a.is-active{ background:#eef5ff; border-color:#cfe2ff; color:#0b63e6; }
-
-    /* Mobile/tablet rail as a horizontal sticky nav */
-    @media (max-width: 1023.98px){
-      .flow-layout{
-        grid-template-columns: 1fr;
-      }
-      .rail{
-        position: sticky; top: 0; height: auto;
-        padding: 8px 10px; border-right: 0; border-bottom: 1px solid #e5e7eb;
-        background: #fff;
-      }
-      .rail .rail-toggle{ display: none; } /* not needed on phones */
-      .rail-list{
-        flex-direction: row; gap: 6px; overflow-x: auto; overflow-y: hidden;
-        -webkit-overflow-scrolling: touch; scroll-snap-type: x proximity;
-      }
-      .rail-list a{ white-space: nowrap; scroll-snap-align: start; }
-    }
-
-    /* iPad friendly rail toggle (visible on md/lg but < desktop) */
-    @media (min-width: 768px) and (max-width: 1023.98px){
-      .rail .rail-toggle{ display: inline-flex; }
-      .rail[data-collapsed="true"] .rail-list{ display: none; }
-    }
-
-    /* Package groups: perf hints and responsive spacing */
-    .package-group{
-      content-visibility: auto; contain-intrinsic-size: 600px 1000px; /* reserve to avoid layout shift */
-      padding-inline: 1rem;
-    }
-    @media (min-width: 640px){
-      .package-group{ padding-inline: 1.5rem; }
-    }
-    @media (min-width: 1024px){
-      .package-group{ padding-inline: 2rem; }
-    }
-
-    .package-container-outer{
-      max-width: 1200px; margin-inline: auto;
-    }
     .hardware-section-title{
       display:flex; align-items:center; gap:10px;
-      font-weight: 600; color:#111827;
-      margin: 18px 0 12px;
-      padding: 0 2px;
+      font-weight: 600; color:#111827; margin: 18px 0 12px;
     }
     .hardware-section-title .highlighted-text{
-      background: #eef5ff; color:#0b63e6; border:1px solid #cfe2ff;
-      padding: 4px 10px; border-radius: 999px; font-size: .9rem;
+      background:#eef5ff; color:#0b63e6; border:1px solid #cfe2ff;
+      padding: 4px 10px; border-radius: 999px; font-size:.95rem;
     }
-    .hardware-section-title .subtitle{ color:#6b7280; font-weight:500; font-size:.9rem; }
     .hardware-section-title .separator{ color:#d1d5db; }
+    .hardware-section-title .subtitle{ color:#6b7280; font-weight: 500; font-size:.95rem; }
 
+    .hardware-divider{ border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0 8px; }
+
+    /* BIG, responsive 3-up grid (2 on tablet, 1 on mobile) */
     .hardware-container{
-      display:grid; gap: 12px;
+      display:grid;
+      gap: clamp(12px, 2vw, 20px);
       grid-template-columns: 1fr;
+      align-items: stretch;
+      grid-auto-rows: 1fr;
     }
-    @media (min-width: 480px){
+    @media (min-width: 700px){
       .hardware-container{ grid-template-columns: repeat(2, minmax(0,1fr)); }
     }
-    @media (min-width: 900px){
-      .hardware-container{ grid-template-columns: repeat(3, minmax(0,1fr)); }
-    }
-    @media (min-width: 1200px){
+    @media (min-width: 1024px){
       .hardware-container{ grid-template-columns: repeat(3, minmax(0,1fr)); }
     }
 
-    .hardware-divider{ border: 0; border-top: 1px solid #e5e7eb; margin: 16px 0 8px; }
+    /* Make card blocks visually larger without touching JS:
+       target immediate children of the grid */
+    .hardware-container > *{
+      /* if your cards already have their own class, this still applies softly */
+      border-radius: 16px;
+      min-height: 360px;               /* bigger presence */
+      padding: clamp(12px, 2.2vw, 20px);
+      box-sizing: border-box;
+    }
 
-    /* Step 2 card highlight (kept) */
+    /* Step 2 highlight (kept) */
     #package-summary .rounded-2xl.checkout-ring{
       border-color:#0071E3 !important;
       box-shadow: 0 0 0 3px rgba(0,113,227,.45), 0 12px 32px rgba(0,0,0,.08);
       transition: box-shadow .2s ease, border-color .2s ease;
     }
 
-    /* Animations (respect reduced motion) */
+    /* Only paint sections when needed */
+    .package-group{
+      content-visibility: auto; contain-intrinsic-size: 600px 1000px;
+    }
+
     @media (prefers-reduced-motion: reduce){
       * { animation: none !important; transition: none !important; }
     }
 
-    /* Tighten page top spacing for this page only */
-    body.packages-page {
-      --builder-header-h: 0px !important;
-      --site-header-h: 0px !important;
-      padding-top: 0 !important;
-      scroll-padding-top: 0 !important;
+    /* ===== Left-center “Apple-style” slider ===== */
+    #section-slider{
+      position: fixed;
+      left: clamp(8px, 1.2vw, 16px);
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 60;
+      display: none; /* mobile off */
     }
-    .flow-layout, .flow-layout .content { padding-top: 0 !important; margin-top: 0 !important; }
-    #packages-intro { padding-top: 12px !important; padding-bottom: 10px !important; margin-top: 0 !important; }
-    #packages-intro + * { margin-top: 12px !important; }
-    #nav-slot { height: auto !important; margin: 0 !important; padding: 0 !important; }
-  </style>
+    @media (min-width: 1024px){
+      #section-slider{ display: flex; }
+    }
+    #section-slider .slider-shell{
+      display:flex; flex-direction:column; align-items:center; gap:8px;
+      background:rgba(255,255,255,.85);
+      border:1px solid #e5e7eb;
+      backdrop-filter: blur(8px);
+      border-radius:16px;
+      padding:10px;
+      box-shadow: 0 10px 28px rgba(0,0,0,.08);
+    }
+    #section-slider .arrow{
+      width:38px; height:38px; display:grid; place-items:center;
+      border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer;
+    }
+    #section-slider .arrow:hover{ background:#f9fafb; }
+    #section-slider .arrow[disabled]{ opacity:.4; cursor:default; }
 
-  <!-- 🔵 highlight style for the Step 2 summary card (kept for safety inlined above too) -->
-  <style>
-    #package-summary .rounded-2xl.checkout-ring{
-      border-color:#0071E3 !important;
-      box-shadow: 0 0 0 3px rgba(0,113,227,.45), 0 12px 32px rgba(0,0,0,.08);
-      transition: box-shadow .2s ease, border-color .2s ease;
+    #section-slider .links{
+      display:flex; flex-direction:column; gap:6px; align-items:stretch;
+      max-height: min(60vh, 520px); overflow:auto;
     }
+    #section-slider .link{
+      display:flex; align-items:center; gap:10px;
+      border:1px solid #f0f0f0; background:#fff;
+      padding:8px 10px; border-radius:12px; text-decoration:none; color:#111827;
+      font:600 13px/1.2 system-ui;
+      white-space:nowrap;
+    }
+    #section-slider .link:hover{ background:#f9fafb; }
+    #section-slider .link[aria-current="true"]{
+      border-color:#cfe2ff; background:#eef5ff; color:#0b63e6;
+    }
+    #section-slider .icon{ width:18px; height:18px; }
+
+    /* Tighten page top spacing for this page only */
+    body.packages-page { padding-top:0 !important; }
+    #nav-slot { height:auto !important; margin:0 !important; padding:0 !important; }
   </style>
 </head>
 
@@ -216,12 +176,10 @@
     <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKKDK54F"
             height="0" width="0" style="display:none;visibility:hidden"></iframe>
   </noscript>
-  <!-- End Google Tag Manager (noscript) -->
 
-  <!-- ✅ ICON LIBRARY (inline sprite; include once) -->
+  <!-- SVG Icon sprite (unchanged; used by slider too) -->
   <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
     <defs>
-      <!-- 1 Team PBX -->
       <symbol id="icon-1pbx" viewBox="0 0 24 24">
         <g stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <rect x="7" y="5" width="10" height="14" rx="2.5" ry="2.5"/>
@@ -230,8 +188,6 @@
           <line x1="9" y1="11" x2="15" y2="11"/>
         </g>
       </symbol>
-
-      <!-- 2 Team PBX -->
       <symbol id="icon-2pbx" viewBox="0 0 24 24">
         <g stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <rect x="2.5" y="5" width="7" height="14" rx="2" ry="2"/>
@@ -240,8 +196,6 @@
           <circle cx="18" cy="15" r="0.9"/>
         </g>
       </symbol>
-
-      <!-- 3 Team PBX -->
       <symbol id="icon-3pbx" viewBox="0 0 24 24">
         <g stroke="currentColor" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
           <rect x="1.5" y="6" width="5.5" height="12" rx="1.8" ry="1.8"/>
@@ -249,8 +203,6 @@
           <rect x="17" y="6" width="5.5" height="12" rx="1.8" ry="1.8"/>
         </g>
       </symbol>
-
-      <!-- Wireless Setups -->
       <symbol id="icon-wireless" viewBox="0 0 24 24">
         <g stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3.5 9.5c5.7-5.7 11.3-5.7 17 0" />
@@ -259,8 +211,6 @@
           <circle cx="12" cy="18.5" r="1.2" fill="currentColor" stroke="none"/>
         </g>
       </symbol>
-
-      <!-- Step 2: Porting -->
       <symbol id="icon-porting" viewBox="0 0 24 24">
         <g stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 8h9.5l-2-2m2 2l-2 2"/>
@@ -270,75 +220,47 @@
       </symbol>
     </defs>
   </svg>
-  <!-- End Icon Library -->
 
   <!-- ✅ Universal navbar (injected by site.js) -->
   <div id="nav-slot"></div>
   <script src="./scripts/site.js" defer></script>
-  <!-- ✅ End navbar -->
+
+  <!-- ===== Left-center slider ===== -->
+  <nav id="section-slider" aria-label="Quick sections">
+    <div class="slider-shell">
+      <button class="arrow" id="slide-up" aria-label="Previous section">
+        ▲
+      </button>
+
+      <div class="links" id="slider-links">
+        <a class="link" href="#solo-setup" data-section-link>
+          <svg class="icon"><use href="#icon-1pbx"/></svg><span>Team of 1</span>
+        </a>
+        <a class="link" href="#team-2" data-section-link>
+          <svg class="icon"><use href="#icon-2pbx"/></svg><span>Team of 2</span>
+        </a>
+        <a class="link" href="#team-3" data-section-link>
+          <svg class="icon"><use href="#icon-3pbx"/></svg><span>Team of 3</span>
+        </a>
+        <a class="link" href="#wireless-setups" data-section-link>
+          <svg class="icon"><use href="#icon-wireless"/></svg><span>Wireless</span>
+        </a>
+        <a class="link" href="#package-summary" data-section-link>
+          <svg class="icon"><use href="#icon-porting"/></svg><span>Step 2</span>
+        </a>
+      </div>
+
+      <button class="arrow" id="slide-down" aria-label="Next section">
+        ▼
+      </button>
+    </div>
+  </nav>
 
   <main>
     <div class="flow-layout">
-      <!-- Left Rail -->
-      <aside class="rail" data-state="expanded" aria-label="Packages navigation">
-        <button class="rail-toggle" aria-expanded="true" aria-controls="rail-list" title="Collapse">
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-          </svg>
-          <span class="sr-only">Toggle navigation</span>
-        </button>
-
-        <ul id="rail-list" class="rail-list">
-          <li>
-            <a href="#solo-setup" class="is-active">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <use href="#icon-1pbx" xlink:href="#icon-1pbx"></use>
-              </svg>
-              <span class="label">Team of 1</span>
-            </a>
-          </li>
-          <li>
-            <a href="#team-2">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <use href="#icon-2pbx" xlink:href="#icon-2pbx"></use>
-              </svg>
-              <span class="label">Team of 2</span>
-            </a>
-          </li>
-          <li>
-            <a href="#team-3">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <use href="#icon-3pbx" xlink:href="#icon-3pbx"></use>
-              </svg>
-              <span class="label">Team of 3</span>
-            </a>
-          </li>
-
-          <!-- 🔵 New: Wireless Setups -->
-          <li>
-            <a href="#wireless-setups">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <use href="#icon-wireless" xlink:href="#icon-wireless"></use>
-              </svg>
-              <span class="label">Wireless Setups</span>
-            </a>
-          </li>
-
-          <li>
-            <a href="#package-summary" class="final-step">
-              <svg class="icon" viewBox="0 0 24 24" aria-hidden="true">
-                <use href="#icon-porting" xlink:href="#icon-porting"></use>
-              </svg>
-              <span class="label">Step 2: Porting</span>
-            </a>
-          </li>
-        </ul>
-      </aside>
-
-      <!-- Content column -->
       <div class="content">
 
-        <!-- Intro – Minimal / Apple-style (Packages) -->
+        <!-- Intro -->
         <section id="packages-intro" class="bg-gray-100">
           <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-6 text-center">
             <div class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[#0A84FF] to-[#0071E3] px-3 py-1
@@ -416,14 +338,13 @@
           </div>
         </section>
 
-        <!-- Package Summary (Apple-style card) -->
-        <section id="package-summary" class="w-full bg-gray-200 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+        <!-- Package Summary -->
+        <section id="package-summary" class="w-full bg-gray-100 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
           <div class="max-w-3xl mx-auto">
             <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8 md:p-10 text-center">
               <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Next Step</p>
               <h2 class="mt-2 text-2xl font-semibold tracking-tight text-gray-900">Proceed to Porting</h2>
 
-              <!-- Black pills -->
               <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
                 <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">Installation Included</div>
                 <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">Support Included</div>
@@ -466,86 +387,83 @@
   <script src="scripts/common.js" defer></script>
   <script src="scripts/index.js" defer></script>
 
-  <!-- Small, safe, page-scoped helpers -->
+  <!-- Page helpers (NO rail code) -->
   <script>
-    // Rail toggle for tablets; remember state this session
+    // Left slider behavior: highlight, smooth-scroll, up/down buttons
     (function(){
-      const rail = document.querySelector('.rail');
-      const btn  = rail?.querySelector('.rail-toggle');
-      if(!rail || !btn) return;
-
-      // restore state
-      const saved = sessionStorage.getItem('packages-rail-collapsed');
-      if(saved === 'true'){ rail.dataset.collapsed = 'true'; btn.setAttribute('aria-expanded','false'); }
-
-      btn.addEventListener('click', ()=>{
-        const collapsed = rail.dataset.collapsed === 'true' ? 'false' : 'true';
-        rail.dataset.collapsed = collapsed;
-        btn.setAttribute('aria-expanded', collapsed === 'true' ? 'false' : 'true');
-        sessionStorage.setItem('packages-rail-collapsed', collapsed);
-      }, {passive:true});
-    })();
-
-    // Mark active link on scroll (lightweight)
-    (function(){
-      const links = Array.from(document.querySelectorAll('.rail-list a[href^="#"]'));
+      const links = Array.from(document.querySelectorAll('[data-section-link]'));
       const sections = links
         .map(a => document.querySelector(a.getAttribute('href')))
         .filter(Boolean);
 
-      if(!sections.length) return;
+      const upBtn = document.getElementById('slide-up');
+      const dnBtn = document.getElementById('slide-down');
 
-      const obs = new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{
-          if(e.isIntersecting){
-            const id = '#' + e.target.id;
-            links.forEach(l => l.classList.toggle('is-active', l.getAttribute('href') === id));
-          }
+      let currentIndex = 0;
+
+      function scrollToIndex(i){
+        if (i < 0 || i >= sections.length) return;
+        const el = sections[i];
+        const top = el.getBoundingClientRect().top + window.pageYOffset - 20; // scroll-margin handles header
+        window.scrollTo({ top, behavior: 'smooth' });
+      }
+
+      function setActiveById(id){
+        links.forEach(a => a.setAttribute('aria-current',
+          a.getAttribute('href').slice(1) === id ? 'true' : 'false'));
+        currentIndex = Math.max(0, sections.findIndex(s => s.id === id));
+        upBtn.disabled = currentIndex === 0;
+        dnBtn.disabled = currentIndex === sections.length - 1;
+      }
+
+      // Clicks
+      links.forEach((a, idx)=>{
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          scrollToIndex(idx);
         });
-      }, { rootMargin: '0px 0px -70% 0px', threshold: 0.01 });
+      });
+      upBtn.addEventListener('click', () => scrollToIndex(currentIndex - 1));
+      dnBtn.addEventListener('click', () => scrollToIndex(currentIndex + 1));
+
+      // Observe which section is centered-ish in viewport
+      const obs = new IntersectionObserver((entries)=>{
+        let candidate = null;
+        let bestDist = Infinity;
+        const center = window.innerHeight / 2;
+        entries.forEach(e=>{
+          if(!e.isIntersecting) return;
+          const r = e.target.getBoundingClientRect();
+          const dist = Math.abs((r.top + r.height/2) - center);
+          if (dist < bestDist){ bestDist = dist; candidate = e.target; }
+        });
+        if (candidate) setActiveById(candidate.id);
+      }, {root:null, threshold: 0.25});
 
       sections.forEach(s => obs.observe(s));
-    })();
 
-    // Progressive hydrate hardware sections only when near viewport
-    (function(){
-      const containers = document.querySelectorAll('.hardware-container');
-      const boot = (el)=>{ el.dataset.hydrated='true'; /* your existing scripts will populate */ };
-      if(!('IntersectionObserver' in window)){ containers.forEach(boot); return; }
-
-      const io = new IntersectionObserver((entries, obs)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            boot(entry.target);
-            obs.unobserve(entry.target);
-          }
-        });
-      }, { rootMargin: '200px 0px', threshold: 0.01 });
-
-      containers.forEach(c => io.observe(c));
+      // Initial state
+      setActiveById(sections[0]?.id || '');
     })();
   </script>
-  <!-- ✅ Floating WhatsApp Help Button (all devices, mobile-optimised) -->
-<a
-  href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
-  target="_blank" rel="noopener"
-  aria-label="Chat to VoIP Shop on WhatsApp"
-  class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
-         px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
-         focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
-         right-4 bottom-4
-         md:right-5 md:bottom-5
-         [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
-         select-none"
-  style="backdrop-filter:saturate(140%)"
->
-  <!-- Icon (SVG) -->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-       class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
-    <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
-  </svg>
 
-  <span class="text-sm font-semibold">Need help?</span>
-</a>
+  <!-- WhatsApp floater (unchanged) -->
+  <a
+    href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
+    target="_blank" rel="noopener"
+    aria-label="Chat to VoIP Shop on WhatsApp"
+    class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
+           px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
+           focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
+           right-4 bottom-4 md:right-5 md:bottom-5
+           [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))] select-none"
+    style="backdrop-filter:saturate(140%)"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+         class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5 .71 .3 1.27 .48 1.7 .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72 2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
+    </svg>
+    <span class="text-sm font-semibold">Need help?</span>
+  </a>
 </body>
 </html>
