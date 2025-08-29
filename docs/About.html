@@ -5,7 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Us | VoIP Shop</title>
   <meta name="description" content="VoIP Shop powers simple, scalable PBX systems for South African businesses — transparent pricing, real support, and flexible setups." />
-
+<script>
+  window.tailwind = window.tailwind || {};
+  window.tailwind.config = {
+    safelist: [
+      'hidden','block','md:hidden','md:flex','overflow-hidden',
+      'sticky','top-0','z-50','backdrop-blur',
+      'border-b','border-gray-200',
+      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+      'flex','items-center','justify-between','gap-6',
+      'text-sm','font-medium','text-gray-700','hover:text-black',
+      'space-y-2','text-base'
+    ]
+  };
+</script>
   <!-- Tailwind (Play CDN for dev) — non-deferred to avoid FOUC on first paint -->
   <script src="https://cdn.tailwindcss.com"></script>
 
