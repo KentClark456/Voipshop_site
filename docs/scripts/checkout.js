@@ -808,13 +808,13 @@ if (vnum && vnum.mode === 'new') {
     const onceOffSubtotalExVAT = parseZARMoney(document.querySelector('#subtotal-onceoff')?.textContent || '0');
     const monthlySubtotalExVAT = parseZARMoney(document.querySelector('#subtotal-monthly')?.textContent || '0');
 
-    // SLA service counts
-    const monthlyControls = {
-      cloudPbxQty: num2(getVal2('#qty-cloud-pbx') || 1),
-      extensions:  num2(getVal2('#qty-extensions') || 3),
-      didQty:      num2(getVal2('#qty-did') || 1),
-      minutes:     num2(getVal2('#qty-minutes') || 250),
-    };
+const monthlyControls = {
+  cloudPbxQty: skipPlatformFee ? 0 : num2(getVal2('#qty-cloud-pbx') || 1),
+  extensions:  isAppOnly ? (appsQtyFromPkg || extQty || 1) : num2(getVal2('#qty-extensions') || 3),
+  didQty:      num2(getVal2('#qty-did') || 1),
+  minutes:     num2(getVal2('#qty-minutes') || 250),
+};
+
 
     const normalizedMonthly = (itemsMonthly || []).map(it =>
       normalizeMonthlyItem(it, monthlyControls.minutes)
@@ -1009,37 +1009,62 @@ window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
     return Number.isFinite(n) ? n : 0;
   };
 
-  function collectItemsQuote(containerId) {
-    const items = [];
-    const root = document.getElementById(containerId);
-    if (!root) return items;
+function collectItemsQuote(containerId) {
+  const items = [];
+  const root = document.getElementById(containerId);
+  if (!root) return items;
 
-    // Preferred path (rows rendered by checkout.js)
-    root.querySelectorAll('[data-item]').forEach((row) => {
-      const name   = row.getAttribute('data-name') || text(row.querySelector('[data-cell="name"]')) || 'Item';
-      const qty    = num(row.getAttribute('data-qty') || row.querySelector('[data-cell="qty"]')?.dataset?.qty || text(row.querySelector('[data-cell="qty"]')) || 1);
-      const unitA  = row.getAttribute('data-unit');
-      const totalA = row.getAttribute('data-total') || text(row.querySelector('[data-cell="total"]'));
-      const unit   = unitA != null ? num(unitA) : (parseZAR_Q(totalA) / Math.max(qty, 1));
-      items.push({ name, qty, unit: Math.max(0, unit) });
+  // Preferred path (rows rendered by checkout.js)
+  root.querySelectorAll('[data-item]').forEach((row) => {
+    const name   = row.getAttribute('data-name') || (row.querySelector('[data-cell="name"]')?.textContent ?? '').trim() || 'Item';
+    const qtyTxt = row.getAttribute('data-qty')  || row.querySelector('[data-cell="qty"]')?.dataset?.qty || (row.querySelector('[data-cell="qty"]')?.textContent ?? '').trim() || '1';
+    const qty    = Number(qtyTxt) || 0;
+    const unitA  = row.getAttribute('data-unit');
+    const totalA = row.getAttribute('data-total') || (row.querySelector('[data-cell="total"]')?.textContent ?? '');
+    const unit   = unitA != null ? Number(unitA) : (parseZAR_Q(totalA) / Math.max(qty,1));
+
+    // Calls row -> attach minutes info (bundles of 250)
+    const isCalls = row.dataset.calls === '1' || /^calls$/i.test(String(name).trim());
+    const BUNDLE_SIZE = 250;
+    const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
+
+    items.push({
+      name,
+      qty,
+      unit: Math.max(0, unit),
+      ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
     });
+  });
 
-    // Fallback (older markup)
-    if (items.length === 0) {
-      root.querySelectorAll('.table-row').forEach((row) => {
-        const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
-        const qtyCell   = row.querySelector('[data-cell="qty"]');
-        const totalCell = row.querySelector('[data-cell="total"], .amount');
-        const nameTxt   = text(nameCell);
-        const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || text(qtyCell).match(/\d+/);
-        const qty       = qtyMatch ? num(qtyMatch[1] || qtyMatch[0]) : 1;
-        const total     = parseZAR_Q(text(totalCell));
-        const unit      = total / Math.max(qty, 1);
-        if (nameTxt || total) items.push({ name: nameTxt || 'Item', qty, unit: Math.max(0, unit) });
-      });
-    }
-    return items;
+  // Fallback (older markup)
+  if (items.length === 0) {
+    root.querySelectorAll('.table-row').forEach((row) => {
+      const nameCell  = row.querySelector('[data-cell="name"], .name') || row;
+      const qtyCell   = row.querySelector('[data-cell="qty"]');
+      const totalCell = row.querySelector('[data-cell="total"], .amount');
+      const nameTxt   = (nameCell?.textContent || '').trim();
+      const qtyMatch  = nameTxt.match(/\bx\s?(\d+)\b/i) || (qtyCell?.textContent || '').match(/\d+/);
+      const qty       = qtyMatch ? Number(qtyMatch[1] || qtyMatch[0]) : 1;
+      const total     = parseZAR_Q(totalCell?.textContent || '');
+      const unit      = total / Math.max(qty, 1);
+
+      const isCalls = /^calls$/i.test(nameTxt);
+      const BUNDLE_SIZE = 250;
+      const minutes = isCalls ? qty * BUNDLE_SIZE : 0;
+
+      if (nameTxt || total) {
+        items.push({
+          name: nameTxt || 'Item',
+          qty,
+          unit: Math.max(0, unit),
+          ...(isCalls ? { isCalls: true, minutes, bundleSize: BUNDLE_SIZE } : {})
+        });
+      }
+    });
   }
+  return items;
+}
+
 
   function buildQuotePayload() {
     const businessName = document.querySelector('input[name="businessName"]')?.value?.trim() || '';
@@ -1055,7 +1080,13 @@ window.location.href = `/post-checkout.html${q.toString() ? `?${q}` : ''}`;
     const monthlySubtotalExVAT  = parseZAR_Q(document.getElementById('subtotal-monthly')?.textContent);
 
     const itemsOnceOff  = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
-    const itemsMonthly  = itemsMonthlyRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
+ const itemsMonthly = itemsMonthlyRaw.map(i => ({
+  name: i.name,
+  qty: num(i.qty),
+  unit: num(i.unit),
+  ...(i.isCalls ? { isCalls: true, minutes: num(i.minutes), bundleSize: num(i.bundleSize || 250) } : {})
+}));
+
 
     return {
       delivery: 'attach',
