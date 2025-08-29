@@ -33,13 +33,13 @@
       </div>
       <h1 class="mt-4 text-3xl sm:text-4xl font-semibold tracking-tight">Order received</h1>
       <p class="mt-2 text-gray-600">We’ve emailed your invoice to <span id="customer-email" class="font-medium text-gray-900">you@example.com</span>.</p>
-      <p class="text-sm text-gray-500">Order <span id="order-number" class="font-medium text-gray-800">#VS-000123</span></p>
+      <p class="text-sm text-gray-500">Order <span id="order-number" class="font-medium text-gray-800">VS-000000</span></p>
 
       <!-- Quick links -->
       <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
         <a id="btn-download-invoice" href="#" class="inline-flex items-center rounded-full bg-[#0071E3] px-6 py-3 text-white font-semibold hover:bg-[#0066CC]">Download Invoice (PDF)</a>
-        <a id="lnk-sla" href="/legal/sla.html" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download SLA</a>
-        <a id="lnk-loa" href="/docs/porting-letter-of-authority.pdf" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download Porting Document</a>
+        <a id="btn-download-sla" href="#" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download SLA</a>
+        <a id="btn-download-porting" href="#" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Download Porting Document</a>
       </div>
     </section>
 
@@ -115,8 +115,8 @@
       <h2 class="text-lg font-semibold tracking-tight">Download & sign</h2>
       <p class="mt-1 text-sm text-gray-600">Please download, print, and sign the following:</p>
       <div class="mt-4 flex flex-wrap gap-3">
-        <a href="docs/SLA.html" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Download SLA</a>
-        <a href="/docs/porting-letter-of-authority.pdf" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Download Porting Document</a>
+        <a id="btn-download-sla-2" href="#" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Download SLA</a>
+        <a id="btn-download-porting-2" href="#" target="_blank" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-5 py-2.5 text-sm font-semibold hover:bg-gray-50">Download Porting Document</a>
       </div>
       <p class="mt-3 text-xs text-gray-500">Tip: If you can’t print now, email us and we’ll courier a copy for signature.</p>
     </section>
@@ -192,6 +192,7 @@
     </section>
   </main>
 
+  <!-- Uploads JS -->
   <script>
     // ===== Replace this with your backend endpoint =====
     const UPLOAD_ENDPOINT = '/api/porting/upload';
@@ -251,82 +252,50 @@
       }
     });
   </script>
-<script>
-(function hydrateOrderReceived() {
-  // 1) Try query params first, then sessionStorage, then fallback text
-  const url = new URL(window.location.href);
-  const qp = {
-    email: url.searchParams.get('email'),
-    order: url.searchParams.get('order'),
-    invoice: url.searchParams.get('invoice')
-  };
 
-  // Optional: read what checkout.js stored for us
-  let meta = null;
-  try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch { meta = null; }
-
-  const email = qp.email || meta?.email || 'you@example.com';
-  const order = qp.order || meta?.orderNumber || 'VS-000000';
-  const invoiceNumber = qp.invoice || meta?.invoiceNumber || '';
-
-  // 2) Fill text on the page
-  const emailEl = document.getElementById('customer-email');
-  const orderEl = document.getElementById('order-number');
-  if (emailEl) emailEl.textContent = email;
-  if (orderEl) orderEl.textContent = order;
-
-  // 3) Buttons (ensure these IDs exist in your HTML)
-  const btnInvoiceDownload = document.getElementById('btn-download-invoice');  // e.g. “Download Invoice (PDF)”
-  const btnSlaDownload     = document.getElementById('btn-download-sla');      // e.g. “Download SLA”
-  const btnPortingDownload = document.getElementById('btn-download-porting');  // e.g. “Download Porting Document”
-
-  // 4) Helper to wire a button to open a PDF endpoint in a new tab
-  function linkToPdf(anchorEl, href) {
-    if (!anchorEl) return;
-    anchorEl.href = href;
-    anchorEl.target = '_blank';
-    anchorEl.rel = 'noopener';
-    anchorEl.setAttribute('download', '');
-  }
-
-  // 5) Point buttons to lightweight preview endpoints.
-  //    If your preview handlers accept identifiers, tack them on as query params.
-  const q = new URLSearchParams();
-  if (order)         q.set('order', order);
-  if (invoiceNumber) q.set('invoice', invoiceNumber);
-
-  const invoicePreview = '/api/preview-invoice' + (q.toString() ? `?${q}` : '');
-  const slaPreview     = '/api/preview-sla'     + (q.toString() ? `?${q}` : '');
-  const portingPreview = '/api/preview-porting' + (q.toString() ? `?${q}` : '');
-
-  linkToPdf(btnInvoiceDownload, invoicePreview);
-  linkToPdf(btnSlaDownload,     slaPreview);
-  linkToPdf(btnPortingDownload, portingPreview);
-
-  // Optional: if you still want a “View Invoice” button somewhere:
-  const btnViewInvoice = document.getElementById('btn-view-invoice');
-  if (btnViewInvoice) linkToPdf(btnViewInvoice, invoicePreview);
-
-  // If you previously used sessionStorage to pass around an invoice link,
-  // it’s safe to clear it now.
-  sessionStorage.removeItem('lastInvoiceUrl');
-})();
-</script>
+  <!-- Static route wiring (Step 2C) -->
   <script>
-    (function(){
-      const url=new URL(location.href);
-      const email=url.searchParams.get('email')||'you@example.com';
-      const order=url.searchParams.get('order')||'VS-000000';
-      const emailEl=document.getElementById('customer-email'); if(emailEl) emailEl.textContent=email;
-      const orderEl=document.getElementById('order-number'); if(orderEl) orderEl.textContent=order;
-      const invoiceUrl=sessionStorage.getItem('lastInvoiceUrl')||url.searchParams.get('invoiceUrl')||'';
-      const d=document.getElementById('btn-download-invoice'); const v=document.getElementById('btn-view-invoice');
-      function asLink(a,href){ if(!a) return; a.href=href; a.target='_blank'; a.rel='noopener'; a.setAttribute('download',''); }
-      function asNotice(a,msg){ if(!a) return; a.removeAttribute('href'); a.addEventListener('click',e=>{e.preventDefault(); alert(msg);},{once:true}); }
-      if(invoiceUrl){ asLink(d,invoiceUrl); asLink(v,invoiceUrl); } else { asNotice(d,'Your invoice was emailed to you with the SLA and Porting docs attached.'); asNotice(v,'Your invoice was emailed to you with the SLA and Porting docs attached.'); }
-      const sla=document.getElementById('lnk-sla'); const loa=document.getElementById('lnk-loa');
-      if(sla && !sla.href) sla.href='/docs/sla.pdf';
-      if(loa && !loa.href) loa.href='/docs/porting-letter-of-authority.pdf';
+    (function wireStaticDownloads(){
+      // 1) Pull identifiers from URL, then sessionStorage
+      const url = new URL(window.location.href);
+      const qpEmail = url.searchParams.get('email');
+      const qpOrder = url.searchParams.get('order');
+
+      let meta = null;
+      try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch { meta = null; }
+
+      const email = qpEmail || meta?.email || 'you@example.com';
+      const order = qpOrder || meta?.orderNumber || 'VS-000000';
+
+      // 2) Fill visible fields
+      const emailEl = document.getElementById('customer-email');
+      const orderEl = document.getElementById('order-number');
+      if (emailEl) emailEl.textContent = email;
+      if (orderEl) orderEl.textContent = order;
+
+      // 3) Build static API paths
+      const invHref = `/api/orders/${encodeURIComponent(order)}/invoice`;
+      const slaHref = `/api/orders/${encodeURIComponent(order)}/sla`;
+      const loaHref = `/api/orders/${encodeURIComponent(order)}/porting`;
+
+      // 4) Apply to all buttons
+      function link(a, href, download=false){
+        if (!a) return;
+        a.href = href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        if (download) a.setAttribute('download', '');
+      }
+
+      // Top row
+      link(document.getElementById('btn-download-invoice'), invHref, true);
+      link(document.getElementById('btn-download-sla'), slaHref, true);
+      link(document.getElementById('btn-download-porting'), loaHref, true);
+      link(document.getElementById('btn-view-invoice'), invHref, false);
+
+      // “Download & sign” section
+      link(document.getElementById('btn-download-sla-2'), slaHref, true);
+      link(document.getElementById('btn-download-porting-2'), loaHref, true);
     })();
   </script>
 </body>
