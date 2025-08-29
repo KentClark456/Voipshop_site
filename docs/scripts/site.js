@@ -111,7 +111,7 @@ const NAV_HTML = `
   <a href="packages.html"          style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Packages</a>
   <a href="build-solution.html" style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Custom Build</a>
   <a href="voice-services.html" style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Voice Services</a>
-  <a href="About.html"          style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">About us</a>
+  <a href="mobile-app.html"          style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Mobile App</a>
   <a href="contact.html"        style="color:#374151; font:500 14px/1.2 system-ui; text-decoration:none;">Contact Us</a>
 
 <!-- Cart -->
