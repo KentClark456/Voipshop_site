@@ -312,40 +312,126 @@
    <!-- Scripts -->
   <script src="./scripts/checkout.js" defer></script>
 
-  <!-- Monthly invoice sync (unchanged, just deferred) -->
-  <script>
-    (function(){
-      const VAT_RATE = 0.15;
-      function parseZAR(text){
-        const cleaned = String(text||"").replace(/[^\d,.-]/g,"").replace(/\.(?=\d{3}\b)/g,"");
-        const n = Number(cleaned.replace(",","."));
-        return Number.isFinite(n)?n:0;
-      }
-      function formatZAR(n){
-        const fixed=(Math.round(n*100)/100).toFixed(2);
-        const [i,d]=fixed.split(".");
-        const withSep=i.replace(/\B(?=(\d{3})+(?!\d))/g,".");
-        return "R "+withSep+","+d;
-      }
-      function sync(){
-        const subEl=document.getElementById("subtotal-monthly");
-        const subOut=document.getElementById("monthly-invoice-subtotal");
-        const totOut=document.getElementById("monthly-invoice-total");
-        if(!subEl||!subOut||!totOut) return;
-        const ex=parseZAR(subEl.textContent); const inc=ex*(1+VAT_RATE);
-        subOut.textContent=formatZAR(ex);
-        totOut.textContent=formatZAR(inc);
-      }
-      if(document.readyState==='loading'){
-        document.addEventListener('DOMContentLoaded', sync);
-      } else { sync(); }
-      const subEl=document.getElementById('subtotal-monthly');
-      if(subEl){
-        new MutationObserver(sync).observe(subEl,{childList:true,characterData:true,subtree:true});
-      }
-      document.addEventListener('cart:recalculated', sync);
-    })();
-  </script>
+<!-- ✅ Monthly invoice sync (JavaScript) -->
+<script>
+  (function () {
+    const VAT_RATE = 0.15;
+
+    function parseZAR(text) {
+      const cleaned = String(text || "")
+        .replace(/[^\d,.\-]/g, "")
+        .replace(/\.(?=\d{3}\b)/g, "");
+      const n = Number(cleaned.replace(",", "."));
+      return Number.isFinite(n) ? n : 0;
+    }
+
+    function formatZAR(n) {
+      const fixed = (Math.round(n * 100) / 100).toFixed(2);
+      const [i, d] = fixed.split(".");
+      const withSep = i.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return "R " + withSep + "," + d;
+    }
+
+    function sync() {
+      const subEl = document.getElementById("subtotal-monthly");
+      const subOut = document.getElementById("monthly-invoice-subtotal");
+      const totOut = document.getElementById("monthly-invoice-total");
+      if (!subEl || !subOut || !totOut) return;
+
+      const ex = parseZAR(subEl.textContent);
+      const inc = ex * (1 + VAT_RATE);
+      subOut.textContent = formatZAR(ex);
+      totOut.textContent = formatZAR(inc);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", sync);
+    } else {
+      sync();
+    }
+
+    const subEl = document.getElementById("subtotal-monthly");
+    if (subEl) {
+      new MutationObserver(sync).observe(subEl, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+      });
+    }
+
+    document.addEventListener("cart:recalculated", sync);
+  })();
+</script>
+
+<!-- ✅ Mobile fixes (CSS) -->
+<style>
+/* ---------- MOBILE FIXES (safe to paste) ---------- */
+
+/* 1) Avoid Safari glitches: don't use content-visibility on small screens */
+@media (max-width: 640px){
+  main, aside, section { content-visibility: visible; contain-intrinsic-size: auto; }
+}
+
+/* 2) Let long item names wrap instead of pushing layout wide */
+.table-row [data-cell="name"]{
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.25;
+}
+
+/* 3) Tighten the row on small screens and keep columns readable */
+@media (max-width: 767.98px){
+  .table-row{ gap: 8px; padding: 10px 12px; }
+  .table-row [data-cell="qty"]{ justify-self: start; }
+  .table-row [data-cell="total"]{ justify-self: end; text-align: right; }
+}
+
+/* 4) Keep the qty control compact and tap-friendly on phones */
+@media (max-width: 480px){
+  :root{ --qty-pill-number-nudge:-8px; }
+  .qty-pill{ height: 26px; border-radius: 9px; }
+  .qty-btn{ width: 26px; font-size: 13px; }
+  .qty-value{ min-width: 26px; font-size: 12px; }
+  .qty-plain{ height: 26px; min-width: 30px; padding: 0 6px; font-size: 12px; }
+}
+
+/* 5) Nudge totals slightly inward on very small phones so they don't clip */
+@media (max-width: 380px){
+  :root{ --total-nudge: 10px; }
+}
+
+/* 6) Compress table totals rows on mobile */
+@media (max-width: 640px){
+  .table-total{ border-radius: 12px; }
+  .table-total .label{ font-size: .9rem; }
+  .table-total .amount{ font-size: 1rem; }
+}
+
+/* 7) Cards on the right column: ensure generous inner spacing on mobile */
+@media (max-width: 1024px){
+  .card-h{ padding: 12px 14px; }
+  .card-b{ padding: 14px; }
+  .pill{ font-size: 11.5px; padding: 3px 9px; }
+}
+
+/* 8) Give room for the WhatsApp floater so it doesn't overlap the CTA */
+@media (max-width: 640px){
+  footer{ padding-bottom: 64px; }
+  .card:last-of-type{ margin-bottom: 8px; }
+}
+
+/* 9) Breadcrumb and headings: soften slightly on small screens */
+@media (max-width: 480px){
+  h1.text-3xl{ font-size: 1.5rem; }
+  nav[aria-label="breadcrumb"]{ font-size: 12px; }
+}
+
+/* 10) Safety: if Tailwind utilities aren’t present, ensure grid collapses to 1 col */
+@media (max-width: 1023.98px){
+  .lg\:col-span-8, .lg\:col-span-4 { grid-column: auto / span 12; }
+}
+</style>
+
 
   <!-- WhatsApp floater (kept) -->
   <a href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help" target="_blank" rel="noopener"
