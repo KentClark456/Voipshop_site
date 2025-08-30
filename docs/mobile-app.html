@@ -5,22 +5,22 @@
   <title>Professional Number (App) | VoIP Shop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Get a professional business number on your mobile — no full phone system required. One app per user, pay VoIP rates.">
-  <script>
-  window.tailwind = window.tailwind || {};
-  window.tailwind.config = {
-    safelist: [
-      'hidden','block','md:hidden','md:flex','overflow-hidden',
-      'sticky','top-0','z-50','backdrop-blur',
-      'border-b','border-gray-200',
-      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-      'flex','items-center','justify-between','gap-6',
-      'text-sm','font-medium','text-gray-700','hover:text-black',
-      'space-y-2','text-base'
-    ]
-  };
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Tailwind config (safelist for injected nav/classes) -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      safelist: [
+        'hidden','block','md:hidden','md:flex','overflow-hidden',
+        'sticky','top-0','z-50','backdrop-blur',
+        'border-b','border-gray-200',
+        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+        'flex','items-center','justify-between','gap-6',
+        'text-sm','font-medium','text-gray-700','hover:text-black',
+        'space-y-2','text-base'
+      ]
+    };
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -79,6 +79,109 @@
     .hero, #details, #config { content-visibility: auto; contain-intrinsic-size: 800px 1200px; }
     @media (max-width: 640px){ .btn{ min-height:44px; padding:.75rem 1.125rem; } }
     @media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; } }
+
+    /* ===== Mobile polish (safe to keep at end) ===== */
+
+    /* 0) iOS Safari: avoid content-visibility weirdness on phones */
+    @media (max-width: 640px){
+      .hero, #details, #config { content-visibility: visible; contain-intrinsic-size: auto; }
+    }
+
+    /* 1) Global type + spacing clamps */
+    section.hero h1{
+      font-size: clamp(1.75rem, 6vw, 2.5rem);
+      line-height: 1.15;
+    }
+    @media (max-width: 640px){
+      .kicker{ font-size:.72rem; }
+      .chip{ font-size:.78rem; padding:.3rem .55rem; }
+    }
+
+    /* 2) Cards: lighter padding + tighter gaps on mobile */
+    @media (max-width: 640px){
+      .card{ border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+      /* Feature stripe and panel cards */
+      .card.p-6, .card.p-8, .card.p-10{ padding: 14px !important; }
+      .card .p-6, .card .p-4{ padding: 12px !important; }
+      .grid.gap-6{ gap: 12px !important; }
+      .grid.gap-4{ gap: 10px !important; }
+    }
+
+    /* 3) HERO block vertical padding (less tall on phones) */
+    @media (max-width: 640px){
+      .hero .py-14, .hero .sm\:py-16{
+        padding-top: 18px !important; padding-bottom: 18px !important;
+      }
+      .hero .mt-8{ margin-top: 14px !important; }
+      .hero .mt-6{ margin-top: 10px !important; }
+    }
+
+    /* 4) “Feature stripe” icons + text */
+    @media (max-width: 640px){
+      .card .rounded-xl.p-3{ padding: 8px !important; border-radius: 12px !important; }
+      .card svg.w-6.h-6{ width: 20px; height: 20px; }
+      .card h3{ font-size: 0.98rem; }
+      .card p{ font-size: 0.92rem; }
+    }
+
+    /* 5) Tabs segment control: ensure no vertical bloat + smooth scroll */
+    #segmented{ -webkit-overflow-scrolling: touch; }
+    #segmented .seg-inner{ padding-right: 0.25rem; }
+    @media (max-width: 640px){
+      .tab-btn{ padding: 6px 10px !important; font-size: 0.9rem !important; }
+      #segmented{ padding: 4px !important; }
+      #seg-pill{ top: 3px !important; height: calc(100% - 6px) !important; }
+      .seg-dots{ margin: 6px 0 10px !important; }
+      .seg-dots .dot{ width: 6px; height: 6px; border-radius: 999px; background:#d1d5db; }
+      .seg-dots .dot.is-active{ background: var(--blue); }
+    }
+
+    /* 6) Support & SLA panel table: tighter cells + wrap */
+    #panel-support table{ table-layout: fixed; width: 100%; }
+    #panel-support td{ white-space: normal; word-break: break-word; }
+    @media (max-width: 640px){
+      #panel-support td{ padding: 8px 10px !important; font-size: 0.9rem; }
+    }
+
+    /* 7) Fees & Billing and Features grids: stack comfortably */
+    @media (max-width: 640px){
+      #panel-fees .card h4,
+      #panel-features .card h4{ font-size: 0.98rem; margin-bottom: 0.35rem; }
+      #panel-fees .card ul li,
+      #panel-features .card ul li{ font-size: 0.92rem; }
+    }
+
+    /* 8) Right sidebar (At a glance): compact */
+    @media (max-width: 640px){
+      aside.card.p-6{ padding: 14px !important; }
+      aside.card .text-xl{ font-size: 1.05rem !important; }
+      aside.card .space-y-2 > * + *{ margin-top: 6px !important; }
+    }
+
+    /* 9) Configurator card: smaller paddings + controls fit */
+    @media (max-width: 640px){
+      #config .card{ padding: 14px !important; }
+      #config .mt-4{ margin-top: 10px !important; }
+      #config .mt-6{ margin-top: 12px !important; }
+      #config h2{ font-size: 1.25rem; }
+      #config p{ font-size: 0.95rem; }
+    }
+
+    /* 10) Stepper: phone-friendly size */
+    @media (max-width: 640px){
+      .stepper input{ width: 56px; padding: .45rem .25rem; font-size: .95rem; }
+      .stepper button{ width: 40px; font-size: 1rem; }
+    }
+
+    /* 11) Buttons: ensure minimum tap height */
+    @media (max-width: 640px){
+      .btn{ min-height: 44px; padding: .65rem 1rem; }
+    }
+
+    /* 12) Safe area: keep WhatsApp floater from overlapping actions */
+    @media (max-width: 640px){
+      body{ padding-bottom: max(70px, env(safe-area-inset-bottom)); }
+    }
   </style>
 </head>
 <body class="antialiased">
@@ -351,9 +454,14 @@
     style="backdrop-filter:saturate(140%)">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
          class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
-      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
+      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5.71 .3 1.27 .48 1.7 .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72 2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
     </svg>
     <span class="text-sm font-semibold">Need help?</span>
   </a>
+
+  <script>
+    // Footer year
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
