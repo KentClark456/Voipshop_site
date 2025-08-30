@@ -5,22 +5,22 @@
   <title>Voice-Only Services (BYO Hardware) | VoIP Shop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Already have phones? Keep your hardware and switch to VoIP Shop. Simple month-to-month voice service, clear support, and easy porting.">
-  <script>
-  window.tailwind = window.tailwind || {};
-  window.tailwind.config = {
-    safelist: [
-      'hidden','block','md:hidden','md:flex','overflow-hidden',
-      'sticky','top-0','z-50','backdrop-blur',
-      'border-b','border-gray-200',
-      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-      'flex','items-center','justify-between','gap-6',
-      'text-sm','font-medium','text-gray-700','hover:text-black',
-      'space-y-2','text-base'
-    ]
-  };
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Tailwind config (safelist for injected nav/classes) -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      safelist: [
+        'hidden','block','md:hidden','md:flex','overflow-hidden',
+        'sticky','top-0','z-50','backdrop-blur',
+        'border-b','border-gray-200',
+        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+        'flex','items-center','justify-between','gap-6',
+        'text-sm','font-medium','text-gray-700','hover:text-black',
+        'space-y-2','text-base'
+      ]
+    };
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -82,29 +82,89 @@
     .stepper button:active{ background:#e5e7eb; }
     .stepper button:focus-visible{ outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
 
-    /* VoIP basics shell */
-    #voip-basics{color:var(--vb3-text)}
-    .vb3-card{
-      position:relative; border-radius:16px; padding:18px 20px; box-shadow:0 2px 10px rgba(0,0,0,.06);
-      background:linear-gradient(var(--vb3-bg),var(--vb3-bg)) padding-box, linear-gradient(135deg,var(--vb3-blue),var(--vb3-blue-2)) border-box;
-      border:1px solid transparent;
-    }
-
-    /* Blue ring */
-    .next-step-ring{
-      border-color: rgba(0,113,227,.48) !important;
-      box-shadow:
-        0 0 0 2px rgba(0,113,227,.45),
-        0 10px 28px rgba(0,113,227,.22) !important;
-    }
-
     /* Perf: paint large sections on demand & reserve size to avoid CLS */
     .hero, #details, #config { content-visibility: auto; contain-intrinsic-size: 800px 1200px; }
 
-    /* Mobile spacing tweaks */
+    /* ===== Mobile polish (safe to keep at end) ===== */
+
+    /* 0) iOS Safari: avoid content-visibility weirdness on phones */
     @media (max-width: 640px){
+      .hero, #details, #config { content-visibility: visible; contain-intrinsic-size: auto; }
+    }
+
+    /* 1) HERO sizing clamps + spacing */
+    section.hero h1{
+      font-size: clamp(1.75rem, 6vw, 2.5rem);
+      line-height: 1.15;
+    }
+    @media (max-width: 640px){
+      .kicker{ font-size:.72rem; }
+      .chip{ font-size:.78rem; padding:.3rem .55rem; }
+      .hero .py-14, .hero .sm\:py-16{ padding-top: 18px !important; padding-bottom: 18px !important; }
+      .hero .mt-8{ margin-top: 14px !important; }
+      .hero .mt-6{ margin-top: 10px !important; }
       .btn{ min-height:44px; padding:.75rem 1.125rem; }
     }
+
+    /* 2) Feature stripe and cards: lighter padding + tighter gaps */
+    @media (max-width: 640px){
+      .card{ border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+      .card.p-6, .card.p-8, .card.p-10{ padding: 14px !important; }
+      .card .p-6, .card .p-4{ padding: 12px !important; }
+      .grid.gap-6{ gap: 12px !important; }
+      .grid.gap-4{ gap: 10px !important; }
+    }
+
+    /* 3) Tab segment control: compact + smooth scroll */
+    #segmented{ -webkit-overflow-scrolling: touch; }
+    #segmented .seg-inner{ padding-right: .25rem; }
+    @media (max-width: 640px){
+      .tab-btn{ padding: 6px 10px !important; font-size: 0.9rem !important; }
+      #segmented{ padding: 4px !important; }
+      #seg-pill{ top: 3px !important; height: calc(100% - 6px) !important; }
+      .seg-dots{ margin: 6px 0 10px !important; }
+      .seg-dots .dot{ width: 6px; height: 6px; border-radius: 999px; background:#d1d5db; }
+      .seg-dots .dot.is-active{ background: var(--blue); width: 12px; border-radius: 999px; }
+    }
+
+    /* 4) Support & SLA panel table: fixed layout + wrap + tighter cells */
+    #panel-support table{ table-layout: fixed; width: 100%; }
+    #panel-support td{ white-space: normal; word-break: break-word; }
+    @media (max-width: 640px){
+      #panel-support td{ padding: 8px 10px !important; font-size: 0.9rem; }
+    }
+
+    /* 5) PBX/Fees grids: comfy stack */
+    @media (max-width: 640px){
+      #panel-fees .card h4,
+      #panel-pbx .card h4{ font-size: 0.98rem; margin-bottom: 0.35rem; }
+      #panel-fees .card ul li,
+      #panel-pbx .card ul li{ font-size: 0.92rem; }
+    }
+
+    /* 6) Right sidebar: compact */
+    @media (max-width: 640px){
+      aside.card.p-6{ padding: 14px !important; }
+      aside.card .text-xl{ font-size: 1.05rem !important; }
+      aside.card .space-y-2 > * + *{ margin-top: 6px !important; }
+    }
+
+    /* 7) Configurator: smaller paddings + friendlier controls */
+    @media (max-width: 640px){
+      #config .card{ padding: 14px !important; }
+      #config .mt-4{ margin-top: 10px !important; }
+      #config .mt-6{ margin-top: 12px !important; }
+      #config h2{ font-size: 1.25rem; }
+      #config p{ font-size: 0.95rem; }
+      .stepper input{ width: 56px; padding: .45rem .25rem; font-size: .95rem; }
+      .stepper button{ width: 40px; font-size: 1rem; }
+    }
+
+    /* 8) Safe area: keep WhatsApp floater from overlapping actions */
+    @media (max-width: 640px){
+      body{ padding-bottom: max(70px, env(safe-area-inset-bottom)); }
+    }
+
     @media (prefers-reduced-motion:reduce){
       *{ transition:none !important; animation:none !important; }
     }
@@ -140,55 +200,55 @@
     </div>
   </section>
 
-<!-- FEATURE STRIPE -->
-<section class="max-w-screen-xl mx-auto px-6 lg:px-16 mt-6 mb-12 relative z-10">
-  <div class="grid gap-6 md:grid-cols-3">
-    
-    <!-- What you get -->
-    <div class="card card-hover p-6">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="rounded-xl bg-[#F59E0B]/10 p-3">
-          <!-- Gift Icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#F59E0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8M4 8h16M12 22V8m0-6a3 3 0 1 1 0 6m0-6a3 3 0 1 0 0 6" />
-          </svg>
-        </div>
-        <h3 class="font-semibold text-gray-900">What you get</h3>
-      </div>
-      <p class="text-gray-700">Hosted PBX platform, number porting, and WhatsApp-first support.</p>
-    </div>
+  <!-- FEATURE STRIPE -->
+  <section class="max-w-screen-xl mx-auto px-6 lg:px-16 mt-6 mb-12 relative z-10">
+    <div class="grid gap-6 md:grid-cols-3">
 
-    <!-- How it works -->
-    <div class="card card-hover p-6">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="rounded-xl bg-[#0E5B52]/10 p-3">
-          <!-- Cog Icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#0E5B52]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317L9.6 2.1a1 1 0 0 1 .76-1.276l2.64-.528a1 1 0 0 1 1.175.808l.725 2.217a8.003 8.003 0 0 1 3.612 1.857l2.05-1.192a1 1 0 0 1 1.366.366l1.32 2.292a1 1 0 0 1-.366 1.366l-2.05 1.192c.113.582.174 1.18.174 1.785s-.061 1.203-.174 1.785l2.05 1.192a1 1 0 0 1 .366 1.366l-1.32 2.292a1 1 0 0 1-1.366.366l-2.05-1.192a8.003 8.003 0 0 1-3.612 1.857l-.725 2.217a1 1 0 0 1-1.175.808l-2.64-.528a1 1 0 0 1-.76-1.276l.725-2.217A8.003 8.003 0 0 1 6.713 17.9l-2.05 1.192a1 1 0 0 1-1.366-.366l-1.32-2.292a1 1 0 0 1 .366-1.366l2.05-1.192A8.003 8.003 0 0 1 10.325 4.317z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
+      <!-- What you get -->
+      <div class="card card-hover p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="rounded-xl bg-[#F59E0B]/10 p-3">
+            <!-- Gift Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#F59E0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8M4 8h16M12 22V8m0-6a3 3 0 1 1 0 6m0-6a3 3 0 1 0 0 6" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">What you get</h3>
         </div>
-        <h3 class="font-semibold text-gray-900">How it works</h3>
+        <p class="text-gray-700">Hosted PBX platform, number porting, and WhatsApp-first support.</p>
       </div>
-      <p class="text-gray-700">Keep your SIP phones. We connect them to our cloud and move your numbers—no new hardware needed.</p>
-    </div>
 
-    <!-- When to use -->
-    <div class="card card-hover p-6">
-      <div class="flex items-center gap-3 mb-3">
-        <div class="rounded-xl bg-[#D97706]/10 p-3">
-          <!-- Clock Icon -->
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#D97706]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0z" />
-          </svg>
+      <!-- How it works -->
+      <div class="card card-hover p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="rounded-xl bg-[#0E5B52]/10 p-3">
+            <!-- Cog Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#0E5B52]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317L9.6 2.1a1 1 0 0 1 .76-1.276l2.64-.528a1 1 0 0 1 1.175.808l.725 2.217a8.003 8.003 0 0 1 3.612 1.857l2.05-1.192a1 1 0 0 1 1.366.366l1.32 2.292a1 1 0 0 1-.366 1.366l-2.05 1.192c.113.582.174 1.18.174 1.785s-.061 1.203-.174 1.785l2.05 1.192a1 1 0 0 1 .366 1.366l-1.32 2.292a1 1 0 0 1-1.366.366l-2.05-1.192a8.003 8.003 0 0 1-3.612 1.857l-.725 2.217a1 1 0 0 1-1.175.808l-2.64-.528a1 1 0 0 1-.76-1.276l.725-2.217A8.003 8.003 0 0 1 6.713 17.9l-2.05 1.192a1 1 0 0 1-1.366-.366l-1.32-2.292a1 1 0 0 1 .366-1.366l2.05-1.192A8.003 8.003 0 0 1 10.325 4.317z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">How it works</h3>
         </div>
-        <h3 class="font-semibold text-gray-900">When to use</h3>
+        <p class="text-gray-700">Keep your SIP phones. We connect them to our cloud and move your numbers—no new hardware needed.</p>
       </div>
-      <p class="text-gray-700">Ideal if you already own phones or want to switch provider without a full replacement.</p>
-    </div>
 
-  </div>
-</section>
+      <!-- When to use -->
+      <div class="card card-hover p-6">
+        <div class="flex items-center gap-3 mb-3">
+          <div class="rounded-xl bg-[#D97706]/10 p-3">
+            <!-- Clock Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#D97706]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0z" />
+            </svg>
+          </div>
+          <h3 class="font-semibold text-gray-900">When to use</h3>
+        </div>
+        <p class="text-gray-700">Ideal if you already own phones or want to switch provider without a full replacement.</p>
+      </div>
+
+    </div>
+  </section>
 
   <!-- DETAILS BAND -->
   <section id="details" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-14">
@@ -242,9 +302,9 @@
               <div class="mt-4 overflow-hidden rounded-xl border border-gray-200">
                 <table class="w-full text-sm">
                   <tbody>
-                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Critical</td><td class="px-4 py-3">Service down / major outage</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 30 min</td></tr>
-                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">High</td><td class="px-4 py-3">Multiple users impacted</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 2 hrs</td></tr>
-                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Normal</td><td class="px-4 py-3">Single user / request</td><td class="px-4 py-3 text-right font-semibold">Next business day</td></tr>
+                    <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Critical</td><td class="px-4 py-3">Service down / major outage</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 30 min</td></tr>
+                    <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">High</td><td class="px-4 py-3">Multiple users impacted</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 2 hrs</td></tr>
+                    <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Normal</td><td class="px-4 py-3">Single user / request</td><td class="px-4 py-3 text-right font-semibold">Next business day</td></tr>
                   </tbody>
                 </table>
               </div>
@@ -391,7 +451,7 @@
     <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>
   </footer>
 
-  <!-- BYO Calculator (no remote provisioning; installation is free) -->
+  <!-- BYO Calculator -->
   <script>
   (function(){
     // Pricing
@@ -424,25 +484,20 @@
     }
 
     function persistForNextSteps(ext, monthly, onceoff){
-      // wipe stale items first
       startFreshOrder();
-
-      // Save a “selected package” with explicit extension count and a voice-only flag
       const payload = {
         label: `Voice-only (BYO) — ${ext} extension${ext>1?'s':''}`,
         name:  'Voice-only (BYO)',
-        monthly: monthly,   // informational
-        onceOff: onceoff,   // informational (will be 0)
-        extensions: ext,    // for checkout's countExtensions()
-        isVoiceOnly: true,  // tells checkout about voice-only
+        monthly: monthly,
+        onceOff: onceoff,
+        extensions: ext,
+        isVoiceOnly: true,
         tags: ['voice-only'],
-        devices: [],        // BYO = no hardware items
+        devices: [],
         minutesIncluded: null,
         meta: { mode:'byoh' }
       };
       try { localStorage.setItem('voip:selectedPackage', JSON.stringify(payload)); } catch {}
-
-      // No remote provisioning/custom once-off lines anymore
       try { localStorage.setItem('voip:customBuild', JSON.stringify([])); } catch {}
     }
 
@@ -491,144 +546,134 @@
 
   <!-- Segmented tabs logic (mobile-friendly + a11y) -->
   <script>
-(function(){
-  // ------- Elements -------
-  const segmented   = document.getElementById('segmented');
-  if (!segmented) return;
+  (function(){
+    const segmented   = document.getElementById('segmented');
+    if (!segmented) return;
 
-  const segInner    = segmented.querySelector('.seg-inner');
-  const pill        = document.getElementById('seg-pill');
-  const tabBtns     = Array.from(segmented.querySelectorAll('.tab-btn[role="tab"]'));
-  const dots        = Array.from(document.querySelectorAll('.seg-dots .dot'));
+    const segInner    = segmented.querySelector('.seg-inner');
+    const pill        = document.getElementById('seg-pill');
+    const tabBtns     = Array.from(segmented.querySelectorAll('.tab-btn[role="tab"]'));
+    const dots        = Array.from(document.querySelectorAll('.seg-dots .dot'));
 
-  const panels = {
-    overview: document.getElementById('panel-overview'),
-    support : document.getElementById('panel-support'),
-    fees    : document.getElementById('panel-fees'),
-    pbx     : document.getElementById('panel-pbx'),
-    compat  : document.getElementById('panel-compat'),
-    legal   : document.getElementById('panel-legal')
-  };
+    const panels = {
+      overview: document.getElementById('panel-overview'),
+      support : document.getElementById('panel-support'),
+      fees    : document.getElementById('panel-fees'),
+      pbx     : document.getElementById('panel-pbx'),
+      compat  : document.getElementById('panel-compat'),
+      legal   : document.getElementById('panel-legal')
+    };
 
-  // ------- Helpers -------
-  function showPanel(key){
-    Object.entries(panels).forEach(([k, el])=>{
-      if (!el) return;
-      const isActive = (k === key);
-      el.classList.toggle('hidden', !isActive);
-      el.setAttribute('tabindex', isActive ? '0' : '-1');
-    });
-  }
+    function showPanel(key){
+      Object.entries(panels).forEach(([k, el])=>{
+        if (!el) return;
+        const isActive = (k === key);
+        el.classList.toggle('hidden', !isActive);
+        el.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+    }
 
-  // Move the blue pill under the active tab
-  function movePillTo(tab){
-    if (!pill || !tab || !segInner) return;
-    const tabRect = tab.getBoundingClientRect();
-    const innerRect = segInner.getBoundingClientRect();
-    const left = (tabRect.left - innerRect.left) + segInner.scrollLeft; // account for horizontal scroll
-    pill.style.transform = `translateX(${left}px)`;
-    pill.style.width = `${tabRect.width}px`;
-  }
+    function movePillTo(tab){
+      if (!pill || !tab || !segInner) return;
+      const tabRect = tab.getBoundingClientRect();
+      const innerRect = segInner.getBoundingClientRect();
+      const left = (tabRect.left - innerRect.left) + segInner.scrollLeft;
+      pill.style.transform = `translateX(${left}px)`;
+      pill.style.width = `${tabRect.width}px`;
+    }
 
-  function setActive(tabKey){
-    // tabs
+    function setActive(tabKey){
+      tabBtns.forEach(btn=>{
+        const isActive = btn.dataset.tab === tabKey;
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        if (isActive) movePillTo(btn);
+      });
+
+      dots.forEach(d=> d.classList.toggle('is-active', d.dataset.tab === tabKey));
+      showPanel(tabKey);
+
+      const activeBtn = tabBtns.find(b => b.dataset.tab === tabKey);
+      if (activeBtn) activeBtn.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
+
+      history.replaceState(null, '', `#${tabKey}`);
+    }
+
+    function updateFades(){
+      const leftFade  = segmented.querySelector('.segmented-fade.left');
+      const rightFade = segmented.querySelector('.segmented-fade.right');
+      if (!leftFade || !rightFade) return;
+      const max = segInner.scrollWidth - segInner.clientWidth;
+      const x = segInner.scrollLeft;
+      leftFade.style.opacity  = x > 2 ? '1' : '0';
+      rightFade.style.opacity = (max - x) > 2 ? '1' : '0';
+    }
+
     tabBtns.forEach(btn=>{
-      const isActive = btn.dataset.tab === tabKey;
-      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-      if (isActive) movePillTo(btn);
+      btn.addEventListener('click', ()=>{
+        setActive(btn.dataset.tab);
+        btn.focus();
+      });
+    });
+    dots.forEach(dot=>{
+      dot.addEventListener('click', ()=>{
+        setActive(dot.dataset.tab);
+        const match = tabBtns.find(b=>b.dataset.tab===dot.dataset.tab);
+        match?.focus();
+      });
     });
 
-    // dots
-    dots.forEach(d=> d.classList.toggle('is-active', d.dataset.tab === tabKey));
-
-    // panels
-    showPanel(tabKey);
-
-    // ensure active tab is visible
-    const activeBtn = tabBtns.find(b => b.dataset.tab === tabKey);
-    if (activeBtn) activeBtn.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
-
-    // update hash (optional, non-destructive)
-    history.replaceState(null, '', `#${tabKey}`);
-  }
-
-  // Fades on scroll (the little gradient edges)
-  function updateFades(){
-    const leftFade  = segmented.querySelector('.segmented-fade.left');
-    const rightFade = segmented.querySelector('.segmented-fade.right');
-    if (!leftFade || !rightFade) return;
-    const max = segInner.scrollWidth - segInner.clientWidth;
-    const x = segInner.scrollLeft;
-    leftFade.style.opacity  = x > 2 ? '1' : '0';
-    rightFade.style.opacity = (max - x) > 2 ? '1' : '0';
-  }
-
-  // ------- Wire up clicks -------
-  tabBtns.forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      setActive(btn.dataset.tab);
-      btn.focus();
+    segmented.addEventListener('keydown', (e)=>{
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      const idx = tabBtns.findIndex(b => b.getAttribute('aria-selected') === 'true');
+      if (idx < 0) return;
+      const next = e.key === 'ArrowRight'
+        ? Math.min(idx + 1, tabBtns.length - 1)
+        : Math.max(idx - 1, 0);
+      setActive(tabBtns[next].dataset.tab);
+      tabBtns[next].focus();
     });
-  });
-  dots.forEach(dot=>{
-    dot.addEventListener('click', ()=>{
-      setActive(dot.dataset.tab);
-      const match = tabBtns.find(b=>b.dataset.tab===dot.dataset.tab);
-      match?.focus();
+
+    window.addEventListener('resize', ()=>{
+      const active = tabBtns.find(b => b.getAttribute('aria-selected') === 'true') || tabBtns[0];
+      movePillTo(active);
+      updateFades();
     });
-  });
+    segInner.addEventListener('scroll', updateFades, { passive: true });
 
-  // ------- Keyboard nav (← →) -------
-  segmented.addEventListener('keydown', (e)=>{
-    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-    e.preventDefault();
-    const idx = tabBtns.findIndex(b => b.getAttribute('aria-selected') === 'true');
-    if (idx < 0) return;
-    const next = e.key === 'ArrowRight'
-      ? Math.min(idx + 1, tabBtns.length - 1)
-      : Math.max(idx - 1, 0);
-    setActive(tabBtns[next].dataset.tab);
-    tabBtns[next].focus();
-  });
+    const hashKey = (location.hash || '').replace('#','');
+    const initialKey = tabBtns.some(b => b.dataset.tab === hashKey) ? hashKey : 'overview';
+    requestAnimationFrame(()=>{
+      setActive(initialKey);
+      updateFades();
+    });
+  })();
+  </script>
 
-  // ------- Keep pill aligned on resize/scroll -------
-  window.addEventListener('resize', ()=>{
-    const active = tabBtns.find(b => b.getAttribute('aria-selected') === 'true') || tabBtns[0];
-    movePillTo(active);
-    updateFades();
-  });
-  segInner.addEventListener('scroll', updateFades, { passive: true });
+  <!-- Floating WhatsApp Help Button (mobile-optimised) -->
+  <a
+    href="https://wa.me/27683510074?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
+    target="_blank" rel="noopener"
+    aria-label="Chat to VoIP Shop on WhatsApp"
+    class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
+           px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
+           focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
+           right-4 bottom-4
+           md:right-5 md:bottom-5
+           [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
+           select-none"
+    style="backdrop-filter:saturate(140%)"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+         class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5 .71 .3 1.27 .48 1.7 .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72 2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
+    </svg>
+    <span class="text-sm font-semibold">Need help?</span>
+  </a>
 
-  // ------- Initial state -------
-  const hashKey = (location.hash || '').replace('#','');
-  const initialKey = tabBtns.some(b => b.dataset.tab === hashKey) ? hashKey : 'overview';
-  requestAnimationFrame(()=>{
-    setActive(initialKey);
-    updateFades();
-  });
-})();
-</script>
-<!-- ✅ Floating WhatsApp Help Button (all devices, mobile-optimised) -->
-<a
-  href="https://wa.me/27683510074?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
-  target="_blank" rel="noopener"
-  aria-label="Chat to VoIP Shop on WhatsApp"
-  class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
-         px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
-         focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
-         right-4 bottom-4
-         md:right-5 md:bottom-5
-         [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
-         select-none"
-  style="backdrop-filter:saturate(140%)"
->
-  <!-- Icon (SVG) -->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-       class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
-    <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
-  </svg>
-
-  <span class="text-sm font-semibold">Need help?</span>
-</a>
+  <script>
+    // Footer year
+    document.getElementById('y')?.textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
