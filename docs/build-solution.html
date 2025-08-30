@@ -10,7 +10,7 @@
   <!-- End Google Tag Manager -->
 
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- keep -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>VoIP Shop - Build a Solution</title>
   <meta name="description" content="Build a custom PBX setup: choose reception, desk and cordless phones. Professional install, remote support, and simple monthly service." />
 
@@ -29,12 +29,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
 
-  <!-- Page-scoped responsive + perf polish (rail removed, full-width grid + slider) -->
   <style>
     :root{ --navH: 72px; --safe: env(safe-area-inset-bottom, 0px); }
 
-    /* System behaviors for mobile */
-    html { scroll-behavior: smooth; }
+    /* System behaviors + overscroll fix */
+    html {
+      scroll-behavior: smooth;
+      overscroll-behavior: none;          /* prevent blue overscroll flash */
+      background: #f3f4f6;                /* match body to avoid color flash */
+    }
     html, body { height: auto; min-height: 100%; overflow-y: auto; }
     body {
       -webkit-tap-highlight-color: transparent;
@@ -44,22 +47,23 @@
       background: #f3f4f6; /* bg-gray-100 */
       color: #111827;
       font-family: Roboto, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      overscroll-behavior: none;          /* also stop nested scroll chaining */
     }
 
     /* Clear anchor jumps below sticky UI */
     section[id] { scroll-margin-top: max(56px, var(--navH)); }
 
-    /* ====== LAYOUT: Single column (rail removed) ====== */
+    /* LAYOUT */
     .flow-layout{ display:block; }
 
-    /* Full-bleed wrappers so cards can breathe */
+    /* Full-bleed wrappers */
     .package-container-outer,
     .hardware-container-outer{
       max-width:none; width:100%;
       padding-inline: clamp(12px, 3vw, 32px);
     }
 
-    /* ======= SECTION TITLES: Black (no pill) ======= */
+    /* SECTION TITLES: Black (no pill) */
     .hardware-section-title{
       display:grid;
       grid-template-columns: auto;
@@ -73,20 +77,19 @@
       font-weight: 800;
       letter-spacing: .12em;
       text-transform: uppercase;
-      color:#111827;                 /* black again */
+      color:#111827;
       display:inline-flex;
       align-items:center;
       gap:10px;
     }
-    /* thin accent rule after the kicker */
     .hardware-section-title .kicker::after{
       content:"";
       display:inline-block;
       height:2px;
       width: clamp(40px, 12vw, 120px);
-      background:#111827;            /* black rule */
+      background:#111827;
       border-radius: 2px;
-      translate: 0 1px;
+      transform: translateY(1px); /* wide support */
     }
     .hardware-section-title .subtitle{
       color:#6b7280;
@@ -94,14 +97,14 @@
       font-size: .95rem;
     }
 
-.hardware-divider{
-  border: 0;
-  border-top: 2px solid #9ca3af; /* darker grey, thicker line */
-  margin: 24px 0 12px;
-}
+    /* Divider between card groups — thinner now */
+    .hardware-divider{
+      border: 0;
+      border-top: 1px solid #9ca3af; /* was 2px */
+      margin: 24px 0 12px;
+    }
 
-
-    /* ====== BIG responsive grid for your cards ====== */
+    /* Cards grid */
     .hardware-container{
       display: grid; gap: clamp(12px, 2vw, 20px);
       grid-template-columns: 1fr; align-items: stretch;
@@ -114,7 +117,7 @@
       .hardware-container{ grid-template-columns: repeat(3, minmax(0,1fr)); }
     }
 
-    /* Cards: keep white */
+    /* Card blocks */
     .hardware-container > *{
       border-radius: 16px;
       min-height: 360px;
@@ -132,22 +135,16 @@
       padding-block: 4px;
     }
 
-    /* Reduce motion where requested */
     @media (prefers-reduced-motion: reduce){
       * { animation: none !important; transition: none !important; scroll-behavior: auto; }
-
-      .hardware-container > * {
-        background: #fff !important;
-        border-color: #e5e7eb !important;
-        color: #111827 !important;
-      }
+      .hardware-container > * { background: #fff !important; border-color: #e5e7eb !important; color: #111827 !important; }
       .hardware-divider{ border-top-color:#e5e7eb; }
-      #mobile-cta { background: rgba(255,255,255,.92); border-top-color: rgba(17,24,39,.08); }
     }
 
-    #intro .border-t{ border-color: rgba(229,231,235,.6); }
+    /* Remove faint line that used to be under intro (safety in case DOM stays) */
+    #intro .border-t{ display:none !important; }
 
-    /* ===== Left-center vertical slider ===== */
+    /* Left-center vertical slider */
     #section-slider{
       position: fixed;
       left: clamp(8px, 1.2vw, 16px);
@@ -159,22 +156,19 @@
     }
     @media (min-width: 1024px){ #section-slider{ display:flex; } }
 
-    /* Inherit neutral text by default */
-    #section-slider * { color: #111; }
-
+    /* Darker shell + borders */
     #section-slider .slider-shell{
       display:flex; flex-direction:column; align-items:center; gap:8px;
-      background:rgba(245,245,247,0.9);
-      border:1px solid rgba(0,0,0,0.08);
+      background:rgba(235,235,237,0.95);    /* slightly darker than before */
+      border:1px solid rgba(0,0,0,0.16);    /* darker border */
       backdrop-filter: blur(12px) saturate(180%);
       border-radius:16px;
       padding:10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.1);
+      box-shadow: 0 8px 22px rgba(0,0,0,.12); /* a touch stronger */
     }
-
     #section-slider .arrow{
       width:44px; height:44px; display:grid; place-items:center;
-      border-radius:12px; border:1px solid rgba(0,0,0,0.1);
+      border-radius:12px; border:1px solid rgba(0,0,0,0.14); /* darker */
       background:#fff; cursor:pointer;
       font-weight:700; line-height:1;
       color:#111;
@@ -190,7 +184,7 @@
 
     #section-slider .link{
       display:flex; align-items:center; gap:10px;
-      border:1px solid rgba(0,0,0,0.08);
+      border:1px solid rgba(0,0,0,0.12);   /* darker */
       background:#fff;
       padding:12px 12px;
       border-radius:12px;
@@ -201,7 +195,7 @@
       color:#111;
       transition: background .2s, border-color .2s;
     }
-    #section-slider .link:hover{ background:#f9f9f9; }
+    #section-slider .link:hover{ background:#f0f0f0; }
     #section-slider .link[aria-current="true"]{
       border-color:#0071E3;
       background:#f0f7ff;
@@ -209,47 +203,17 @@
     }
     #section-slider .icon{ width:18px; height:18px; color:inherit; }
 
-    /* Mobile sticky summary & CTA (visible under 1024px) */
-    #mobile-cta {
-      position: sticky;
-      bottom: 0;
-      z-index: 70;
-      padding: 10px clamp(12px, 4vw, 20px);
-      padding-bottom: calc(10px + var(--safe));
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(10px) saturate(140%);
-      border-top: 1px solid rgba(17,24,39,.08);
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
+    /* “Proceed to Porting” heading: lighter Apple-style */
+    #step-2 h2{
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 500;           /* less bold */
+      letter-spacing: -0.01em;    /* subtle Apple-style tightening */
     }
-    #mobile-cta .totals {
-      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
-    }
-    #mobile-cta .pill {
-      display:inline-flex; align-items:baseline; gap:6px;
-      background:#f3f4f6; border:1px solid #e5e7eb; border-radius:999px;
-      padding:8px 10px; font-weight:600; font-size:13px;
-    }
-    #mobile-cta .pill span.small {
-      font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#6b7280; font-weight:700;
-    }
-    #mobile-cta .cta-btn {
-      display:inline-flex; align-items:center; gap:10px;
-      border:none; border-radius:12px; padding:12px 16px; font-weight:700;
-      background:#0071E3; color:#fff; text-decoration:none;
-      box-shadow: 0 6px 14px rgba(0,113,227,.3);
-    }
-    #mobile-cta .cta-btn:active { transform: translateY(1px); }
-    @media (min-width: 1024px){ #mobile-cta { display:none; } }
 
-    /* Animation helpers */
-    @keyframes fadeInUp { 0%{opacity:0;transform:translateY(12px);} 100%{opacity:1;transform:translateY(0);} }
-    .animate-fadeInUp { opacity:0; animation: fadeInUp .6s ease-out forwards; }
-    .delay-100 { animation-delay:.1s; } .delay-200 { animation-delay:.2s; } .delay-300 { animation-delay:.3s; }
+    /* Remove the mobile mini “Proceed” card entirely */
+    #mobile-cta { display:none !important; }
 
-    /* WhatsApp fixed bottom-right */
+    /* WhatsApp button styles (restored so it renders correctly) */
     .whatsapp-btn {
       position: fixed;
       right: 1rem;
@@ -323,8 +287,7 @@
           <p class="mt-2 text-[13px] text-gray-500">
             35c/min local · 55c/min mobile · International varies
           </p>
-
-          <div class="mt-6 border-t border-gray-200/60"></div>
+          <!-- (Removed the faint divider line here) -->
         </div>
       </section>
 
@@ -375,7 +338,7 @@
         <div class="max-w-3xl mx-auto">
           <div class="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 sm:p-8 md:p-10 text-center">
             <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
-            <h2 class="mt-2 text-2xl font-semibold tracking-tight text-gray-900">Proceed to Porting</h2>
+            <h2 class="mt-2 text-2xl tracking-tight text-gray-900">Proceed to Porting</h2>
 
             <!-- Black & white pills -->
             <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
@@ -409,7 +372,6 @@
 
             <p class="mt-3 text-xs text-gray-500">Bring your numbers or get new ones.</p>
 
-            <!-- Hidden legacy aliases -->
             <div class="sr-only" aria-hidden="true">
               <span id="proceed-total">R 0</span><span id="proceed-period">/mo.</span>
             </div>
@@ -419,19 +381,7 @@
     </div> <!-- /.content -->
   </div> <!-- /.flow-layout -->
 
-  <!-- Sticky mobile CTA (mirrors your totals) -->
-  <div id="mobile-cta" role="region" aria-label="Order summary and porting action">
-    <div class="totals">
-      <div class="pill"><span class="small">Monthly</span> <span id="m-total-monthly">R 0</span> <span class="small">/mo.</span></div>
-      <div class="pill"><span class="small">Once-off</span> <span id="m-total-onceoff">R 0</span></div>
-    </div>
-    <a href="porting.html" class="cta-btn" aria-label="Proceed to Porting">
-      Porting
-      <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </a>
-  </div>
+  <!-- Removed the mobile sticky CTA completely -->
 
   <!-- External scripts (deferred, order preserved) -->
   <script src="scripts/packages.js" defer></script>
@@ -439,7 +389,7 @@
   <script src="scripts/common.js" defer></script>
   <script src="scripts/build-solution.js" defer></script> <!-- keep THIS last -->
 
-  <!-- Page-scoped helpers (NO side-rail code) -->
+  <!-- Page-scoped helpers -->
   <script>
     // Progressive hydrate hardware containers when close to viewport (optional)
     (function(){
@@ -462,11 +412,8 @@
     // Left slider behavior: init only on desktop to avoid mobile overhead
     (function(){
       const DESKTOP = () => window.matchMedia('(min-width:1024px)').matches;
-      if (!DESKTOP()) {
-        const slider = document.getElementById('section-slider');
-        if (slider) slider.inert = true;
-        return;
-      }
+      const slider = document.getElementById('section-slider');
+      if (!DESKTOP()) { if (slider) slider.inert = true; return; }
 
       const links = Array.from(document.querySelectorAll('[data-section-link]'));
       const sections = links
@@ -515,36 +462,6 @@
 
       sections.forEach(s => obs.observe(s));
       setActiveById(sections[0]?.id || '');
-    })();
-
-    // Keep mobile sticky CTA totals in sync with your existing totals
-    (function(){
-      const monthlySrc = document.getElementById('total-footer-price');
-      const monthlyPer = document.getElementById('total-cost-period');
-      const onceOffSrc = document.getElementById('total-onceoff');
-
-      const mMonthly = document.getElementById('m-total-monthly');
-      const mOnce = document.getElementById('m-total-onceoff');
-
-      const pull = () => {
-        if (monthlySrc && mMonthly) {
-          const mo = (monthlySrc.textContent || '').trim();
-          mMonthly.textContent = mo || 'R 0';
-        }
-        if (onceOffSrc && mOnce) {
-          mOnce.textContent = (onceOffSrc.textContent || '').trim() || 'R 0';
-        }
-      };
-
-      pull();
-
-      const moObs = new MutationObserver(pull);
-      const ofObs = new MutationObserver(pull);
-      if (monthlySrc) moObs.observe(monthlySrc, { childList:true, characterData:true, subtree:true });
-      if (monthlyPer) moObs.observe(monthlyPer, { childList:true, characterData:true, subtree:true });
-      if (onceOffSrc) ofObs.observe(onceOffSrc, { childList:true, characterData:true, subtree:true });
-
-      document.addEventListener('visibilitychange', () => { if (!document.hidden) pull(); });
     })();
   </script>
 
@@ -603,8 +520,9 @@
     class="whatsapp-btn"
   >
     <!-- Icon (SVG) -->
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+         fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5 .71 .3 1.27 .48 1.7 .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72 2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
     </svg>
     <span>Need help?</span>
   </a>

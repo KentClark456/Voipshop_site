@@ -48,11 +48,20 @@
   <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
   <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js" defer></script>
 
-  <!-- Page CSS (rail removed, full-width grid, left slider) -->
+  <!-- Page CSS -->
   <style>
     :root{ --navH: 72px; }
 
-    body { -webkit-tap-highlight-color: transparent; }
+    /* Match hardware page system behavior */
+    html{
+      scroll-behavior: smooth;
+      overscroll-behavior: none;   /* stop blue overscroll flash */
+      background:#f3f4f6;          /* avoid color flash */
+    }
+    body{
+      -webkit-tap-highlight-color: transparent;
+      overscroll-behavior: none;
+    }
     section[id]{ scroll-margin-top: max(56px, var(--navH)); }
 
     /* Single-column page layout (no side rail) */
@@ -65,7 +74,7 @@
       padding-inline: clamp(12px, 3vw, 32px);
     }
 
-    /* ======= SECTION TITLES: match hardware page (black kicker + subtitle) ======= */
+    /* Section titles */
     .hardware-section-title{
       display:grid;
       grid-template-columns: auto;
@@ -100,14 +109,14 @@
       font-size: .95rem;
     }
 
-    /* ======= Divider line: Option A (darker & thicker) ======= */
+    /* Thinner divider to match hardware */
     .hardware-divider{
       border: 0;
-      border-top: 2px solid #9ca3af; /* Tailwind gray-400 */
+      border-top: 1px solid #9ca3af; /* was 2px */
       margin: 24px 0 12px;
     }
 
-    /* BIG, responsive 3-up grid (2 on tablet, 1 on mobile) */
+    /* BIG, responsive grid (shared with hardware) */
     .hardware-container{
       display:grid;
       gap: clamp(12px, 2vw, 20px);
@@ -122,13 +131,15 @@
       .hardware-container{ grid-template-columns: repeat(3, minmax(0,1fr)); }
     }
 
-    /* Make card blocks visually larger without touching JS:
-       target immediate children of the grid */
+    /* Card blocks — now match hardware page visuals */
     .hardware-container > *{
       border-radius: 16px;
       min-height: 360px;
       padding: clamp(12px, 2.2vw, 20px);
       box-sizing: border-box;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 2px rgba(0,0,0,.03);
     }
 
     /* Step 2 highlight (kept) */
@@ -147,7 +158,10 @@
       * { animation: none !important; transition: none !important; }
     }
 
-    /* ===== Left-center vertical slider ===== */
+    /* Remove the faint line under intro (like hardware page) */
+    #packages-intro .border-t{ display:none !important; }
+
+    /* Left-center vertical slider — slightly darker like hardware */
     #section-slider{
       position: fixed;
       left: clamp(8px, 1.2vw, 16px);
@@ -163,17 +177,17 @@
 
     #section-slider .slider-shell{
       display:flex; flex-direction:column; align-items:center; gap:8px;
-      background:rgba(245,245,247,0.9);
-      border:1px solid rgba(0,0,0,0.08);
+      background:rgba(235,235,237,0.95);    /* darker */
+      border:1px solid rgba(0,0,0,0.16);    /* darker */
       backdrop-filter: blur(12px) saturate(180%);
       border-radius:16px;
       padding:10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,.1);
+      box-shadow: 0 8px 22px rgba(0,0,0,.12); /* stronger */
     }
 
     #section-slider .arrow{
       width:44px; height:44px; display:grid; place-items:center;
-      border-radius:12px; border:1px solid rgba(0,0,0,0.1);
+      border-radius:12px; border:1px solid rgba(0,0,0,0.14); /* darker */
       background:#fff; cursor:pointer;
       font-weight:700; line-height:1;
       color:#111;
@@ -189,7 +203,7 @@
 
     #section-slider .link{
       display:flex; align-items:center; gap:10px;
-      border:1px solid rgba(0,0,0,0.08);
+      border:1px solid rgba(0,0,0,0.12);   /* darker */
       background:#fff;
       padding:12px 12px;
       border-radius:12px;
@@ -200,13 +214,20 @@
       color:#111;
       transition: background .2s, border-color .2s;
     }
-    #section-slider .link:hover{ background:#f9f9f9; }
+    #section-slider .link:hover{ background:#f0f0f0; }
     #section-slider .link[aria-current="true"]{
       border-color:#0071E3;
       background:#f0f7ff;
       color:#0071E3;
     }
     #section-slider .icon{ width:18px; height:18px; color:inherit; }
+
+    /* Apple-style heading weight for Proceed card (match hardware) */
+    #package-summary h2{
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, Segoe UI, Roboto, Arial, sans-serif;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
   </style>
 </head>
 
@@ -312,6 +333,7 @@
               35c/min local · 55c/min mobile · International varies
             </p>
 
+            <!-- faint divider removed via CSS -->
             <div class="mt-6 border-t border-gray-200/60"></div>
           </div>
         </section>

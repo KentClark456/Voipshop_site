@@ -380,6 +380,7 @@ if (vnum && vnum.mode === 'new') {
   const RP = /remote\s*provision/i;
   const onceToRender  = onceItems.filter(it => isVoiceOnly || !RP.test(String(it?.name || '')));
   const monthToRender = monthlyItems.filter(it => isVoiceOnly || !RP.test(String(it?.name || '')));
+
 // ---------- Render (run after DOM is ready) ----------
 function initCartUI() {
   const onceWrap  = document.getElementById('onceoff-rows');
@@ -444,6 +445,10 @@ function initCartUI() {
         </div>`
       : `<span class="qty-plain">${included ? '1' : String(qty)}</span>`;
 
+    const priceCellClass = included ? 'text-gray-500' : 'text-gray-800';
+    const qtyCellClass   = included ? 'text-gray-500' : '';
+    const totalCellClass = included ? 'text-gray-500' : 'font-medium text-gray-900';
+
     row.innerHTML = `
       <div class="col-span-12 md:col-span-6 flex items-center gap-3">
         ${image
@@ -458,11 +463,11 @@ function initCartUI() {
                       }</div>` : ''}
         </div>
       </div>
-      <div class="col-span-6 md:col-span-2 ${included ? 'text-gray-500':'text-gray-800'}" data-cell="price">${priceText}</div>
-      <div class="col-span-6 md:col-span-2 ${included ? 'text-gray-500':''}" data-cell="qty">
+      <div class="col-span-6 md:col-span-2 ${priceCellClass}" data-cell="price">${priceText}</div>
+      <div class="col-span-6 md:col-span-2 ${qtyCellClass}" data-cell="qty">
         ${qtyCell}
       </div>
-      <div class="col-span-6 md:col-span-2 ${included ? 'text-gray-500':'font-medium text-gray-900'}" data-cell="total">${totalText}</div>
+      <div class="col-span-6 md:col-span-2 ${totalCellClass}" data-cell="total">${totalText}</div>
     `;
     return row;
   }
@@ -470,20 +475,32 @@ function initCartUI() {
   function decorateCallsRow(row){
     if (!row || row.dataset.calls !== '1') return;
 
-    const qty = Number(row.dataset.qty || 0);
+    const qty     = Math.max(0, Number(row.dataset.qty || 0));
     const minutes = qty * 250;
+
+    // Machine-readable marker on the row for other scripts
+    row.dataset.minutes = String(minutes);
+
     const sub = row.querySelector('.js-subtext');
     if (!sub) return;
 
     if (qty > 0) {
       sub.innerHTML = `
-        <span class="chip chip-primary">${minutes.toLocaleString('en-ZA')} minutes</span>
+        <span id="calls-minutes-badge"
+              data-calls-minutes="${minutes}"
+              class="chip chip-primary">
+          ${minutes.toLocaleString('en-ZA')} minutes
+        </span>
         <div class="text-xs text-gray-500 mt-1">
           Overages: Local ${fmtPerMin(LOCAL_RATE_PER_MIN)} · Mobile ${fmtPerMin(MOBILE_RATE_PER_MIN)}
         </div>`;
     } else {
       sub.innerHTML = `
-        <span class="chip chip-ghost">Pay-as-you-go</span>
+        <span id="calls-minutes-badge"
+              data-calls-minutes="0"
+              class="chip chip-ghost">
+          Pay-as-you-go
+        </span>
         <div class="text-xs text-gray-500 mt-1">
           Local ${fmtPerMin(LOCAL_RATE_PER_MIN)} · Mobile ${fmtPerMin(MOBILE_RATE_PER_MIN)}
         </div>`;
@@ -494,6 +511,10 @@ function initCartUI() {
     const minus = row.querySelector('[data-qty-btn][data-delta="-1"]');
     if (minus) minus.disabled = (Number(row.dataset.qty || 0) <= minQty);
   }
+
+  // Expose helpers so the outside click handler can use them safely
+  window.__decorateCallsRow = decorateCallsRow;
+  window.__syncQtyButtons   = syncQtyButtons;
 
   // render lists
   if (onceWrap) {
@@ -518,16 +539,15 @@ function initCartUI() {
   if (monthWrap) {
     monthWrap.innerHTML = '';
     renderHeader(monthWrap);
+
     monthToRender.forEach(it => {
       const isPlatform = /cloud pbx platform/i.test(String(it.name || ''));
       const isCallsRow = !!it.isCalls || /^\s*calls\s*$/i.test(String(it.name || ''));
-      const included = it.included || it.unitMonthly === 0;
+      const included   = it.included || it.unitMonthly === 0;
 
+      // Use the qty already on the item (for Calls this is your bundle count)
       const unit = included ? 0 : Number(it.unitMonthly ?? it.unit ?? 0);
-      const initialMinutes = Number(selected?.minutesIncluded || 0);
-      const qty = included
-        ? 1
-        : (isCallsRow ? Math.max(0, Math.round(initialMinutes / 250)) : Number(it.qty || 1));
+      const qty  = included ? 1 : Number(it.qty ?? 0);
 
       const rowEl = renderRow({
         section: 'month',
@@ -542,12 +562,17 @@ function initCartUI() {
 
       monthWrap.appendChild(rowEl);
 
+      const minQty = rowEl.dataset.calls === '1' ? 0 : 1;
       if (rowEl.dataset.adjustable === '1') {
-        const minQty = rowEl.dataset.calls === '1' ? 0 : 1;
         syncQtyButtons(rowEl, minQty);
       }
       if (rowEl.dataset.calls === '1') {
+        // Seed the badge and keep a hidden input (if present) in sync
         decorateCallsRow(rowEl);
+        const minutesInput = document.getElementById('qty-minutes');
+        if (minutesInput) {
+          minutesInput.value = String(Number(rowEl.dataset.qty || 0) * 250);
+        }
       }
     });
   }
@@ -563,46 +588,51 @@ if (document.readyState === 'loading') {
   initCartUI();
 }
 
+// ---------- Quantity handlers (event delegation) ----------
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-qty-btn]');
+  if (!btn) return;
+  const row = btn.closest('.table-row');
+  if (!row || row.dataset.adjustable !== '1') return;
 
-  // ---------- Quantity handlers (event delegation) ----------
-  document.addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-qty-btn]');
-    if (!btn) return;
-    const row = btn.closest('.table-row');
-    if (!row || row.dataset.adjustable !== '1') return;
+  const isCalls  = row.dataset.calls === '1';
+  const section  = row.dataset.section;
+  const unit     = Number(row.dataset.unit || 0);
+  let qty        = Number(row.dataset.qty  || 0);
 
-    const isCalls  = row.dataset.calls === '1';
-    const section  = row.dataset.section;
-    const unit     = Number(row.dataset.unit || 0);
-    let qty        = Number(row.dataset.qty  || 0);
+  const delta = Number(btn.dataset.delta || 0);
+  const minQty = isCalls ? 0 : 1;
+  qty = Math.max(minQty, qty + delta);
 
-    const delta = Number(btn.dataset.delta || 0);
-    const minQty = isCalls ? 0 : 1;
-    qty = Math.max(minQty, qty + delta);
+  row.dataset.qty = String(qty);
+  const amount    = unit * qty;
+  row.dataset.amount = String(amount);
 
-    row.dataset.qty = String(qty);
-    const amount    = unit * qty;
-    row.dataset.amount = String(amount);
+  row.setAttribute('data-qty', String(qty));
+  row.setAttribute('data-total', String(amount));
 
-    row.setAttribute('data-qty', String(qty));
-    row.setAttribute('data-total', String(amount));
+  const qtySpan = row.querySelector('.js-qty');
+  if (qtySpan) qtySpan.textContent = String(qty);
 
-    const qtySpan = row.querySelector('.js-qty');
-    if (qtySpan) qtySpan.textContent = String(qty);
+  const totalCell = row.querySelector('[data-cell="total"]');
+  if (totalCell) {
+    const text = section === 'month'
+      ? `R ${amount.toLocaleString('en-ZA')} /mo`
+      : `R ${amount.toLocaleString('en-ZA')}`;
+    totalCell.textContent = text;
+  }
 
-    const totalCell = row.querySelector('[data-cell="total"]');
-    if (totalCell) {
-      const text = section === 'month'
-        ? `R ${amount.toLocaleString('en-ZA')} /mo`
-        : `R ${amount.toLocaleString('en-ZA')}`;
-      totalCell.textContent = text;
-    }
+  if (isCalls) {
+    // Update badge + hidden minutes field if present
+    if (typeof window.__decorateCallsRow === 'function') window.__decorateCallsRow(row);
+    const minutesInput = document.getElementById('qty-minutes');
+    if (minutesInput) minutesInput.value = String(qty * 250);
+  }
 
-    if (isCalls) decorateCallsRow(row);
+  recalcEverything();
+  if (typeof window.__syncQtyButtons === 'function') window.__syncQtyButtons(row, minQty);
+});
 
-    recalcEverything();
-    syncQtyButtons(row, minQty);
-  });
 
   // ---------- Summaries & footers ----------
   function sumSectionAmounts(selector){
@@ -620,7 +650,7 @@ if (document.readyState === 'loading') {
     setText('total-first-month', fmtZARx(onceSum + monthSum + vatFirst));
   }
   function updateTableFooters(onceSum, monthSum){
-    const fmtFooter = v => 'R ' + Math.round(Number(v||0)).toLocaleString('en-ZA');
+   const fmtFooter = v => 'R ' + String(Math.round(Number(v || 0))); // no grouping, so "R 1000"
     const onceOut  = document.getElementById('onceoff-total');
     const monthOut = document.getElementById('monthly-total');
     if (onceOut)  onceOut.textContent = fmtFooter(onceSum);

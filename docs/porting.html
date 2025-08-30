@@ -220,6 +220,9 @@
       </div>
     </section>
 
+    <!-- Invisible anchor to scroll to the "porting" step -->
+    <div id="porting-section" class="sr-only" aria-hidden="true"></div>
+
     <!-- Step 3 / Totals -->
     <section id="step-3">
       <div id="checkout-card" class="rounded-2xl border border-gray-200 bg-white shadow-sm card-hover transition-all p-10 text-center">
@@ -336,5 +339,29 @@
       </div>
     </div>
   </footer>
+
+  <!-- 🔽 Tiny helper: scroll to porting when a region is picked -->
+  <script>
+    (function () {
+      const selectEl = document.getElementById('new-number-input');
+      const portingAnchor = document.getElementById('porting-section');
+      const cardNew = document.getElementById('card-new');
+
+      if (!selectEl || !portingAnchor) return;
+
+      selectEl.addEventListener('change', function (e) {
+        const val = e.target.value;
+        if (val && val !== '0') {
+          // Make sure the "New Number" card shows as selected if helpers exist
+          try {
+            if (typeof selectCard === 'function' && cardNew) selectCard(cardNew);
+            if (typeof virtualNumberBtn === 'function') virtualNumberBtn(0);
+          } catch (_) {}
+
+          portingAnchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, { passive: true });
+    })();
+  </script>
 </body>
 </html>
