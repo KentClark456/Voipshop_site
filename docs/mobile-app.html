@@ -77,8 +77,6 @@
     .hero { scroll-margin-top:0 !important; } /* prevent initial offset under nav on this page */
 
     .hero, #details, #config { content-visibility: auto; contain-intrinsic-size: 800px 1200px; }
-    @media (max-width: 640px){ .btn{ min-height:44px; padding:.75rem 1.125rem; } }
-    @media (prefers-reduced-motion:reduce){ *{ transition:none !important; animation:none !important; } }
 
     /* ===== Mobile polish (safe to keep at end) ===== */
 
@@ -181,6 +179,36 @@
     /* 12) Safe area: keep WhatsApp floater from overlapping actions */
     @media (max-width: 640px){
       body{ padding-bottom: max(70px, env(safe-area-inset-bottom)); }
+    }
+
+    /* === NEW: Overview panel guaranteed to fit on mobile === */
+    #panel-overview .grid{
+      display:grid;
+      grid-template-columns: 1fr;            /* default phones: single column */
+      gap: 10px;
+    }
+    @media (min-width:400px) and (max-width:639.98px){
+      #panel-overview .grid{                 /* wider phones: two columns */
+        grid-template-columns: repeat(2, minmax(0,1fr));
+        gap:12px;
+      }
+    }
+    @media (min-width:640px){                /* sm and up: three columns */
+      #panel-overview .grid{
+        grid-template-columns: repeat(3, minmax(0,1fr));
+        gap:16px;
+      }
+    }
+    #panel-overview .card{ min-width:0; padding:12px; }
+    #panel-overview h4{ font-size:.98rem; line-height:1.25rem; margin-bottom:.25rem; }
+    #panel-overview p{
+      font-size:.92rem; line-height:1.35rem; color:#374151;
+      overflow-wrap:anywhere; word-break:break-word;
+    }
+    @media (max-width:380px){
+      #panel-overview .card{ padding:10px; }
+      #panel-overview h4{ font-size:.95rem; }
+      #panel-overview p{ font-size:.9rem; }
     }
   </style>
 </head>
