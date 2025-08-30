@@ -65,18 +65,47 @@
       padding-inline: clamp(12px, 3vw, 32px);
     }
 
+    /* ======= SECTION TITLES: match hardware page (black kicker + subtitle) ======= */
     .hardware-section-title{
-      display:flex; align-items:center; gap:10px;
-      font-weight: 600; color:#111827; margin: 18px 0 12px;
+      display:grid;
+      grid-template-columns: auto;
+      row-gap: 6px;
+      margin: 22px 0 12px;
+      padding: 0 2px;
+      color:#111827;
     }
-    .hardware-section-title .highlighted-text{
-      background:#eef5ff; color:#0b63e6; border:1px solid #cfe2ff;
-      padding: 4px 10px; border-radius: 999px; font-size:.95rem;
+    .hardware-section-title .kicker{
+      font-size: 0.92rem;
+      line-height: 1.15;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color:#111827;
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
     }
-    .hardware-section-title .separator{ color:#d1d5db; }
-    .hardware-section-title .subtitle{ color:#6b7280; font-weight: 500; font-size:.95rem; }
+    .hardware-section-title .kicker::after{
+      content:"";
+      display:inline-block;
+      height:2px;
+      width: clamp(40px, 12vw, 120px);
+      background:#111827;   /* black rule */
+      border-radius: 2px;
+      translate: 0 1px;
+    }
+    .hardware-section-title .subtitle{
+      color:#6b7280;
+      font-weight: 500;
+      font-size: .95rem;
+    }
 
-    .hardware-divider{ border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0 8px; }
+    /* ======= Divider line: Option A (darker & thicker) ======= */
+    .hardware-divider{
+      border: 0;
+      border-top: 2px solid #9ca3af; /* Tailwind gray-400 */
+      margin: 24px 0 12px;
+    }
 
     /* BIG, responsive 3-up grid (2 on tablet, 1 on mobile) */
     .hardware-container{
@@ -96,9 +125,8 @@
     /* Make card blocks visually larger without touching JS:
        target immediate children of the grid */
     .hardware-container > *{
-      /* if your cards already have their own class, this still applies softly */
       border-radius: 16px;
-      min-height: 360px;               /* bigger presence */
+      min-height: 360px;
       padding: clamp(12px, 2.2vw, 20px);
       box-sizing: border-box;
     }
@@ -119,54 +147,66 @@
       * { animation: none !important; transition: none !important; }
     }
 
-    /* ===== Left-center “Apple-style” slider ===== */
+    /* ===== Left-center vertical slider ===== */
     #section-slider{
       position: fixed;
       left: clamp(8px, 1.2vw, 16px);
       top: 50%;
       transform: translateY(-50%);
       z-index: 60;
-      display: none; /* mobile off */
+      display: none; /* show on desktop only */
+      will-change: transform;
     }
-    @media (min-width: 1024px){
-      #section-slider{ display: flex; }
-    }
+    @media (min-width: 1024px){ #section-slider{ display:flex; } }
+
+    #section-slider * { color: #111; }
+
     #section-slider .slider-shell{
       display:flex; flex-direction:column; align-items:center; gap:8px;
-      background:rgba(255,255,255,.85);
-      border:1px solid #e5e7eb;
-      backdrop-filter: blur(8px);
+      background:rgba(245,245,247,0.9);
+      border:1px solid rgba(0,0,0,0.08);
+      backdrop-filter: blur(12px) saturate(180%);
       border-radius:16px;
       padding:10px;
-      box-shadow: 0 10px 28px rgba(0,0,0,.08);
+      box-shadow: 0 6px 18px rgba(0,0,0,.1);
     }
+
     #section-slider .arrow{
-      width:38px; height:38px; display:grid; place-items:center;
-      border-radius:10px; border:1px solid #e5e7eb; background:#fff; cursor:pointer;
+      width:44px; height:44px; display:grid; place-items:center;
+      border-radius:12px; border:1px solid rgba(0,0,0,0.1);
+      background:#fff; cursor:pointer;
+      font-weight:700; line-height:1;
+      color:#111;
     }
-    #section-slider .arrow:hover{ background:#f9fafb; }
+    #section-slider .arrow:hover{ background:#f0f0f0; }
     #section-slider .arrow[disabled]{ opacity:.4; cursor:default; }
 
     #section-slider .links{
       display:flex; flex-direction:column; gap:6px; align-items:stretch;
       max-height: min(60vh, 520px); overflow:auto;
+      -webkit-overflow-scrolling: touch;
     }
+
     #section-slider .link{
       display:flex; align-items:center; gap:10px;
-      border:1px solid #f0f0f0; background:#fff;
-      padding:8px 10px; border-radius:12px; text-decoration:none; color:#111827;
+      border:1px solid rgba(0,0,0,0.08);
+      background:#fff;
+      padding:12px 12px;
+      border-radius:12px;
+      text-decoration:none;
       font:600 13px/1.2 system-ui;
       white-space:nowrap;
+      min-width: 160px;
+      color:#111;
+      transition: background .2s, border-color .2s;
     }
-    #section-slider .link:hover{ background:#f9fafb; }
+    #section-slider .link:hover{ background:#f9f9f9; }
     #section-slider .link[aria-current="true"]{
-      border-color:#cfe2ff; background:#eef5ff; color:#0b63e6;
+      border-color:#0071E3;
+      background:#f0f7ff;
+      color:#0071E3;
     }
-    #section-slider .icon{ width:18px; height:18px; }
-
-    /* Tighten page top spacing for this page only */
-    body.packages-page { padding-top:0 !important; }
-    #nav-slot { height:auto !important; margin:0 !important; padding:0 !important; }
+    #section-slider .icon{ width:18px; height:18px; color:inherit; }
   </style>
 </head>
 
@@ -228,10 +268,7 @@
   <!-- ===== Left-center slider ===== -->
   <nav id="section-slider" aria-label="Quick sections">
     <div class="slider-shell">
-      <button class="arrow" id="slide-up" aria-label="Previous section">
-        ▲
-      </button>
-
+      <button class="arrow" id="slide-up" aria-label="Previous section">▲</button>
       <div class="links" id="slider-links">
         <a class="link" href="#solo-setup" data-section-link>
           <svg class="icon"><use href="#icon-1pbx"/></svg><span>Team of 1</span>
@@ -249,10 +286,7 @@
           <svg class="icon"><use href="#icon-porting"/></svg><span>Step 2</span>
         </a>
       </div>
-
-      <button class="arrow" id="slide-down" aria-label="Next section">
-        ▼
-      </button>
+      <button class="arrow" id="slide-down" aria-label="Next section">▼</button>
     </div>
   </nav>
 
@@ -270,7 +304,7 @@
               Step 1
             </div>
 
-            <h1 class="mt-3 text-[28px] sm:text-[34px] leading-tight font-semibold tracking-tight text-gray-900">
+            <h1 class="mt-3 text-[30px] sm:text-[36px] leading-tight font-semibold tracking-tight text-gray-900">
               Choose your package
             </h1>
 
@@ -286,9 +320,8 @@
         <section id="solo-setup" class="package-group">
           <div class="package-container-outer">
             <h2 class="hardware-section-title">
-              <span class="highlighted-text">Team of 1</span>
-              <span class="separator">|</span>
-              <span class="subtitle">1 phone - 1 concurrent call</span>
+              <span class="kicker">Team of 1</span>
+              <span class="subtitle">1 phone — 1 concurrent call</span>
             </h2>
 
             <div id="row-1-extension" class="hardware-container"></div>
@@ -300,9 +333,8 @@
         <section id="team-2" class="package-group">
           <div class="package-container-outer">
             <h2 class="hardware-section-title">
-              <span class="highlighted-text">Team of 2</span>
-              <span class="separator">|</span>
-              <span class="subtitle">2 phones - 2 concurrent calls</span>
+              <span class="kicker">Team of 2</span>
+              <span class="subtitle">2 phones — 2 concurrent calls</span>
             </h2>
 
             <div id="row-2-extensions" class="hardware-container"></div>
@@ -314,9 +346,8 @@
         <section id="team-3" class="package-group">
           <div class="package-container-outer">
             <h2 class="hardware-section-title">
-              <span class="highlighted-text">Team of 3</span>
-              <span class="separator">|</span>
-              <span class="subtitle">3 phones - 3 concurrent calls</span>
+              <span class="kicker">Team of 3</span>
+              <span class="subtitle">3 phones — 3 concurrent calls</span>
             </h2>
 
             <div id="row-3-extensions" class="hardware-container"></div>
@@ -328,9 +359,8 @@
         <section id="wireless-setups" class="package-group">
           <div class="package-container-outer">
             <h2 class="hardware-section-title">
-              <span class="highlighted-text">Wireless Setups</span>
-              <span class="separator">|</span>
-              <span class="subtitle">plug and play wireless devices - just add Wifi</span>
+              <span class="kicker">Wireless Setups</span>
+              <span class="subtitle">Plug-and-play wireless devices — just add Wi-Fi</span>
             </h2>
 
             <div id="wireless-cards" class="hardware-container"></div>
