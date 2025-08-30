@@ -303,7 +303,7 @@
   <footer class="mt-auto" style="background:#fff;border-top:1px solid var(--border)">
     <div class="max-w-screen-xl mx-auto px-6 py-8" style="text-align:center;font-size:14px;color:#6b7280">
       <div class="mb-2">Thank you for your order! Our team will contact you within 24 hours to confirm details and arrange delivery.</div>
-      <div class="mb-2">Need help? <a href="mailto:sales@voipshop.co.za" style="color:var(--blue);text-decoration:none">Email us</a> or call <a href="tel:0679228256" style="color:var(--blue);text-decoration:none">068 351 0074</a>.</div>
+      <div class="mb-2">Need help? <a href="mailto:sales@voipshop.co.za" style="color:var(--blue);text-decoration:none">Email us</a> or call <a href="tel:0679228256" style="color:var(--blue);text-decoration:none">067 922 8256</a>.</div>
       <div class="mb-2"><a href="privacy.html" class="muted">Privacy Policy</a> · <a href="terms.html" class="muted">Terms of Service</a> · <a href="legal.html" class="muted">Refund Policy</a></div>
       <div style="color:#9ca3af">© 2025 VoIP Shop. All rights reserved.</div>
     </div>
@@ -365,68 +365,102 @@
 
 <!-- ✅ Mobile fixes (CSS) -->
 <style>
-/* ---------- MOBILE FIXES (safe to paste) ---------- */
+/* ---------- MOBILE FIXES (replace your block with this) ---------- */
 
-/* 1) Avoid Safari glitches: don't use content-visibility on small screens */
+/* 1) iOS Safari: avoid content-visibility weirdness on phones */
 @media (max-width: 640px){
   main, aside, section { content-visibility: visible; contain-intrinsic-size: auto; }
 }
 
-/* 2) Let long item names wrap instead of pushing layout wide */
+/* 2) Long product names: wrap safely */
 .table-row [data-cell="name"]{
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  line-height: 1.25;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+  line-height:1.25;
 }
 
-/* 3) Tighten the row on small screens and keep columns readable */
+/* 3) Row grid on mobile:
+      name spans full width,
+      left col = qty (fluid),
+      right col = total (FIXED WIDTH so it can't blow up layout) */
 @media (max-width: 767.98px){
-  .table-row{ gap: 8px; padding: 10px 12px; }
-  .table-row [data-cell="qty"]{ justify-self: start; }
-  .table-row [data-cell="total"]{ justify-self: end; text-align: right; }
+  .table-row{
+    grid-template-columns: 1fr 104px; /* 👈 fixed total column */
+    gap:8px;
+    padding:10px 12px;
+  }
+  .table-row [data-cell="name"]  { grid-column:1/-1; }
+  .table-row [data-cell="qty"]   { grid-column:1/2; justify-self:start; }
+  .table-row [data-cell="total"] {
+    grid-column:2/3;
+    justify-self:end;
+    text-align:right;
+    white-space:nowrap;           /* keep “R 1.234,00” on one line */
+    font-variant-numeric:tabular-nums;
+    font-size:clamp(.92rem, 3.6vw, 1rem);
+    max-width:104px;              /* hard stop to prevent overflow */
+    overflow:hidden;
+    text-overflow:ellipsis;       /* graceful if it ever got too long */
+  }
 }
 
-/* 4) Keep the qty control compact and tap-friendly on phones */
-@media (max-width: 480px){
-  :root{ --qty-pill-number-nudge:-8px; }
-  .qty-pill{ height: 26px; border-radius: 9px; }
-  .qty-btn{ width: 26px; font-size: 13px; }
-  .qty-value{ min-width: 26px; font-size: 12px; }
-  .qty-plain{ height: 26px; min-width: 30px; padding: 0 6px; font-size: 12px; }
-}
-
-/* 5) Nudge totals slightly inward on very small phones so they don't clip */
+/* 4) Ultra-small phones: trim the total column a bit more */
 @media (max-width: 380px){
-  :root{ --total-nudge: 10px; }
+  .table-row{ grid-template-columns: 1fr 92px; }
+  .table-row [data-cell="total"]{ max-width:92px; font-size:.9rem; }
 }
 
-/* 6) Compress table totals rows on mobile */
-@media (max-width: 640px){
-  .table-total{ border-radius: 12px; }
-  .table-total .label{ font-size: .9rem; }
-  .table-total .amount{ font-size: 1rem; }
-}
-
-/* 7) Cards on the right column: ensure generous inner spacing on mobile */
-@media (max-width: 1024px){
-  .card-h{ padding: 12px 14px; }
-  .card-b{ padding: 14px; }
-  .pill{ font-size: 11.5px; padding: 3px 9px; }
-}
-
-/* 8) Give room for the WhatsApp floater so it doesn't overlap the CTA */
-@media (max-width: 640px){
-  footer{ padding-bottom: 64px; }
-  .card:last-of-type{ margin-bottom: 8px; }
-}
-
-/* 9) Breadcrumb and headings: soften slightly on small screens */
+/* 5) Qty control: remove negative nudge and compact controls on phones */
 @media (max-width: 480px){
-  h1.text-3xl{ font-size: 1.5rem; }
-  nav[aria-label="breadcrumb"]{ font-size: 12px; }
+  :root{ --qty-pill-number-nudge:0; } /* 👈 no sideways shift */
+
+  .qty-pill{
+    height:26px;
+    border-radius:9px;
+    transform:none;               /* ensure it stays inside the grid */
+  }
+  .qty-btn{ width:26px; font-size:13px; }
+  .qty-value{ min-width:26px; font-size:12px; }
+  .qty-plain{ height:26px; min-width:30px; padding:0 6px; font-size:12px; }
 }
 
-/* 10) Safety: if Tailwind utilities aren’t present, ensure grid collapses to 1 col */
+/* 6) Totals rows at the bottom of each table: fix right column width too */
+@media (max-width: 640px){
+  .table-total{
+    border-radius:12px;
+    padding:10px 12px !important;
+  }
+  .table-total .label{ font-size:.9rem; }
+  .table-total .amount{
+    font-size:clamp(1rem, 4vw, 1.05rem);
+    white-space:nowrap;
+  }
+  .table-total.grid{
+    grid-template-columns: 1fr 130px;  /* label | amount (fixed) */
+    column-gap:10px;
+  }
+}
+
+/* 7) Summary cards: tighter padding on smaller screens */
+@media (max-width: 1024px){
+  .card-h{ padding:12px 14px; }
+  .card-b{ padding:14px; }
+  .pill{ font-size:11.5px; padding:3px 9px; }
+}
+
+/* 8) Footer breathing room so WhatsApp floater doesn't overlap */
+@media (max-width: 640px){
+  footer{ padding-bottom:64px; }
+  .card:last-of-type{ margin-bottom:8px; }
+}
+
+/* 9) Breadcrumb + H1 sizing */
+@media (max-width: 480px){
+  h1.text-3xl{ font-size:1.5rem; }
+  nav[aria-label="breadcrumb"]{ font-size:12px; }
+}
+
+/* 10) Fallback if Tailwind grid helpers aren’t present */
 @media (max-width: 1023.98px){
   .lg\:col-span-8, .lg\:col-span-4 { grid-column: auto / span 12; }
 }
