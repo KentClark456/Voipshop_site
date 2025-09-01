@@ -472,19 +472,29 @@ function initCartUI() {
     return row;
   }
 
-  function decorateCallsRow(row){
-    if (!row || row.dataset.calls !== '1') return;
+function decorateCallsRow(row) {
+  if (!row || row.dataset.calls !== '1') return;
 
-    const qty     = Math.max(0, Number(row.dataset.qty || 0));
-    const minutes = qty * 250;
+  // One bundle = 250 minutes @ R100
+  const BUNDLE_SIZE = 250;
+  const BUNDLE_UNIT_R = 100;
 
-    // Machine-readable marker on the row for other scripts
-    row.dataset.minutes = String(minutes);
+  const qtyBundles = Math.max(0, Number(row.dataset.qty || 0));
+  const minutes    = qtyBundles * BUNDLE_SIZE;
+  const totalR     = qtyBundles * BUNDLE_UNIT_R;
 
-    const sub = row.querySelector('.js-subtext');
-    if (!sub) return;
+  // Machine-readable markers for any script
+  row.dataset.minutes             = String(minutes);
+  row.dataset.minutesBundles      = String(qtyBundles);
+  row.dataset.minutesUnitR        = String(BUNDLE_UNIT_R);
+  row.dataset.minutesTotalR       = String(totalR);
+  row.dataset.minutesPayg         = qtyBundles === 0 ? '1' : '0';
+  row.setAttribute('data-minutes', String(minutes)); // also as data-* for your collectors
 
-    if (qty > 0) {
+  // Keep your UI
+  const sub = row.querySelector('.js-subtext');
+  if (sub) {
+    if (qtyBundles > 0) {
       sub.innerHTML = `
         <span id="calls-minutes-badge"
               data-calls-minutes="${minutes}"
@@ -492,6 +502,7 @@ function initCartUI() {
           ${minutes.toLocaleString('en-ZA')} minutes
         </span>
         <div class="text-xs text-gray-500 mt-1">
+          Bundle: R ${BUNDLE_UNIT_R.toLocaleString('en-ZA')} per ${BUNDLE_SIZE} min ·
           Overages: Local ${fmtPerMin(LOCAL_RATE_PER_MIN)} · Mobile ${fmtPerMin(MOBILE_RATE_PER_MIN)}
         </div>`;
     } else {
@@ -506,6 +517,22 @@ function initCartUI() {
         </div>`;
     }
   }
+
+  // Canonical state (handy to read anywhere)
+  window.CHECKOUT = window.CHECKOUT || {};
+  window.CHECKOUT.minutesPackage = {
+    payg: qtyBundles === 0,
+    bundles: qtyBundles,
+    minutes,
+    unitR: BUNDLE_UNIT_R,
+    totalR
+  };
+
+  // Optional: keep a hidden input (if present) in sync for form-based POSTs
+  const minutesPkgEl = document.getElementById('minutes-package-json');
+  if (minutesPkgEl) minutesPkgEl.value = JSON.stringify(window.CHECKOUT.minutesPackage);
+}
+
 
   function syncQtyButtons(row, minQty){
     const minus = row.querySelector('[data-qty-btn][data-delta="-1"]');
@@ -787,52 +814,53 @@ document.addEventListener('click', (e) => {
     return hasExplicitMinutes || /call|min(ute)?s?/i.test(name);
   }
 
-  function normalizeMonthlyItem(item, globalMinutes = 0) {
-    const name = String(item?.name || '');
+function normalizeMonthlyItem(item, globalMinutes = 0) {
+  const name = String(item?.name || '');
 
-    const unit = Number(
-      item?.unit ??
-      item?.unitMonthly ??
-      item?.priceMonthly ??
-      item?.price_ex_vat ??
-      item?.priceExVat ??
-      item?.price ??
-      0
-    ) || 0;
+  const unit = Number(
+    item?.unit ??
+    item?.unitMonthly ??
+    item?.priceMonthly ??
+    item?.price_ex_vat ??
+    item?.priceExVat ??
+    item?.price ??
+    0
+  ) || 0;
 
-    const isMinutes =
-      (typeof isMinutesLineOrder === 'function' ? isMinutesLineOrder(item) : /minute|call/i.test(name));
+  const isMinutes =
+    (typeof isMinutesLineOrder === 'function' ? isMinutesLineOrder(item) : /minute|call/i.test(name));
 
-    let m = Number(
-      item?.minutes ??
-      item?.minutesIncluded ??
-      item?.includedMinutes ??
-      item?.qtyMinutes ??
-      item?.qty_min ??
-      item?.qtyMin ??
-      0
-    );
-    if (!Number.isFinite(m) || m < 0) m = 0;
-    if (isMinutes && !m) m = Number(globalMinutes || 0);
+  let m = Number(
+    item?.minutes ??
+    item?.minutesIncluded ??
+    item?.includedMinutes ??
+    item?.qtyMinutes ??
+    item?.qty_min ??
+    item?.qtyMin ??
+    0
+  );
+  if (!Number.isFinite(m) || m < 0) m = 0;
+  if (isMinutes && !m) m = Number(globalMinutes || 0);
 
-    const qty = Math.max(1, Number(item?.qty ?? 1));
+  const qty = Math.max(1, Number(item?.qty ?? 1));
 
-    if (isMinutes) {
-      const bundleSize = Number(item?.bundleSize || 250);
-      return {
-        name,
-        qty,
-        unit,
-        minutes: m,
-        qtyMinutes: m,
-        isCalls: true,
-        bundleSize,
-        note: m ? `Includes ${m} minutes` : (item?.note || '')
-      };
-    }
-
-    return { name, qty, unit, note: item?.note || '' };
+  if (isMinutes) {
+    const bundleSize = Number(item?.bundleSize || 250);
+    const note = m ? `Includes ${m} minutes` : (item?.note || 'No bundle selected');
+    return {
+      name,
+      qty,
+      unit,               // R100 per bundle when bundles > 0, else 0 for PAYG
+      minutes: m,
+      qtyMinutes: m,
+      isCalls: true,
+      bundleSize,
+      note
+    };
   }
+
+  return { name, qty, unit, note: item?.note || '' };
+}
 
   function buildCompleteOrderPayload() {
     const customer = {
@@ -854,8 +882,9 @@ const monthlyControls = {
   cloudPbxQty: skipPlatformFee ? 0 : num2(getVal2('#qty-cloud-pbx') || 1),
   extensions:  isAppOnly ? (appsQtyFromPkg || extQty || 1) : num2(getVal2('#qty-extensions') || 3),
   didQty:      num2(getVal2('#qty-did') || 1),
-  minutes:     num2(getVal2('#qty-minutes') || 250),
+  minutes:     num2(getVal2('#qty-minutes') || 0), // PAYG default = 0
 };
+
 
 
     const normalizedMonthly = (itemsMonthly || []).map(it =>
@@ -888,26 +917,51 @@ const monthlyControls = {
       authorisedTitle: getVal2('#auth-title')
     };
 
-    return {
-      orderNumber:   getVal2('#order-number')   || undefined,
-      invoiceNumber: getVal2('#invoice-number') || undefined,
-      customer,
-      onceOff: {
-        items: itemsOnceOff,
-        totals: { exVat: onceOffSubtotalExVAT }
-      },
-      monthly: {
-        items: normalizedMonthly,
-        cloudPbxQty: monthlyControls.cloudPbxQty,
-        extensions:  monthlyControls.extensions,
-        didQty:      monthlyControls.didQty,
-        minutes:     monthlyControls.minutes,
-        totals: { exVat: monthlySubtotalExVAT }
-      },
-      debit,
-      port
-    };
-  }
+return {
+  orderNumber:   getVal2('#order-number')   || undefined,
+  invoiceNumber: getVal2('#invoice-number') || undefined,
+  customer,
+  onceOff: {
+    items: itemsOnceOff,
+    totals: { exVat: onceOffSubtotalExVAT }
+  },
+  monthly: {
+    items: normalizedMonthly,
+    cloudPbxQty: monthlyControls.cloudPbxQty,
+    extensions:  monthlyControls.extensions,
+    didQty:      monthlyControls.didQty,
+    minutes:     monthlyControls.minutes,
+    totals: { exVat: monthlySubtotalExVAT }
+  },
+  // 👇 add this so the API/PDFs get an explicit minutes package
+  minutesPackage:
+    (window.CHECKOUT && window.CHECKOUT.minutesPackage) ||
+    readMinutesPackageFromDOM() ||
+    undefined,
+  debit,
+  port
+};
+ }
+
+// Build minutesPackage from the rendered Calls row (if present)
+function readMinutesPackageFromDOM() {
+  const callsRow = document.querySelector('#monthly-rows .table-row[data-calls="1"]');
+  if (!callsRow) return null;
+  const bundles = Math.max(0, Number(callsRow.dataset.qty || 0));
+  const unitR   = Math.max(0, Number(callsRow.dataset.unit || 0)); // should be 100
+  const minutes = bundles * 250;
+  return {
+    payg: bundles === 0,
+    bundles,
+    minutes,
+    unitR,
+    totalR: bundles * unitR
+  };
+}
+
+const minutesPackage = readMinutesPackageFromDOM();
+if (!window.CHECKOUT) window.CHECKOUT = {};
+if (minutesPackage) window.CHECKOUT.minutesPackage = minutesPackage;
 
 // --- reCAPTCHA v3 helper (shared for all actions) ---
 const RECAPTCHA_SITE_KEY = '6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw';
@@ -1121,93 +1175,50 @@ function collectItemsQuote(containerId) {
 }
 
 
-  function buildQuotePayload() {
-    const businessName = document.querySelector('input[name="businessName"]')?.value?.trim() || '';
-    const email        = document.querySelector('input[name="email"]')?.value?.trim() || '';
-    const phone        = document.querySelector('input[name="phone"]')?.value?.trim() || '';
-    const companyName  = document.querySelector('input[name="company"]')?.value?.trim() || '';
-    const address      = document.querySelector('input[name="address"]')?.value?.trim() || '';
+function buildQuotePayload() {
+  const businessName = document.querySelector('input[name="businessName"]')?.value?.trim() || '';
+  const email        = document.querySelector('input[name="email"]')?.value?.trim() || '';
+  const phone        = document.querySelector('input[name="phone"]')?.value?.trim() || '';
+  const companyName  = document.querySelector('input[name="company"]')?.value?.trim() || '';
+  const address      = document.querySelector('input[name="address"]')?.value?.trim() || '';
 
-    const itemsOnceOffRaw = collectItemsQuote('onceoff-rows');
-    const itemsMonthlyRaw = collectItemsQuote('monthly-rows');
+  const itemsOnceOffRaw = collectItemsQuote('onceoff-rows');
+  const itemsMonthlyRaw = collectItemsQuote('monthly-rows');
 
-    const onceOffSubtotalExVAT  = parseZAR_Q(document.getElementById('subtotal-onceoff')?.textContent);
-    const monthlySubtotalExVAT  = parseZAR_Q(document.getElementById('subtotal-monthly')?.textContent);
+  const onceOffSubtotalExVAT = parseZAR_Q(document.getElementById('subtotal-onceoff')?.textContent);
+  const monthlySubtotalExVAT = parseZAR_Q(document.getElementById('subtotal-monthly')?.textContent);
 
-    const itemsOnceOff  = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
- const itemsMonthly = itemsMonthlyRaw.map(i => ({
-  name: i.name,
-  qty: num(i.qty),
-  unit: num(i.unit),
-  ...(i.isCalls ? { isCalls: true, minutes: num(i.minutes), bundleSize: num(i.bundleSize || 250) } : {})
-}));
+  const itemsOnceOff = itemsOnceOffRaw.map(i => ({ name: i.name, qty: i.qty, unit: num(i.unit) }));
+  const itemsMonthly = itemsMonthlyRaw.map(i => ({
+    name: i.name,
+    qty: num(i.qty),
+    unit: num(i.unit),
+    ...(i.isCalls ? { isCalls: true, minutes: num(i.minutes), bundleSize: num(i.bundleSize || 250) } : {})
+  }));
 
+  // ⬇️ Optional (recommended): include a top-level minutesPackage for the API/PDFs
+  const minutesPackage = (() => {
+    const row = document.querySelector('#monthly-rows .table-row[data-calls="1"]');
+    if (!row) return null;
+    const bundles = Math.max(0, Number(row.dataset.qty || 0));
+    const unitR   = Math.max(0, Number(row.dataset.unit || 0)); // should be 100
+    const minutes = bundles * 250;
+    return { payg: bundles === 0, bundles, minutes, unitR, totalR: bundles * unitR };
+  })();
 
-    return {
-      delivery: 'attach',
-      quoteNumber: makeQuoteNumber(),
-      dateISO: new Date().toISOString(),
-      client: { name: businessName || email, email, phone, company: companyName, address },
-      itemsOnceOff,
-      itemsMonthly,
-      subtotals: { onceOff: onceOffSubtotalExVAT, monthly: monthlySubtotalExVAT },
-      notes: 'Generated from VoIP Shop cart.'
-    };
-  }
+  return {
+    delivery: 'attach',
+    quoteNumber: makeQuoteNumber(),
+    dateISO: new Date().toISOString(),
+    client: { name: businessName || email, email, phone, company: companyName, address },
+    itemsOnceOff,
+    itemsMonthly,
+    minutesPackage: minutesPackage || undefined,   // ⬅️ added
+    subtotals: { onceOff: onceOffSubtotalExVAT, monthly: monthlySubtotalExVAT },
+    notes: 'Generated from VoIP Shop cart.'
+  };
+}
 
-  async function postJSON(url, body, timeoutMs = 20000) {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), timeoutMs);
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: ctrl.signal
-      });
-      const ct = res.headers.get('content-type') || '';
-      const data = ct.includes('application/json') ? await res.json() : await res.text();
-      if (!res.ok) throw new Error(data?.error || data?.message || `HTTP ${res.status}`);
-      return data || { ok: true };
-    } finally { clearTimeout(t); }
-  }
-
-  function bindEmailQuote() {
-    const btn = document.getElementById('email-quote-btn');
-    if (!btn || btn.__bound) return;
-    btn.__bound = true;
-
-    btn.addEventListener('click', async () => {
-      const email = document.querySelector('input[name="email"]')?.value?.trim();
-      if (!email || !/.+@.+\..+/.test(email)) { alert('Please enter a valid email.'); return; }
-      if (btn.__sending) return;
-
-      btn.__sending = true;
-      const orig = btn.textContent;
-      btn.disabled = true; btn.textContent = 'Sending…';
-
-      try {
-        const payload = buildQuotePayload();
-        payload.recaptchaAction = 'send_quote';
-        payload.recaptchaToken  = await getRcToken('send_quote');
-
-        const resp = await postJSON(SEND_QUOTE_URL, payload, 20000);
-        alert('Quote sent successfully.');
-        console.log('[EmailQuote] OK:', resp);
-      } catch (err) {
-        console.error('[EmailQuote] Error:', err);
-        alert('Failed to send quote: ' + (err.message || err));
-      } finally {
-        btn.disabled = false; btn.textContent = orig; btn.__sending = false;
-      }
-    });
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindEmailQuote);
-  } else {
-    bindEmailQuote();
-  }
 })();
 })(); // end emailQuoteWiring IIFE
 
