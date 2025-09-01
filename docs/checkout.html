@@ -5,8 +5,8 @@
   <title>VoIP Shop — Shopping Cart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- reCAPTCHA v3 (standard) — keep ONLY this loader -->
-  <script src="https://www.google.com/recaptcha/api.js?render=6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw"></script>
+  <!-- reCAPTCHA v3 (non-blocking) -->
+  <script async defer src="https://www.google.com/recaptcha/api.js?render=6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw"></script>
 
   <!-- Diagnostic helper (optional) -->
   <script>
@@ -51,8 +51,9 @@
       -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
     }
 
-    /* Paint large sections on demand & reserve space to avoid CLS */
-    main, aside, section{ content-visibility:auto; contain-intrinsic-size: 800px; }
+    /* (micro-polish)
+       ❌ Removed global content-visibility:auto from main/aside/section.
+       We'll explicitly opt-in only where beneficial (none on this page). */
 
     .tabular-nums{ font-variant-numeric:tabular-nums; }
 
@@ -233,69 +234,69 @@
         </div>
       </div>
 
-    <!-- Card 3: Your Details + Actions -->
-<div class="card">
-  <div class="card-b">
-    <h3 class="text-lg font-bold text-gray-900">Your Details</h3>
-    <form id="quick-checkout-form" class="mt-4 space-y-4" novalidate>
-      <fieldset class="space-y-3">
-        <label class="block">
-          <span class="text-sm text-gray-700">Business name</span>
-          <input
-            type="text"
-            name="businessName"
-            autocomplete="organization"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-xl py-3 px-4 text-[15px] outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="e.g. Acme (Pty) Ltd"
-          />
-        </label>
-        <label class="block">
-          <span class="text-sm text-gray-700">Email address</span>
-          <input
-            type="email"
-            name="email"
-            autocomplete="email"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-xl py-3 px-4 text-[15px] outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="you@company.co.za"
-          />
-        </label>
-        <label class="block">
-          <span class="text-sm text-gray-700">Phone number</span>
-          <input
-            type="tel"
-            name="phone"
-            inputmode="tel"
-            autocomplete="tel-national"
-            required
-            class="mt-1 w-full border border-gray-300 rounded-xl py-3 px-4 text-[15px] outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="e.g. 067 922 8256"
-          />
-        </label>
-      </fieldset>
+      <!-- Card 3: Your Details + Actions -->
+      <div class="card">
+        <div class="card-b">
+          <h3 class="text-lg font-bold text-gray-900">Your Details</h3>
+          <form id="quick-checkout-form" class="mt-4 space-y-4" novalidate>
+            <fieldset class="space-y-3">
+              <label class="block">
+                <span class="text-sm text-gray-700">Business name</span>
+                <input
+                  type="text"
+                  name="businessName"
+                  autocomplete="organization"
+                  required
+                  class="mt-1 w-full border border-gray-300 rounded-xl py-3 px-4 text-[15px] outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g. Acme (Pty) Ltd"
+                />
+              </label>
+              <label class="block">
+                <span class="text-sm text-gray-700">Email address</span>
+                <input
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  required
+                  class="mt-1 w-full border border-gray-300 rounded-xl py-3 px-4 text-[15px] outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="you@company.co.za"
+                />
+              </label>
+              <label class="block">
+                <span class="text-sm text-gray-700">Phone number</span>
+                <input
+                  type="tel"
+                  name="phone"
+                  inputmode="tel"
+                  autocomplete="tel-national"
+                  required
+                  class="mt-1 w-full border border-gray-300 rounded-xl py-3 px-4 text-[15px] outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="e.g. 067 922 8256"
+                />
+              </label>
+            </fieldset>
 
-      <div class="space-y-3">
-        <!-- Primary -->
-        <button
-          type="submit"
-          class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 transition"
-        >
-          Complete Order
-        </button>
+            <div class="space-y-3">
+              <!-- Primary -->
+              <button
+                type="submit"
+                class="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 transition"
+              >
+                Complete Order
+              </button>
 
-        <!-- Secondary -->
-        <button
-          type="button"
-          id="email-quote-btn"
-          class="w-full rounded-xl bg-gray-900 hover:bg-black text-white font-semibold py-3 px-4 transition"
-        >
-          Email Me Quote
-        </button>
+              <!-- Secondary -->
+              <button
+                type="button"
+                id="email-quote-btn"
+                class="w-full rounded-xl bg-gray-900 hover:bg-black text-white font-semibold py-3 px-4 transition"
+              >
+                Email Me Quote
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
-    </form>
-  </div>
-</div>
 
     </aside>
   </main>
@@ -309,163 +310,180 @@
     </div>
   </footer>
 
-   <!-- Scripts -->
+  <!-- Scripts -->
   <script src="./scripts/checkout.js" defer></script>
 
-<!-- ✅ Monthly invoice sync (JavaScript) -->
-<script>
-  (function () {
-    const VAT_RATE = 0.15;
+  <!-- ✅ Monthly invoice sync (JavaScript) -->
+  <script>
+    (function () {
+      const VAT_RATE = 0.15;
 
-    function parseZAR(text) {
-      const cleaned = String(text || "")
-        .replace(/[^\d,.\-]/g, "")
-        .replace(/\.(?=\d{3}\b)/g, "");
-      const n = Number(cleaned.replace(",", "."));
-      return Number.isFinite(n) ? n : 0;
-    }
+      function parseZAR(text) {
+        const cleaned = String(text || "")
+          .replace(/[^\d,.\-]/g, "")
+          .replace(/\.(?=\d{3}\b)/g, "");
+        const n = Number(cleaned.replace(",", "."));
+        return Number.isFinite(n) ? n : 0;
+      }
 
-    function formatZAR(n) {
-      const fixed = (Math.round(n * 100) / 100).toFixed(2);
-      const [i, d] = fixed.split(".");
-      const withSep = i.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      return "R " + withSep + "," + d;
-    }
+      function formatZAR(n) {
+        const fixed = (Math.round(n * 100) / 100).toFixed(2);
+        const [i, d] = fixed.split(".");
+        const withSep = i.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        return "R " + withSep + "," + d;
+      }
 
-    function sync() {
+      function sync() {
+        const subEl = document.getElementById("subtotal-monthly");
+        const subOut = document.getElementById("monthly-invoice-subtotal");
+        const totOut = document.getElementById("monthly-invoice-total");
+        if (!subEl || !subOut || !totOut) return;
+
+        const ex = parseZAR(subEl.textContent);
+        const inc = ex * (1 + VAT_RATE);
+        subOut.textContent = formatZAR(ex);
+        totOut.textContent = formatZAR(inc);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", sync);
+      } else {
+        sync();
+      }
+
       const subEl = document.getElementById("subtotal-monthly");
-      const subOut = document.getElementById("monthly-invoice-subtotal");
-      const totOut = document.getElementById("monthly-invoice-total");
-      if (!subEl || !subOut || !totOut) return;
+      if (subEl) {
+        new MutationObserver(sync).observe(subEl, {
+          childList: true,
+          characterData: true,
+          subtree: true,
+        });
+      }
 
-      const ex = parseZAR(subEl.textContent);
-      const inc = ex * (1 + VAT_RATE);
-      subOut.textContent = formatZAR(ex);
-      totOut.textContent = formatZAR(inc);
-    }
+      document.addEventListener("cart:recalculated", sync);
+    })();
+  </script>
 
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", sync);
-    } else {
-      sync();
-    }
-
-    const subEl = document.getElementById("subtotal-monthly");
-    if (subEl) {
-      new MutationObserver(sync).observe(subEl, {
-        childList: true,
-        characterData: true,
-        subtree: true,
+  <!-- ✅ Lift content-visibility on both rows and their ancestor sections -->
+  <script>
+    (function(){
+      ["onceoff-rows","monthly-rows"].forEach(id => {
+        const rows = document.getElementById(id);
+        if (!rows) return;
+        rows.style.contentVisibility = "visible";
+        rows.style.containIntrinsicSize = "auto";
+        const sec = rows.closest("section");
+        if (sec) {
+          sec.style.contentVisibility = "visible";
+          sec.style.containIntrinsicSize = "auto";
+        }
       });
+    })();
+  </script>
+
+  <!-- ✅ Mobile fixes (CSS) -->
+  <style>
+  /* ---------- MOBILE FIXES ---------- */
+
+  /* iOS Safari: explicitly visible on phones */
+  @media (max-width: 640px){
+    main, aside, section { content-visibility: visible; contain-intrinsic-size: auto; }
+  }
+
+  /* Long product names: wrap safely */
+  .table-row [data-cell="name"]{
+    overflow-wrap:anywhere;
+    word-break:break-word;
+    line-height:1.25;
+  }
+
+  /* Mobile grid with fixed total column */
+  @media (max-width: 767.98px){
+    .table-row{
+      grid-template-columns: 1fr 104px;
+      gap:8px;
+      padding:10px 12px;
     }
-
-    document.addEventListener("cart:recalculated", sync);
-  })();
-</script>
-
-<!-- ✅ Mobile fixes (CSS) -->
-<style>
-/* ---------- MOBILE FIXES (replace your block with this) ---------- */
-
-/* 1) iOS Safari: avoid content-visibility weirdness on phones */
-@media (max-width: 640px){
-  main, aside, section { content-visibility: visible; contain-intrinsic-size: auto; }
-}
-
-/* 2) Long product names: wrap safely */
-.table-row [data-cell="name"]{
-  overflow-wrap:anywhere;
-  word-break:break-word;
-  line-height:1.25;
-}
-
-/* 3) Row grid on mobile:
-      name spans full width,
-      left col = qty (fluid),
-      right col = total (FIXED WIDTH so it can't blow up layout) */
-@media (max-width: 767.98px){
-  .table-row{
-    grid-template-columns: 1fr 104px; /* 👈 fixed total column */
-    gap:8px;
-    padding:10px 12px;
+    .table-row [data-cell="name"]  { grid-column:1/-1; }
+    .table-row [data-cell="qty"]   { grid-column:1/2; justify-self:start; }
+    .table-row [data-cell="total"] {
+      grid-column:2/3;
+      justify-self:end;
+      text-align:right;
+      white-space:nowrap;
+      font-variant-numeric:tabular-nums;
+      font-size:clamp(.92rem, 3.6vw, 1rem);
+      max-width:104px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
   }
-  .table-row [data-cell="name"]  { grid-column:1/-1; }
-  .table-row [data-cell="qty"]   { grid-column:1/2; justify-self:start; }
-  .table-row [data-cell="total"] {
-    grid-column:2/3;
-    justify-self:end;
-    text-align:right;
-    white-space:nowrap;           /* keep “R 1.234,00” on one line */
-    font-variant-numeric:tabular-nums;
-    font-size:clamp(.92rem, 3.6vw, 1rem);
-    max-width:104px;              /* hard stop to prevent overflow */
-    overflow:hidden;
-    text-overflow:ellipsis;       /* graceful if it ever got too long */
+
+  /* Ultra-small phones: slightly narrower total col */
+  @media (max-width: 380px){
+    .table-row{ grid-template-columns: 1fr 92px; }
+    .table-row [data-cell="total"]{ max-width:92px; font-size:.9rem; }
   }
-}
 
-/* 4) Ultra-small phones: trim the total column a bit more */
-@media (max-width: 380px){
-  .table-row{ grid-template-columns: 1fr 92px; }
-  .table-row [data-cell="total"]{ max-width:92px; font-size:.9rem; }
-}
-
-/* 5) Qty control: remove negative nudge and compact controls on phones */
-@media (max-width: 480px){
-  :root{ --qty-pill-number-nudge:0; } /* 👈 no sideways shift */
-
-  .qty-pill{
-    height:26px;
-    border-radius:9px;
-    transform:none;               /* ensure it stays inside the grid */
+  /* Qty control: compact on phones */
+  @media (max-width: 480px){
+    :root{ --qty-pill-number-nudge:0; }
+    .qty-pill{ height:26px; border-radius:9px; transform:none; }
+    .qty-btn{ width:26px; font-size:13px; }
+    .qty-value{ min-width:26px; font-size:12px; }
+    .qty-plain{ height:26px; min-width:30px; padding:0 6px; font-size:12px; }
   }
-  .qty-btn{ width:26px; font-size:13px; }
-  .qty-value{ min-width:26px; font-size:12px; }
-  .qty-plain{ height:26px; min-width:30px; padding:0 6px; font-size:12px; }
-}
 
-/* 6) Totals rows at the bottom of each table: fix right column width too */
-@media (max-width: 640px){
-  .table-total{
-    border-radius:12px;
-    padding:10px 12px !important;
+  /* Totals rows: fixed right column width on mobile */
+  @media (max-width: 640px){
+    .table-total{ border-radius:12px; padding:10px 12px !important; }
+    .table-total .label{ font-size:.9rem; }
+    .table-total .amount{
+      font-size:clamp(1rem, 4vw, 1.05rem);
+      white-space:nowrap;
+    }
+    .table-total.grid{
+      grid-template-columns: 1fr 130px;
+      column-gap:10px;
+    }
   }
-  .table-total .label{ font-size:.9rem; }
-  .table-total .amount{
-    font-size:clamp(1rem, 4vw, 1.05rem);
-    white-space:nowrap;
+
+  /* Summary cards */
+  @media (max-width: 1024px){
+    .card-h{ padding:12px 14px; }
+    .card-b{ padding:14px; }
+    .pill{ font-size:11.5px; padding:3px 9px; }
   }
-  .table-total.grid{
-    grid-template-columns: 1fr 130px;  /* label | amount (fixed) */
-    column-gap:10px;
+
+  /* Footer breathing room so WhatsApp floater doesn't overlap */
+  @media (max-width: 640px){
+    footer{ padding-bottom:64px; }
+    .card:last-of-type{ margin-bottom:8px; }
   }
-}
 
-/* 7) Summary cards: tighter padding on smaller screens */
-@media (max-width: 1024px){
-  .card-h{ padding:12px 14px; }
-  .card-b{ padding:14px; }
-  .pill{ font-size:11.5px; padding:3px 9px; }
-}
+  /* Breadcrumb + H1 sizing */
+  @media (max-width: 480px){
+    h1.text-3xl{ font-size:1.5rem; }
+    nav[aria-label="breadcrumb"]{ font-size:12px; }
+  }
 
-/* 8) Footer breathing room so WhatsApp floater doesn't overlap */
-@media (max-width: 640px){
-  footer{ padding-bottom:64px; }
-  .card:last-of-type{ margin-bottom:8px; }
-}
+  /* Fallback if Tailwind grid helpers aren’t present */
+  @media (max-width: 1023.98px){
+    .lg\:col-span-8, .lg\:col-span-4 { grid-column: auto / span 12; }
+  }
+  </style>
 
-/* 9) Breadcrumb + H1 sizing */
-@media (max-width: 480px){
-  h1.text-3xl{ font-size:1.5rem; }
-  nav[aria-label="breadcrumb"]{ font-size:12px; }
-}
-
-/* 10) Fallback if Tailwind grid helpers aren’t present */
-@media (max-width: 1023.98px){
-  .lg\:col-span-8, .lg\:col-span-4 { grid-column: auto / span 12; }
-}
-</style>
-
+  <!-- (Optional safety) Keep these overrides; harmless if globals are removed -->
+  <style>
+  /* Turn off content-visibility for dynamic billing tables (explicit) */
+  #monthly-rows,
+  #monthly-rows ~ .mt-3,
+  #onceoff-rows,
+  #onceoff-rows ~ .mt-3 {
+    content-visibility: visible !important;
+    contain-intrinsic-size: auto !important;
+  }
+  </style>
 
   <!-- WhatsApp floater (kept) -->
   <a href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help" target="_blank" rel="noopener"
@@ -493,4 +511,3 @@
   </a>
 </body>
 </html>
-
