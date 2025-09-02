@@ -5,20 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>About Us | VoIP Shop</title>
   <meta name="description" content="VoIP Shop powers simple, scalable PBX systems for South African businesses — transparent pricing, real support, and flexible setups." />
-<script>
-  window.tailwind = window.tailwind || {};
-  window.tailwind.config = {
-    safelist: [
-      'hidden','block','md:hidden','md:flex','overflow-hidden',
-      'sticky','top-0','z-50','backdrop-blur',
-      'border-b','border-gray-200',
-      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-      'flex','items-center','justify-between','gap-6',
-      'text-sm','font-medium','text-gray-700','hover:text-black',
-      'space-y-2','text-base'
-    ]
-  };
-</script>
+
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      safelist: [
+        'hidden','block','md:hidden','md:flex','overflow-hidden',
+        'sticky','top-0','z-50','backdrop-blur',
+        'border-b','border-gray-200',
+        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+        'flex','items-center','justify-between','gap-6',
+        'text-sm','font-medium','text-gray-700','hover:text-black',
+        'space-y-2','text-base'
+      ]
+    };
+  </script>
   <!-- Tailwind (Play CDN for dev) — non-deferred to avoid FOUC on first paint -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -26,27 +27,85 @@
   <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
   <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js"></script>
 
-  <!-- Page-scoped styles (only affect .about-scope subtree) -->
+  <!-- Page-scoped + mobile-friendly CSS -->
   <style>
+    /* ===== Base page scope ===== */
     .about-scope {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       scroll-padding-top: var(--navH, 72px);
+      overflow-x: hidden; /* guard against horizontal scroll on mobile */
     }
-    /* Keep desktop exactly as-is. Enhance only below lg (≤1024px) */
+
+    /* Keep desktop spacing; enhance below lg (≤1024px) */
     @media (max-width: 1024px){
       .about-scope .hero-wrap{ padding-top: 3.5rem; padding-bottom: 3.5rem; }
     }
+
     /* Perf: large sections paint on demand; reserve size to avoid CLS */
     .about-scope section { content-visibility: auto; contain-intrinsic-size: 800px 1000px; }
+
     /* Reduced motion */
     @media (prefers-reduced-motion: reduce) {
-      .about-scope * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior: auto !important; }
+      .about-scope * {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
     }
+
     /* Small design upgrade helpers */
     .kicker { letter-spacing:.12em; text-transform:uppercase; font-weight:600; }
     .soft-card { background:#fff; border:1px solid #e5e7eb; border-radius:18px; box-shadow:0 8px 24px rgba(0,0,0,.06); }
     .soft-pill { border-radius:999px; background:#f5f7ff; color:#0B63E6; font-weight:600; }
     .section-divider { height:1px; background:linear-gradient(90deg, rgba(0,0,0,0) 0%, rgba(0,0,0,.08) 50%, rgba(0,0,0,0) 100%); }
+
+    /* ===== Mobile-friendly polish (affects whole page) ===== */
+    /* Headline and paragraph scales nicely from phones to desktop */
+    .about-scope h1{
+      font-size: clamp(1.75rem, 5vw, 3rem);  /* ~28px → 48px */
+      line-height: 1.15;
+    }
+    .about-scope p{
+      font-size: clamp(.95rem, 2.2vw, 1.125rem); /* ~15px → 18px */
+      line-height: 1.6;
+    }
+
+    /* Hero spacing tuned for mobile; desktop keeps generous space */
+    .about-scope .hero-wrap{ padding-top: 2.5rem; padding-bottom: 2.5rem; }
+    @media (min-width:1024px){
+      .about-scope .hero-wrap{ padding-top: 4rem; padding-bottom: 6rem; }
+    }
+
+    /* Images always shrink on narrow screens */
+    .about-scope img{ max-width:100%; height:auto; }
+
+    /* Hero mockup: avoid giant empty space on very small phones */
+    .about-scope .mockup{ aspect-ratio: 4 / 3; }
+    @media (max-width: 640px){
+      .about-scope .mockup{ aspect-ratio: auto; }
+    }
+
+    /* Soft chips stay compact on phones */
+    .about-scope .soft-pill{ font-size:.75rem; padding:.375rem .75rem; }
+
+    /* Virtualization reserve smaller on mobile to reduce whitespace */
+    .about-scope section{ contain-intrinsic-size: 600px 800px; }
+    @media (min-width:1024px){
+      .about-scope section{ contain-intrinsic-size: 800px 1000px; }
+    }
+
+    /* Accessible focus ring */
+    :focus-visible{ outline:2px solid #0B63E6; outline-offset:2px; }
+
+    /* Floating WhatsApp button: safe-area + touch target on phones */
+    .fab{
+      right: 1rem; bottom: 1rem;
+      padding-bottom: calc(.5rem + env(safe-area-inset-bottom));
+    }
+    @media (min-width:768px){
+      .fab{ right:1.25rem; bottom:1.25rem; }
+    }
   </style>
 </head>
 
@@ -59,29 +118,29 @@
   <main class="about-scope">
 
     <!-- =======================
-         HERO (Desktop preserved)
+         HERO
          ======================= -->
     <section class="bg-[#F5F5F7]">
       <div class="hero-wrap mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         <div class="grid items-center gap-10 lg:grid-cols-12">
           <!-- Text -->
           <div class="lg:col-span-6 text-center lg:text-left">
-            <!-- subtle kicker (mobile/iPad adds, desktop unchanged visually) -->
+            <!-- subtle kicker -->
             <div class="inline-flex items-center gap-2 rounded-full bg-black/90 text-white px-3 py-1 kicker text-[10px] sm:text-[11px] tracking-[0.18em]">
               <span class="inline-block h-1.5 w-1.5 rounded-full bg-white"></span>
               About VoIP Shop
             </div>
 
-            <!-- Keep H1 semantics, same visual scale as before -->
-            <h1 class="mt-3 text-4xl sm:text-5xl tracking-tight text-gray-900 leading-[1.06]">
+            <!-- H1 -->
+            <h1 class="mt-3 tracking-tight text-gray-900 leading-[1.06]">
               <span class="font-semibold">Powering business communication</span>
               <span class="block font-extrabold">across South Africa</span>
             </h1>
 
-            <p class="mt-4 text-base sm:text-lg text-gray-600 leading-7">
+            <p class="mt-4 text-gray-600 leading-7">
               VoIP Shop delivers simple, scalable PBX systems tailored for local businesses. Whether you're setting up your first extension or scaling to a full team, our contract-free model gives you flexibility without the hassle.
             </p>
-            <p class="mt-3 text-base sm:text-lg text-gray-700 leading-7">
+            <p class="mt-3 text-gray-700 leading-7">
               We combine reliable technology with real support — so you can run operations with confidence, knowing your communication is handled.
             </p>
 
@@ -96,7 +155,6 @@
                 </svg>
               </a>
 
-              <!-- Secondary CTA (design improvement) -->
               <a
                 href="packages.html"
                 class="inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-6 py-3 text-gray-900 font-semibold tracking-tight transition-colors hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300/50"
@@ -106,18 +164,16 @@
             </div>
           </div>
 
-          <!-- Image (DESKTOP EXACTLY AS BEFORE) -->
+          <!-- Image -->
           <div class="lg:col-span-6 flex justify-center">
             <div
-              class="w-full max-w-md rounded-2xl bg-white ring-1 ring-gray-200 shadow-[0_10px_30px_rgba(0,0,0,0.06)] overflow-hidden"
-              style="aspect-ratio: 4 / 3;"
+              class="w-full max-w-md rounded-2xl bg-white ring-1 ring-gray-200 shadow-[0_10px_30px_rgba(0,0,0,0.06)] overflow-hidden mockup"
             >
               <img
                 src="Assets/abstract.png"
                 alt="VoIP system illustration"
                 class="h-full w-full object-contain"
                 decoding="async"
-                <!-- NOTE: no sizes/width/height here so desktop behaves exactly like before -->
               />
             </div>
           </div>
@@ -164,7 +220,7 @@
               It’s business telecom, rethought — lean, honest, and built for real-world teams.
             </p>
 
-            <!-- Subtle proof chips (design improvement; mobile-friendly) -->
+            <!-- Subtle proof chips -->
             <div class="mt-6 flex flex-wrap gap-2">
               <span class="soft-pill px-3 py-1 text-xs">No contracts</span>
               <span class="soft-pill px-3 py-1 text-xs">WhatsApp-first support</span>
@@ -186,58 +242,51 @@
         </h2>
 
         <div class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 text-left">
-          <!-- Card -->
-         
-      <!-- No Contracts -->
-<article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
-  <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl" 
-       style="background:#E7C465; color:white;">
-    <!-- lock-off -->
-    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="4" y="10" width="16" height="10" rx="2"/>
-        <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
-      </g>
-    </svg>
-  </div>
-  <h3 class="text-lg font-semibold text-gray-900">No Contracts</h3>
-  <p class="mt-1 text-gray-600">You only pay for what you need, when you need it.</p>
-</article>
 
-<!-- Real Support -->
-<article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
-  <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl" 
-       style="background:#1AA696; color:white;">
-    <!-- headset -->
-    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 13a8 8 0 0 1 16 0"/>
-        <rect x="3.5" y="12" width="4" height="6" rx="1.5"/>
-        <rect x="16.5" y="12" width="4" height="6" rx="1.5"/>
-      </g>
-    </svg>
-  </div>
-  <h3 class="text-lg font-semibold text-gray-900">Real Support</h3>
-  <p class="mt-1 text-gray-600">WhatsApp support, on-site techs, and no call centres.</p>
-</article>
+          <!-- No Contracts -->
+          <article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+            <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background:#E7C465; color:white;">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="10" width="16" height="10" rx="2"/>
+                  <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">No Contracts</h3>
+            <p class="mt-1 text-gray-600">You only pay for what you need, when you need it.</p>
+          </article>
 
-<!-- Flexible Setup -->
-<article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
-  <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl" 
-       style="background:#F59D5B; color:white;">
-    <!-- sliders -->
-    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 7h16M4 12h16M4 17h16"/>
-        <circle cx="9" cy="7" r="2"/>
-        <circle cx="15" cy="12" r="2"/>
-        <circle cx="7" cy="17" r="2"/>
-      </g>
-    </svg>
-  </div>
-  <h3 class="text-lg font-semibold text-gray-900">Flexible Setup</h3>
-  <p class="mt-1 text-gray-600">Desk phones, cordless, and mobile apps—build it your way.</p>
-</article>
+          <!-- Real Support -->
+          <article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+            <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background:#1AA696; color:white;">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 13a8 8 0 0 1 16 0"/>
+                  <rect x="3.5" y="12" width="4" height="6" rx="1.5"/>
+                  <rect x="16.5" y="12" width="4" height="6" rx="1.5"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Real Support</h3>
+            <p class="mt-1 text-gray-600">WhatsApp support, on-site techs, and no call centres.</p>
+          </article>
+
+          <!-- Flexible Setup -->
+          <article class="rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-md transition-shadow">
+            <div class="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-xl" style="background:#F59D5B; color:white;">
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 7h16M4 12h16M4 17h16"/>
+                  <circle cx="9" cy="7" r="2"/>
+                  <circle cx="15" cy="12" r="2"/>
+                  <circle cx="7" cy="17" r="2"/>
+                </g>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900">Flexible Setup</h3>
+            <p class="mt-1 text-gray-600">Desk phones, cordless, and mobile apps—build it your way.</p>
+          </article>
 
         </div>
       </div>
@@ -251,7 +300,6 @@
       <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-16">
         <figure class="mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-8 sm:p-10 text-center shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
           <div class="mx-auto mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6]" aria-hidden="true">
-            <!-- quote mark -->
             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none">
               <g stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M11 8a5 5 0 0 0-5 5v3h5v-3H8"/>
@@ -267,7 +315,6 @@
           </blockquote>
 
           <figcaption class="mt-6 flex items-center justify-center gap-3">
-            <!-- Accessible avatar fallback (keeps layout even if no image asset exists) -->
             <span class="inline-flex h-10 w-10 items-center justify-center rounded-full ring-1 ring-gray-200 bg-gray-100 text-gray-600 text-sm font-semibold select-none" aria-hidden="true">A</span>
             <span class="sr-only">Reviewer:</span>
             <div class="flex items-center divide-x divide-gray-300">
@@ -283,28 +330,23 @@
     <div id="site-footer" data-variant="full"></div>
     <script src="scripts/footer.js" defer></script>
   </main>
-  <!-- ✅ Floating WhatsApp Help Button (all devices, mobile-optimised) -->
-<a
-  href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
-  target="_blank" rel="noopener"
-  aria-label="Chat to VoIP Shop on WhatsApp"
-  class="fixed z-[60] flex items-center gap-2 rounded-full bg-[#25D366] text-white
-         px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
-         focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
-         right-4 bottom-4
-         md:right-5 md:bottom-5
-         [padding-bottom:calc(0.5rem+env(safe-area-inset-bottom))]
-         select-none"
-  style="backdrop-filter:saturate(140%)"
->
-  <!-- Icon (SVG) -->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-       class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
-    <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52.07-.79.37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15.2 2.1 3.2 5.1 4.5.71.3 1.27.48 1.7.62.71.23 1.35.2 1.86.12.57-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.27-.2-.57-.35z"/>
-  </svg>
 
-  <span class="text-sm font-semibold">Need help?</span>
-</a>
+  <!-- ✅ Floating WhatsApp Help Button (all devices, mobile-optimised) -->
+  <a
+    href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help"
+    target="_blank" rel="noopener"
+    aria-label="Chat to VoIP Shop on WhatsApp"
+    class="fixed z-[60] fab flex items-center gap-2 rounded-full bg-[#25D366] text-white
+           px-4 py-2 shadow-lg hover:shadow-xl hover:opacity-90 transition
+           focus:outline-none focus:ring-2 focus:ring-[#25D366]/50
+           right-4 bottom-4 md:right-5 md:bottom-5 select-none"
+    style="backdrop-filter:saturate(140%)"
+  >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+         class="h-5 w-5 shrink-0" fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59-.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98 6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5 .71 .3 1.27 .48 1.7 .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72 2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
+    </svg>
+    <span class="text-sm font-semibold">Need help?</span>
+  </a>
 </body>
 </html>
-
