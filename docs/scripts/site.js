@@ -119,15 +119,31 @@
           background:rgba(255,255,255,.9);
           backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
           border-bottom:1px solid #e5e7eb; text-align:initial;
+
+          /* 🔧 harden against page CSS overrides */
+          display:block !important;
+          white-space:normal !important;
         }
+
         /* LIMIT scope strictly to the injected header */
         #nav-slot > header, #nav-slot > header * { box-sizing:border-box; }
-        #nav-slot > header .row{
+
+        /* Row container (no Bootstrap/TW collisions) */
+        #nav-slot > header .nav-row{
           width:100%; margin:0;
           padding:12px 16px 12px 12px;
           display:flex; align-items:center; justify-content:space-between; gap:24px;
+          flex-wrap:wrap; /* allow things to wrap on narrow screens */
+
+          /* 🔧 harden against page CSS overrides */
+          flex-wrap:wrap !important;
+          white-space:normal !important;
+          min-width:0 !important;
         }
+
+        /* Desktop nav is hidden by default; enabled by media query */
         #nav-slot > header nav { display:none; margin-left:auto; align-items:center; gap:24px; }
+
         #nav-slot > header a { color:#374151; text-decoration:none; font:500 14px/1.2 system-ui; }
         #nav-slot > header a:hover { color:#000; }
         #nav-slot > header nav a[aria-current="page"] { color:#000; }
@@ -136,18 +152,26 @@
         /* Desktop ≥900px: show desktop nav, HIDE burger & mobile panel */
         @media (min-width:900px){
           #nav-slot > header nav[data-desktop="true"]{ display:inline-flex; }
-          #nav-slot > header button[data-toggle="mobile"]{ display:none !important; } /* <— important to beat inline */
+          #nav-slot > header button[data-toggle="mobile"]{ display:none !important; } /* beat inline style */
           #nav-slot > header #mobileMenu{ display:none !important; }
         }
+
         /* Mobile <900px: hide desktop nav, show burger */
         @media (max-width:899.98px){
           #nav-slot > header nav[data-desktop="true"]{ display:none; }
-          #nav-slot > header button[data-toggle="mobile"]{ display:inline-flex; }
+          #nav-slot > header button[data-toggle="mobile"]{
+            display:inline-flex;
+            margin-left:auto; /* push burger to the right of the logo */
+
+            /* 🔧 harden against page CSS overrides */
+            white-space:normal !important;
+          }
         }
 
         /* Mobile panel default hidden; JS toggles [hidden] attribute */
         #nav-slot > header #mobileMenu[hidden] { display:none !important; }
         #nav-slot > header #mobileMenu{
+          width:100%;
           background:#fff; border-top:1px solid #e5e7eb;
         }
         #nav-slot > header #mobileMenu ul{
@@ -156,8 +180,15 @@
         #nav-slot > header #mobileMenu a{
           display:block; padding:10px 4px; color:#111827; text-decoration:none;
           font:500 16px/1.2 system-ui;
+
+          /* 🔧 harden against page CSS overrides */
+          white-space:normal !important;
         }
-        #nav-slot > header #mobileMenu a:hover{ color:#000; }
+
+        /* 🔧 also prevent nowrap on desktop nav links if any global rule exists */
+        #nav-slot > header nav[data-desktop="true"]{
+          white-space:normal !important;
+        }
       `;
       const style = document.createElement('style');
       style.setAttribute('data-nav-style', '1');
@@ -167,7 +198,7 @@
 
     const NAV_HTML = `
 <header>
-  <div class="row">
+  <div class="nav-row">
     <!-- Brand -->
     <a href="index.html" aria-label="VoIP Shop — Home" style="display:inline-flex;align-items:center;gap:12px;text-decoration:none;margin-left:12px">
       <img src="Assets/Group 1642logo (1).png" alt="VoIP Shop Logo" style="height:32px;width:auto;object-fit:contain;display:block">
@@ -288,5 +319,6 @@
 
       console.log('[nav] Legacy header injected.');
     });
+
   });
 })();
