@@ -8,7 +8,7 @@
   <meta name="description" content="Thanks! We've received your order. View your summary and next steps for activation." />
   <meta name="theme-color" content="#f5f5f7" />
 
-  <!-- ===== Global site tag (Google Ads) AFTER metas ===== -->
+  <!-- ===== Google tag (gtag.js) AFTER metas ===== -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -17,28 +17,20 @@
     gtag('config', 'AW-17526288798');
   </script>
 
-  <!-- ===== Google Ads conversion (Order Received ONLY) =====
-       NOTE: confirm the 'send_to' ID matches the one Google shows you for this conversion action. -->
+  <!-- ===== Google Ads conversion (Order Received ONLY) ===== -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
-      // Grab values from DOM
-      const totalEl   = document.getElementById('total');
-      const orderEl   = document.getElementById('order-id');
+      const money   = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
+      const monthly = money(document.getElementById('summary-monthly')?.textContent);
+      const onceoff = money(document.getElementById('summary-onceoff')?.textContent);
+      const orderId = (document.getElementById('order-number')?.textContent || '').trim();
 
-      // Fallbacks from URL params (?total=123.45&order=VS-12345)
-      const params    = new URLSearchParams(location.search);
-      const urlTotal  = Number(params.get('total')) || Number(params.get('subtotal')) || 0;
-      const urlOrder  = (params.get('order') || '').trim();
+      // Default: once-off + first month. Use "const valueToday = onceoff;" if you prefer once-off only.
+      const valueToday = monthly + onceoff;
 
-      // Convert "R 224.25" -> 224.25
-      const domTotal  = totalEl ? parseFloat((totalEl.textContent || '').replace(/[^0-9.]/g, '')) : 0;
-      const totalValue = (domTotal || urlTotal || 0);
-      const orderId    = (orderEl?.textContent || urlOrder || '').trim();
-
-      // Only fire if we have a page view (always) — value can be 0 for quotes with no payment today
       gtag('event', 'conversion', {
-        send_to: 'AW-17526288798/yXsXCNjp1JbE7J1j6VB',  // <— replace if your UI shows a different label
-        value: totalValue,
+        send_to: 'AW-17526288798/yXsXCNjp1JbE7J1j6VB', // confirm this matches your Ads UI
+        value: valueToday,
         currency: 'ZAR',
         transaction_id: orderId
       });
@@ -84,6 +76,7 @@
     .dropzone.dragover { border-color: #0B63E6; background-color: rgba(231,240,255,.3); }
   </style>
 </head>
+
 
 <body class="bg-[#F5F5F7] text-gray-900">
   <!-- Top actions -->
