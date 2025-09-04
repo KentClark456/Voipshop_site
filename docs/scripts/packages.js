@@ -1,22 +1,4 @@
-// ==================== packages.js (plural-first) ====================
-
-// -------- Helpers for rows (plural-first; singular fallback last) --------
-function getRow(key) {
-  // Prefer data attribute, then plural ID, then legacy singular ID
-  return (
-    document.querySelector(`[data-packages-row="${key}"]`) ||
-    document.getElementById(`row-${key}-extensions`) ||
-    document.getElementById(`row-${key}-extension`)
-  );
-}
-
-// Expose a stable map you can use in your render code elsewhere
-const rows = {
-  1: () => getRow(1),
-  2: () => getRow(2),
-  3: () => getRow(3),
-  wireless: () => getRow('wireless')
-};
+// ==================== packages.js (merged) ====================
 
 // -------------------- Hardware Totals --------------------
 function hardwareTotals() {
@@ -337,13 +319,14 @@ function validateTransferNumber(inputElement) {
   }
 }
 
-// ==================== Step-2 Summary Ring (unchanged selectors) ====================
+// ==================== NEW: Step-2 Summary Ring ====================
 function initSummaryRing() {
   const card      = document.querySelector('[data-summary-card]') || document.getElementById('summary-card');
   const monthlyEl = document.querySelector('[data-total-monthly]') || document.getElementById('total-footer-price');
   const onceoffEl = document.querySelector('[data-total-onceoff]') || document.getElementById('total-onceoff');
   if (!card || !monthlyEl || !onceoffEl) return;
 
+  // local helper to avoid global collisions
   const toNum = (t) => {
     const s = String(t || '')
       .replace(/[^\d,.\-]/g, '')
@@ -369,7 +352,7 @@ function initSummaryRing() {
   }
 }
 
-// ==================== Left Section Slider (anchors stay the same) ====================
+// ==================== NEW: Left Section Slider ====================
 function initSectionSlider() {
   const slider   = document.querySelector('[data-slider]') || document.getElementById('section-slider');
   if (!slider) return;
@@ -430,18 +413,9 @@ function initSectionSlider() {
     document.addEventListener('DOMContentLoaded', () => {
       initSummaryRing();
       initSectionSlider();
-      // Example: where you plug renderers (they’ll resolve to plural IDs)
-      // renderTeam1CardsInto?.(rows[1]());
-      // renderTeam2CardsInto?.(rows[2]());
-      // renderTeam3CardsInto?.(rows[3]());
-      // renderWirelessCardsInto?.(rows.wireless());
     }, { once: true });
   } else {
     initSummaryRing();
     initSectionSlider();
-    // renderTeam1CardsInto?.(rows[1]());
-    // renderTeam2CardsInto?.(rows[2]());
-    // renderTeam3CardsInto?.(rows[3]());
-    // renderWirelessCardsInto?.(rows.wireless());
   }
 })();

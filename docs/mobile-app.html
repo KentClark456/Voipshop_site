@@ -19,21 +19,28 @@
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
-    /* ===== Design tokens (Apple-ish) ===== */
+    /* ===== Design tokens ===== */
     :root{
       --ink:#0B0B0F; --muted:#6B7280; --paper:#FFFFFF; --panel:#FFFFFF;
-      --apple-blue:#0071E3; --border:#E6E6EB; --apple-grey:#F5F5F7;
-      --hero-py-mobile: 18px; --hero-py-tablet: 22px; --hero-py-desktop: 28px;
+      --apple-blue:#0071E3; --border:#E5E7EB; --apple-grey:#F5F5F7;
+      --hero-py-desktop: 28px;
     }
-    html,body{ background:var(--paper); color:var(--ink); }
+
+    /* 🔒 Force a pure-white canvas everywhere (prevents any inherited greys) */
+    html, body, main, header, footer, section, .band { 
+      background:#FFFFFF !important; 
+    }
+    html, body { color:var(--ink); }
+
     body{
       font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     }
 
-    /* ===== Pamphlet header ===== */
+    /* ===== Hero ===== */
     .app-hero{
-      position:relative; overflow:clip; background:linear-gradient(#fff,#fff);
-      box-shadow:0 1px 0 rgba(0,0,0,.05), 0 20px 60px rgba(0,0,0,.06);
+      position:relative; overflow:clip; background:#fff;
+      /* Softer shadow so it doesn’t tint the section below */
+      box-shadow:0 1px 0 rgba(0,0,0,.05), 0 8px 24px rgba(0,0,0,.04);
     }
     .app-hero .grid-wrap{ max-width:1200px; margin-inline:auto; padding-inline:1.25rem; }
     @media (min-width:640px){ .app-hero .grid-wrap{ padding-inline:2rem; } }
@@ -50,7 +57,6 @@
 
     /* Right visual */
     .device-visual{ position:relative; display:inline-block; isolation:isolate; }
-    .device-visual::before{ content:none; }
     .device-visual img{ display:block; height:auto; filter:drop-shadow(0 12px 28px rgba(0,0,0,.08)); }
 
     /* Small UI atoms */
@@ -83,6 +89,8 @@
 
     /* Section system */
     .band{ max-width:1200px; margin:0 auto; padding:40px 20px; }
+
+    /* Generic white card (not used for the stepper block now) */
     .soft{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:22px; }
 
     /* Stepper */
@@ -96,10 +104,19 @@
     .microcopy{ font-size:.78rem; line-height:1.35; color:var(--muted); }
     .microcopy b{ color:#1F2937; }
 
-    #config-card .soft{ background: var(--apple-grey); border-color: #Efffff; }
-    #config-card.band{ padding-top: 28px; }
+    /* ✅ Only the step card is grey; everything around it stays white */
+    #config-card{ background:transparent !important; }
+    #config-card .soft{
+      background:#F5F5F7 !important;   /* grey card */
+      border:1px solid #E5E7EB !important;
+      border-radius:20px;
+      max-width:56rem;                  /* ~896px */
+      margin:0 auto;                    /* center */
+      padding:clamp(24px,2.6vw,40px);
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+    }
+    #config-card hr{ border-color:rgba(0,0,0,.06); }
 
-    /* Headline rhythm */
     .display-hero .font-normal{ color:#374151; }
 
     /* WhatsApp floater nudge */
@@ -114,6 +131,7 @@
 <div id="nav-slot"></div>
 <script src="./scripts/site.js" defer></script>
 <script src="./scripts/mobile-app.js" defer></script>
+
 
 <!-- ===== HEADER / INTRO ===== -->
 <header class="app-hero corner-notch">
@@ -130,8 +148,8 @@
         <span class="sr-only">VoIP Shop</span><span class="font-normal">Call like a pro.</span>
       </h1>
 
-      <!-- NEW: Mobile-first image directly under the headline -->
-    <div class="hidden md:flex lg:hidden justify-center mb-4">
+      <!-- Mobile-first image directly under the headline -->
+      <div class="hidden md:flex lg:hidden justify-center mb-4">
         <img
           src="Assets/mobilephone.png"
           alt="VoIP Shop app on phone"
@@ -180,7 +198,7 @@
     <div class="hidden lg:col-span-6 lg:flex items-center justify-center">
       <div class="device-visual">
         <img
-          src="Assets/mobilephone.png"
+          src="Assets/Untitled design-14.png"
           alt="App mockup"
           class="w-[86%] xl:w-[80%] max-w-[620px] h-auto"
           loading="lazy"
@@ -221,7 +239,7 @@
       </span>
     </div>
 
-    <hr class="my-8 border-gray-200" />
+    <hr class="my-8" />
 
     <!-- Step 2 -->
     <div class="text-center">
@@ -251,7 +269,7 @@
   <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>
 </footer>
 
-<!-- WhatsApp floater (kept) -->
+  <!-- WhatsApp floater (kept) -->
 <a href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help" target="_blank" rel="noopener"
    aria-label="Chat to VoIP Shop on WhatsApp"
    style="position:fixed;z-index:60;right:16px;bottom:16px;background:#25D366;color:#fff;
