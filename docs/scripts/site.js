@@ -201,7 +201,7 @@
   <div class="nav-row">
     <!-- Brand -->
     <a href="index.html" aria-label="VoIP Shop — Home" style="display:inline-flex;align-items:center;gap:12px;text-decoration:none;margin-left:12px">
-      <img src="Assets/Group 1642logo (1).png" alt="VoIP Shop Logo" style="height:32px;width:auto;object-fit:contain;display:block">
+      <img src="Assets/Group 1642logo.png" alt="VoIP Shop Logo" style="height:32px;width:auto;object-fit:contain;display:block">
     </a>
 
     <!-- Desktop nav -->

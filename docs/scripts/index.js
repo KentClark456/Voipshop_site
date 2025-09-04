@@ -210,96 +210,114 @@ document.addEventListener("DOMContentLoaded", () => {
   const allPackages = [...packages, ...wirelessSetups];
   window.packages = allPackages;
 
-  // --------------- CARD BUILDER ---------------
-  function createPackageCard(pkg, index = 0) {
-    const img = buildImageSources(pkg);
-    const style = imgStyle(pkg.imgAdjust);
+// --------------- CARD BUILDER ---------------
+function createPackageCard(pkg, index = 0) {
+  const img   = buildImageSources(pkg);
+  const style = imgStyle(pkg.imgAdjust);
 
-    const minutesText = typeof pkg.minutesIncluded === "number"
-      ? `${pkg.minutesIncluded.toLocaleString("en-ZA")} minutes`
-      : (pkg.minutesIncluded || "");
+  const minutesText = typeof pkg.minutesIncluded === "number"
+    ? `${pkg.minutesIncluded.toLocaleString("en-ZA")} minutes`
+    : (pkg.minutesIncluded || "");
 
-    const card = document.createElement("div");
-    card.classList.add("hardware-card", "package-card", "voip-card");
-    card.setAttribute("data-id", String(pkg.id));
+  // Determine device count for this package to detect "Team of 1"
+  const deviceCount = (pkg.devices || []).reduce((s, d) => s + (Number(d.number) || 0), 0);
+  const isTeamOf1   = deviceCount === 1;
 
-    card.innerHTML = `
-      <div class="hardware-title">
-        <h2>${pkg.name}</h2>
-        <p>${pkg.idealFor || ""}</p>
-      </div>
+  // Image loading strategy:
+  // - Team of 1 (above-the-fold): eager + decoding=auto + high priority
+  // - Others: lazy + decoding=async (keep perf wins)
+  const imgLoadingAttrs = isTeamOf1
+    ? 'loading="eager" fetchpriority="high" decoding="auto"'
+    : 'loading="lazy" decoding="async"';
 
-      <div class="card-image-wrapper" style="height:${(pkg.imgAdjust?.h ?? 200)}px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-        <img
-          src="${img.src}"
-          srcset="${img.srcset}"
-          sizes="${img.sizes}"
-          alt="${pkg.name.replace(/"/g,'&quot;')}"
-          ${index < 3 ? 'fetchpriority="high"' : 'loading="lazy"'}
-          decoding="async"
-          style="${style}"
-        />
-      </div>
+  const card = document.createElement("div");
+  card.classList.add("hardware-card", "package-card", "voip-card");
+  card.setAttribute("data-id", String(pkg.id));
 
-      <div class="package-meta">
-        <div class="price-list">
-          ${minutesText ? `
-            <div class="price-line">
-              <span class="price-label">Minutes included</span>
-              <span class="price-value">${minutesText}</span>
-            </div>` : ""}
+  card.innerHTML = `
+    <div class="hardware-title">
+      <h2>${pkg.name}</h2>
+      <p>${pkg.idealFor || ""}</p>
+    </div>
 
+    <div class="card-image-wrapper" style="height:${(pkg.imgAdjust?.h ?? 200)}px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+      <img
+        src="${img.src}"
+        srcset="${img.srcset}"
+        sizes="${img.sizes}"
+        alt="${pkg.name.replace(/"/g,'&quot;')}"
+        ${imgLoadingAttrs}
+        style="${style}"
+      />
+    </div>
+
+    <div class="package-meta">
+      <div class="price-list">
+        ${minutesText ? `
           <div class="price-line">
-            <span class="price-label">Once-off</span>
-            <span class="price-value">R ${Number(pkg.onceOff||0).toLocaleString('en-ZA')}</span>
-          </div>
+            <span class="price-label">Minutes included</span>
+            <span class="price-value">${minutesText}</span>
+          </div>` : ""}
 
-          <div class="price-line">
-            <span class="price-label">Monthly</span>
-            <span class="price-value">R ${Number(pkg.monthly||0).toLocaleString('en-ZA')}<span class="per">/month</span></span>
-          </div>
+        <div class="price-line">
+          <span class="price-label">Once-off</span>
+          <span class="price-value">R ${Number(pkg.onceOff||0).toLocaleString('en-ZA')}</span>
         </div>
 
-        <button class="select-package-btn" type="button" aria-label="Select ${pkg.name}">
-          Select Package
-        </button>
+        <div class="price-line">
+          <span class="price-label">Monthly</span>
+          <span class="price-value">R ${Number(pkg.monthly||0).toLocaleString('en-ZA')}<span class="per">/month</span></span>
+        </div>
       </div>
-    `;
 
-    const btn = card.querySelector(".select-package-btn");
-    if (btn) {
-      btn.addEventListener("click", () => {
-        if (typeof window.selectPackage === "function") {
-          window.selectPackage(pkg);
-        } else {
-          window.dispatchEvent(new CustomEvent("package:selected", { detail: pkg }));
-        }
-      });
-    }
+      <button class="select-package-btn" type="button" aria-label="Select ${pkg.name}">
+        Select Package
+      </button>
+    </div>
+  `;
 
-    return card;
-  }
-
-  // --------------- RENDER ---------------
-  function renderPackageCards() {
-    const row1 = document.getElementById("row-1-extension");   // 1 device
-    const row2 = document.getElementById("row-2-extensions");  // 2 devices
-    const row3 = document.getElementById("row-3-extensions");  // 3 devices
-
-    [row1, row2, row3].forEach(c => c && (c.innerHTML = ""));
-
-    const teamPkgs = (window.packages || []).filter(p => p.category !== "Wireless Setups");
-
-    teamPkgs.forEach((pkg, i) => {
-      const card = createPackageCard(pkg, i);
-      const total = (pkg.devices || []).reduce((s, d) => s + (Number(d.number) || 0), 0);
-
-      if (total === 1 && row1) row1.appendChild(card);
-      else if (total === 2 && row2) row2.appendChild(card);
-      else if (total === 3 && row3) row3.appendChild(card);
-      else console.warn(`Package "${pkg.name}" has ${total} devices — no matching row.`);
+  const btn = card.querySelector(".select-package-btn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      if (typeof window.selectPackage === "function") {
+        window.selectPackage(pkg);
+      } else {
+        window.dispatchEvent(new CustomEvent("package:selected", { detail: pkg }));
+      }
     });
   }
+
+  return card;
+}
+
+
+function renderPackageCards() {
+  // Prefer data attribute → plural ID → legacy singular ID
+  const row1 = document.querySelector('[data-packages-row="1"]')
+            || document.getElementById('row-1-extensions')
+            || document.getElementById('row-1-extension');
+
+  const row2 = document.querySelector('[data-packages-row="2"]')
+            || document.getElementById('row-2-extensions');
+
+  const row3 = document.querySelector('[data-packages-row="3"]')
+            || document.getElementById('row-3-extensions');
+
+  [row1, row2, row3].forEach(c => c && (c.innerHTML = ""));
+
+  const teamPkgs = (window.packages || []).filter(p => p.category !== "Wireless Setups");
+
+  teamPkgs.forEach((pkg, i) => {
+    const card = createPackageCard(pkg, i);
+    const total = (pkg.devices || []).reduce((s, d) => s + (Number(d.number) || 0), 0);
+
+    if (total === 1 && row1) row1.appendChild(card);
+    else if (total === 2 && row2) row2.appendChild(card);
+    else if (total === 3 && row3) row3.appendChild(card);
+    else console.warn(`Package "${pkg.name}" has ${total} devices — no matching row.`);
+  });
+}
+
 
   function renderWirelessSection() {
     const wrap = document.getElementById("wireless-cards");

@@ -1,626 +1,296 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Professional Number (App) | VoIP Shop</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Get a professional business number on your mobile — no full phone system required. One app per user, pay VoIP rates.">
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-  <!-- Tailwind config (safelist for injected nav/classes) -->
-  <script>
-    window.tailwind = window.tailwind || {};
-    window.tailwind.config = {
-      safelist: [
-        'hidden','block','md:hidden','md:flex','overflow-hidden',
-        'sticky','top-0','z-50','backdrop-blur',
-        'border-b','border-gray-200',
-        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-        'flex','items-center','justify-between','gap-6',
-        'text-sm','font-medium','text-gray-700','hover:text-black',
-        'space-y-2','text-base'
-      ]
-    };
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  gtag('config', 'AW-17526288798');
+</script>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>VoIP Shop — App Only</title>
 
-  <style>
-    :root{
-      --blue:#0071E3;
-      --border:#e6e6eb;
-      --card-r:18px;
-      --vb3-blue:#0a84ff; --vb3-blue-2:#66a6ff; --vb3-text:#111; --vb3-muted:#515154; --vb3-border:#e5e5ea; --vb3-bg:#fff;
-      --hero-grad-start:#f3f6ff;
-      --hero-grad-end:#f5f5f7;
-    }
-    html, body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background:#f5f5f7; color:#111;
-    }
-    @media (prefers-reduced-motion:no-preference){ html { scroll-behavior:smooth; } }
-
-    /* Cards & buttons */
-    .card { background:#fff; border:1px solid var(--border); border-radius:var(--card-r); box-shadow:0 2px 10px rgba(0,0,0,.05); }
-    .card-hover { transition:transform .2s ease, box-shadow .2s ease; }
-    .card-hover:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
-
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.75rem 1rem; border-radius:12px; }
-    .btn-primary { background:#111; color:#fff; }
-    .btn-blue { background:var(--blue); color:#fff; }
-    .btn-blue:hover { background:#0066CC; }
-    .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
-
-    .kicker { letter-spacing:.08em; text-transform:uppercase; font-size:.8rem; color:#6b7280; }
-    .pill { border-radius:999px; background:#f8f8fb; border:1px solid var(--border); }
-    .chip { padding:.35rem .6rem; border-radius:999px; font-size:.8rem; color:#374151; background:#fff; border:1px solid var(--border); }
-
-    /* Tabs */
-    .tab-btn { position: relative; z-index: 1; color:#374151; }
-    [role="tab"][aria-selected="true"] { color:#fff; }
-    #segmented .segmented-fade { position:absolute; top:0; width:24px; height:100%; pointer-events:none; opacity:0; transition:opacity .18s ease; }
-    #segmented .segmented-fade.left  { left:0;  background:linear-gradient(to right, rgba(243,244,246,1), rgba(243,244,246,0)); }
-    #segmented .segmented-fade.right { right:0; background:linear-gradient(to left,  rgba(243,244,246,1), rgba(243,244,246,0)); }
-    #seg-pill{ box-shadow:0 6px 16px rgba(0,113,227,.25); }
-
-    .reveal, .reveal.is-visible { opacity: 1; transform: none; transition: none; }
-
-    /* Stepper */
-    .stepper { display:inline-flex; border:1px solid var(--border); border-radius:12px; background:#fff; }
-    .stepper input{ width:68px; text-align:center; padding:.5rem .25rem; border:0; outline:0; }
-    .stepper button{ width:44px; border:0; background:#f3f4f6; border-left:1px solid var(--border); font-weight:700; font-size:1.05rem; }
-    .stepper button:first-child{ border-left:0; border-right:1px solid var(--border); border-radius:12px 0 0 12px; }
-    .stepper button:last-child{ border-radius:0 12px 12px 0; }
-    .stepper button:active{ background:#e5e7eb; }
-    .stepper button:focus-visible{ outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
-
-    /* Hero */
-    .hero-wrap{ background: linear-gradient(180deg, var(--hero-grad-start), var(--hero-grad-end)); }
-    .hero { scroll-margin-top:0 !important; } /* prevent initial offset under nav on this page */
-
-    .hero, #details, #config { content-visibility: auto; contain-intrinsic-size: 800px 1200px; }
-
-    /* ===== Mobile polish (safe to keep at end) ===== */
-
-    /* 0) iOS Safari: avoid content-visibility weirdness on phones */
-    @media (max-width: 640px){
-      .hero, #details, #config { content-visibility: visible; contain-intrinsic-size: auto; }
-    }
-
-    /* 1) Global type + spacing clamps */
-    section.hero h1{
-      font-size: clamp(1.75rem, 6vw, 2.5rem);
-      line-height: 1.15;
-    }
-    @media (max-width: 640px){
-      .kicker{ font-size:.72rem; }
-      .chip{ font-size:.78rem; padding:.3rem .55rem; }
-    }
-
-    /* 2) Cards: lighter padding + tighter gaps on mobile */
-    @media (max-width: 640px){
-      .card{ border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-      /* Feature stripe and panel cards */
-      .card.p-6, .card.p-8, .card.p-10{ padding: 14px !important; }
-      .card .p-6, .card .p-4{ padding: 12px !important; }
-      .grid.gap-6{ gap: 12px !important; }
-      .grid.gap-4{ gap: 10px !important; }
-    }
-
-    /* 3) HERO block vertical padding (less tall on phones) */
-    @media (max-width: 640px){
-      .hero .py-14, .hero .sm\:py-16{
-        padding-top: 18px !important; padding-bottom: 18px !important;
-      }
-      .hero .mt-8{ margin-top: 14px !important; }
-      .hero .mt-6{ margin-top: 10px !important; }
-    }
-
-    /* 4) “Feature stripe” icons + text */
-    @media (max-width: 640px){
-      .card .rounded-xl.p-3{ padding: 8px !important; border-radius: 12px !important; }
-      .card svg.w-6.h-6{ width: 20px; height: 20px; }
-      .card h3{ font-size: 0.98rem; }
-      .card p{ font-size: 0.92rem; }
-    }
-
-    /* 5) Tabs segment control: ensure no vertical bloat + smooth scroll */
-    #segmented{ -webkit-overflow-scrolling: touch; }
-    #segmented .seg-inner{ padding-right: 0.25rem; }
-    @media (max-width: 640px){
-      .tab-btn{ padding: 6px 10px !important; font-size: 0.9rem !important; }
-      #segmented{ padding: 4px !important; }
-      #seg-pill{ top: 3px !important; height: calc(100% - 6px) !important; }
-      .seg-dots{ margin: 6px 0 10px !important; }
-      .seg-dots .dot{ width: 6px; height: 6px; border-radius: 999px; background:#d1d5db; }
-      .seg-dots .dot.is-active{ background: var(--blue); }
-    }
-
-    /* 6) Support & SLA panel table: tighter cells + wrap */
-    #panel-support table{ table-layout: fixed; width: 100%; }
-    #panel-support td{ white-space: normal; word-break: break-word; }
-    @media (max-width: 640px){
-      #panel-support td{ padding: 8px 10px !important; font-size: 0.9rem; }
-    }
-
-    /* 7) Fees & Billing and Features grids: stack comfortably */
-    @media (max-width: 640px){
-      #panel-fees .card h4,
-      #panel-features .card h4{ font-size: 0.98rem; margin-bottom: 0.35rem; }
-      #panel-fees .card ul li,
-      #panel-features .card ul li{ font-size: 0.92rem; }
-    }
-
-    /* 8) Right sidebar (At a glance): compact */
-    @media (max-width: 640px){
-      aside.card.p-6{ padding: 14px !important; }
-      aside.card .text-xl{ font-size: 1.05rem !important; }
-      aside.card .space-y-2 > * + *{ margin-top: 6px !important; }
-    }
-
-    /* 9) Configurator card: smaller paddings + controls fit */
-    @media (max-width: 640px){
-      #config .card{ padding: 14px !important; }
-      #config .mt-4{ margin-top: 10px !important; }
-      #config .mt-6{ margin-top: 12px !important; }
-      #config h2{ font-size: 1.25rem; }
-      #config p{ font-size: 0.95rem; }
-    }
-
-    /* 10) Stepper: phone-friendly size */
-    @media (max-width: 640px){
-      .stepper input{ width: 56px; padding: .45rem .25rem; font-size: .95rem; }
-      .stepper button{ width: 40px; font-size: 1rem; }
-    }
-
-    /* 11) Buttons: ensure minimum tap height */
-    @media (max-width: 640px){
-      .btn{ min-height: 44px; padding: .65rem 1rem; }
-    }
-
-    /* 12) Safe area: keep WhatsApp floater from overlapping actions */
-    @media (max-width: 640px){
-      body{ padding-bottom: max(70px, env(safe-area-inset-bottom)); }
-    }
-
-    /* === NEW: Overview panel guaranteed to fit on mobile === */
-    #panel-overview .grid{
-      display:grid;
-      grid-template-columns: 1fr;            /* default phones: single column */
-      gap: 10px;
-    }
-    @media (min-width:400px) and (max-width:639.98px){
-      #panel-overview .grid{                 /* wider phones: two columns */
-        grid-template-columns: repeat(2, minmax(0,1fr));
-        gap:12px;
-      }
-    }
-    @media (min-width:640px){                /* sm and up: three columns */
-      #panel-overview .grid{
-        grid-template-columns: repeat(3, minmax(0,1fr));
-        gap:16px;
-      }
-    }
-    #panel-overview .card{ min-width:0; padding:12px; }
-    #panel-overview h4{ font-size:.98rem; line-height:1.25rem; margin-bottom:.25rem; }
-    #panel-overview p{
-      font-size:.92rem; line-height:1.35rem; color:#374151;
-      overflow-wrap:anywhere; word-break:break-word;
-    }
-    @media (max-width:380px){
-      #panel-overview .card{ padding:10px; }
-      #panel-overview h4{ font-size:.95rem; }
-      #panel-overview p{ font-size:.9rem; }
-    }
-  </style>
-  <style>
-/* ==== MOBILE FIXES FOR THE TABBED "OVERVIEW / SUPPORT / SLA" STRIP ==== */
-@media (max-width: 640px){
-  /* 1) Let the tabs wrap instead of forcing a single scroll row */
-  #service-tabs #segmented{
-    overflow: visible !important;      /* no horizontal scroll on phones */
-    padding: 6px !important;
-  }
-  #service-tabs #segmented .seg-inner{
-    display: flex;
-    flex-wrap: wrap;                    /* <-- wrap onto multiple lines */
-    gap: 6px !important;
-    min-width: 0 !important;            /* override min-w-max effect */
-    padding-right: 0 !important;
-  }
-
-  /* 2) Compact tab buttons + clear selected state (since pill is hidden) */
-  #service-tabs .tab-btn{
-    flex: 1 1 calc(50% - 6px);          /* two per row on small phones */
-    text-align: center;
-    padding: 8px 10px !important;
-    font-size: 0.95rem !important;
-    border: 1px solid var(--border);
-    background: #fff;
-  }
-  #service-tabs .tab-btn[aria-selected="true"]{
-    background: var(--blue);
-    color:#fff;
-    border-color: var(--blue);
-  }
-
-  /* 3) Hide the sliding pill on mobile (only useful in one-line mode) */
-  #seg-pill{ display: none !important; }
-  #segmented .segmented-fade{ display:none !important; } /* no fades needed */
-
-  /* 4) Make all panels single-column + comfy spacing */
-  #panel-overview .grid,
-  #panel-pbx .grid{
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-  }
-  #panel-fees .grid{
-    grid-template-columns: 1fr !important; /* Monthly / Once-off stack */
-    gap: 10px !important;
-  }
-  .card.p-10, .card.p-8, .card.p-6{ padding: 14px !important; }
-  .grid.gap-6{ gap: 12px !important; }
-
-  /* 5) Tables: guarantee no overflow */
-  #panel-support table{
-    table-layout: fixed;
-    width: 100%;
-    display: block;          /* allow horizontal scroll if truly needed */
-    overflow-x: auto;
-  }
-  #panel-support td, #panel-support th{
-    white-space: normal;
-    word-break: break-word;
-    padding: 8px 10px !important;
-    font-size: 0.92rem !important;
-  }
-
-  /* 6) Extra safety: prevent any accidental horizontal wideners */
-  html, body{ overflow-x: hidden; }
-}
-</style>
+<!-- Tailwind (standalone include) -->
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-/* ===== XS phones polish + overflow guards =====
-   Apply on both BYO + App pages (IDs/classes are shared)
------------------------------------------------------ */
-
-/* 1) Extra-small phones: stack tabs 1-per-row, bigger tap targets */
-@media (max-width: 360px){
-  #service-tabs #segmented{
-    overflow: visible !important;
-    padding: 6px !important;
+  /* ===== Design tokens (Apple-ish) ===== */
+  :root{
+    --ink:#0B0B0F; --muted:#6B7280; --paper:#FFFFFF; --panel:#FFFFFF;
+    --apple-blue:#0071E3; --border:#E6E6EB;
+    --apple-grey:#F5F5F7;
   }
-  #service-tabs #segmented .seg-inner{
-    display:flex; flex-wrap:wrap; gap:6px !important;
-    min-width:0 !important; padding-right:0 !important;
-  }
-  #service-tabs .tab-btn{
-    flex: 1 1 100%;             /* 1 per row on very small screens */
-    text-align:center;
-    padding: 10px 12px !important;
-    font-size: 0.95rem !important;
-    border: 1px solid var(--border);
-    background:#fff;
-  }
-  #service-tabs .tab-btn[aria-selected="true"]{
-    background: var(--blue); color:#fff; border-color: var(--blue);
-  }
-  #seg-pill,
-  #segmented .segmented-fade{ display:none !important; } /* hide pill/fades */
-}
 
-/* 2) XS: compress grids/paddings a touch more */
-@media (max-width: 360px){
-  /* Panel grids -> single column */
-  #panel-overview .grid,
-  #panel-fees .grid,
-  #panel-pbx .grid,
-  #panel-features .grid{
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
+  html,body{ background:var(--paper); color:var(--ink); }
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",Segoe UI,Roboto,Helvetica,Arial,sans-serif;
   }
-  /* Card padding a bit tighter */
-  .card.p-10, .card.p-8, .card.p-6{ padding: 12px !important; }
-  .card .p-6, .card .p-4{ padding: 10px !important; }
-  /* Stepper & buttons comfortable */
-  .stepper input{ width: 52px; font-size: .95rem; }
-  .stepper button{ width: 38px; font-size: 1rem; }
-  .btn{ min-height: 44px; padding: .6rem .9rem; }
-}
 
-/* 3) Smooth overflow guards (global, gentle) */
-:root{
-  /* Prevent wide content from causing horizontal scroll */
-  --overflow-fix: hidden;
-}
-html, body{
-  overflow-x: var(--overflow-fix);          /* clip unexpected wideners */
-}
-img, svg, video, canvas, iframe{
-  max-width: 100%;
-  height: auto;
-}
-table{
-  width: 100%;
-  border-collapse: collapse;
-}
-#panel-support table{
-  table-layout: fixed;
-  display: block;           /* enables horizontal scrolling only if needed */
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-#panel-support th, #panel-support td{
-  white-space: normal;
-  word-break: break-word;
-}
+  /* ===== Pamphlet header ===== */
+  .app-hero{
+    position:relative; overflow:clip; background:linear-gradient(#fff,#fff);
+    box-shadow:0 1px 0 rgba(0,0,0,.05), 0 20px 60px rgba(0,0,0,.06);
+  }
+  .app-hero .grid-wrap{ max-width:1200px; margin-inline:auto; }
+  .corner-notch::after{
+    content:""; position:absolute; right:0; top:0; width:120px; height:120px;
+    background:
+      radial-gradient(circle at 100% 0, rgba(0,0,0,.06) 0 2px, transparent 2px) top left/12px 12px repeat,
+      linear-gradient(135deg, rgba(0,0,0,.04), transparent 60%);
+    mask:radial-gradient(120px 120px at 100% 0, #000 98%, transparent 100%);
+    opacity:.35; pointer-events:none;
+  }
 
-/* 4) Long strings: never break layout */
-h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
+  /* Right visual — glow removed */
+  .device-visual{ position:relative; display:inline-block; isolation:isolate; }
+  .device-visual::before{ content:none; }
+  .device-visual img{ display:block; height:auto; filter:drop-shadow(0 12px 28px rgba(0,0,0,.08)); }
 
-/* 5) Safety on containers with padding utilities */
-.max-w-screen-xl, .container{
-  min-width: 0;       /* allow children to shrink inside */
-}
+  /* Small UI atoms */
+  .pill{
+    display:inline-flex; align-items:center; gap:.45rem; padding:.35rem .65rem; border-radius:999px;
+    font-weight:600; font-size:.72rem; letter-spacing:.02em; color:#0A63CF;
+    background:#E9F2FE; border:1px solid rgba(10,99,207,.15);
+  }
+  .store-badges a{
+    display:inline-flex; align-items:center; gap:.5rem; border:1px solid rgba(0,0,0,.10);
+    background:#fff; border-radius:999px; padding:.55rem .9rem; box-shadow:0 2px 6px rgba(0,0,0,.06);
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .store-badges a:hover{
+    transform:translateY(-1px); box-shadow:0 8px 24px rgba(0,0,0,.10);
+    border-color:rgba(0,0,0,.16);
+  }
+  .store-badges img{ height:22px; width:auto; display:block; }
+
+  .qr-chip{
+    display:flex; align-items:center; gap:.9rem; background:#fff; border:1px solid rgba(0,0,0,.08);
+    border-radius:16px; padding:.6rem .8rem; box-shadow:0 6px 20px rgba(0,0,0,.06);
+  }
+  .qr-chip img{ width:56px; height:56px; border-radius:8px; border:1px solid rgba(0,0,0,.08); }
+
+  .display-hero{ line-height:1.03; letter-spacing:-.02em; }
+  @media (min-width:1024px){
+    .display-hero{ font-size:clamp(2.4rem, 2.1rem + 1.4vw, 3.6rem); }
+  }
+
+  /* ===== Section system ===== */
+  .band{ max-width:1200px; margin:0 auto; padding:40px 20px; }
+  .soft{ background:#fff; border:1px solid var(--border); border-radius:16px; padding:22px; }
+
+  /* Config stepper */
+  .stepper{ display:inline-flex; align-items:center; border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .stepper input{ width:68px; text-align:center; padding:.5rem .25rem; border:0; outline:0; }
+  .stepper button{ width:44px; border:0; background:#F3F4F6; font-weight:700; font-size:1.05rem; }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+    padding:.75rem 1rem; border-radius:12px; background:var(--apple-blue); color:#fff; font-weight:600;
+  }
+  .btn:hover{ background:#0066CC; }
+
+  /* Microcopy */
+  .microcopy{ font-size:.78rem; line-height:1.35; color:var(--muted); }
+  .microcopy b{ color:#1F2937; }
+
+  /* Step 1+2 card in Apple grey */
+  #config-card .soft{
+    background: var(--apple-grey);
+    border-color: #Efffff;
+  }
+
+  /* >>> HERO HEIGHT & SPACING */
+  :root{
+    --hero-py-mobile: 18px;
+    --hero-py-tablet: 22px;
+    --hero-py-desktop: 28px;
+  }
+  .app-hero .grid-wrap{
+    padding-block: var(--hero-py-mobile);
+    padding-inline: 1.25rem;
+  }
+  @media (min-width:640px){
+    .app-hero .grid-wrap{ padding-block: var(--hero-py-tablet); padding-inline: 2rem; }
+  }
+  @media (min-width:1024px){
+    .app-hero .grid-wrap{ padding-block: var(--hero-py-desktop); }
+  }
+  #config-card.band{ padding-top: 28px; }
+
+  /* Trim hero content spacing */
+  .display-hero{ margin-bottom: .35rem; }
+  .app-hero .text-\[15px\], .app-hero .text-base{ margin-bottom:.6rem !important; }
+
+  /* >>> MOBILE POLISH */
+  @media (max-width:480px){
+    .display-hero{ font-size: clamp(1.7rem, 6vw, 2.1rem); }
+    .app-hero .grid{ row-gap: .75rem !important; }
+    .store-badges img{ height:20px; }
+    .qr-chip{ gap:.7rem; padding:.5rem .7rem; }
+    .qr-chip img{ width:48px; height:48px; }
+    .stepper button{ width:48px; height:44px; }
+    .stepper input{ height:44px; font-size:1rem; }
+    .band .rounded-full.text-xl{ font-size:1rem; padding:.6rem .9rem; }
+    a[aria-label="Chat to VoIP Shop on WhatsApp"]{ right:12px; bottom:12px; padding:8px 10px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .store-badges a{ transition:none; }
+  }
+
+  /* Desktop tweaks */
+  @media (min-width:1024px){
+    .device-visual img{ transform:translateY(-4px); }
+  }
+
+  /* Headline rhythm: soften second line */
+  .display-hero .font-normal{ color:#374151; }
+
+  /* Tighten spacing under KPI row */
+  .app-hero .text-\[14\.5px\].mb-6{ margin-bottom:.75rem !important; }
+
+  /* QR + badges block: pull up slightly */
+  .app-hero .flex.flex-col.sm\:flex-row.gap-4{ margin-top:-.15rem; }
+
+  /* WhatsApp floater nudge */
+  @media (max-width:640px){
+    a[aria-label="Chat to VoIP Shop on WhatsApp"]{ bottom:14px; right:12px; }
+  }
 </style>
-
 
 </head>
-<body class="antialiased">
-  <!-- Skip to content -->
-  <a href="#details" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-black text-white rounded px-3 py-2">Skip to content</a>
+<body>
 
-  <!-- Navbar (injected) -->
-  <div id="nav-slot"></div>
-  <script src="./scripts/site.js" defer></script>
-  <!-- Page-specific JS -->
-  <script src="./scripts/mobile-app.js" defer></script>
+<!-- Optional global nav slot -->
+<div id="nav-slot"></div>
+<script src="./scripts/site.js" defer></script>
+<script src="./scripts/mobile-app.js" defer></script>
 
-  <!-- HERO (centered, no image, no accent line) -->
-  <section class="hero hero-wrap">
-    <div class="max-w-screen-xl mx-auto px-6 lg:px-16 py-14 sm:py-16">
-      <div class="max-w-3xl mx-auto text-center">
-        <p class="kicker">Professional Number — App</p>
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">
-          Get a professional number on your mobile.
-        </h1>
-        <p class="mt-4 text-gray-600 text-lg">
-          No full phone system required. One app per user. Pay VoIP rates.
-        </p>
 
-        <div class="mt-6 flex items-center justify-center gap-3 flex-wrap">
-          <span class="chip">For new or existing businesses</span>
-          <span class="chip">Keep personal number private</span>
-          <span class="chip">WhatsApp-first support</span>
+<!-- ===== HEADER / INTRO ===== -->
+<header class="app-hero corner-notch">
+  <div class="grid-wrap grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 px-5 sm:px-8 py-12 sm:py-16">
+    <!-- Left copy -->
+    <div class="lg:col-span-6 flex flex-col justify-center">
+      <div class="flex items-center gap-2 mb-4">
+        <span class="pill">App Only</span>
+        <span class="text-xs text-gray-500">iOS &amp; Android</span>
+      </div>
+
+      <h1 class="display-hero font-semibold text-gray-900 mb-4">
+        Download <span class="font-extrabold">the App</span><br/>
+        <span class="sr-only">VoIP Shop</span><span class="font-normal">Call like a pro.</span>
+      </h1>
+
+      <p class="text-[15px] sm:text-base text-gray-600 max-w-prose mb-5">
+        Start calling in minutes. Register inside the app and get our best rates —
+        <b>35c</b> local and <b>55c</b> mobile — all for only <b>R65/month</b>. Keep things professional with your own
+        <b>business number</b> that customers recognise.
+      </p>
+
+      <div class="flex flex-wrap items-center gap-3 mb-6 text-[14.5px] text-gray-600">
+        <span>Local: <b class="text-gray-900">35c/min</b></span>
+        <span>Mobile: <b class="text-gray-900">55c/min</b></span>
+        <span>Subscription: <b class="text-gray-900">R65</b></span>
+        <span class="text-gray-400">T&amp;Cs apply</span>
+      </div>
+
+      <!-- QR + store badges -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+        <div class="qr-chip">
+          <img src="Assets/frame.png" alt="Scan to download the app">
+          <div>
+            <div class="text-sm font-semibold text-gray-900">Scan to download</div>
+            <div class="text-xs text-gray-500">Instant install on your phone</div>
+          </div>
         </div>
-
-        <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
-          <a href="#config" class="btn btn-blue font-semibold tracking-tight shadow-sm">Get started</a>
-          <a href="#details" class="btn btn-primary font-semibold tracking-tight">See details</a>
+        <div class="store-badges flex items-center gap-3">
+          <a href="https://apps.apple.com/" aria-label="Download on the App Store">
+            <img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="App Store">
+          </a>
+          <a href="https://play.google.com/store" aria-label="Get it on Google Play">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play">
+          </a>
         </div>
+      </div>
+
+      <div class="mt-5 text-xs text-gray-500">Keep your personal number private. Present a <b>professional business number</b> on every call.</div>
+    </div>
+
+    <!-- Right visual (no glow) -->
+    <div class="lg:col-span-6 flex items-center justify-center">
+      <div class="device-visual">
+        <img src="Assets/mobilephone.png" alt="App mockup"
+             class="w-[84%] sm:w-[78%] lg:w-[86%] xl:w-[80%] max-w-[620px]" loading="eager" decoding="async"/>
       </div>
     </div>
-  </section>
+  </div>
+</header>
 
-  <!-- FEATURE STRIPE (with icons) -->
-  <section class="max-w-screen-xl mx-auto px-6 lg:px-16 mt-6 mb-12">
-    <div class="grid gap-6 md:grid-cols-3">
-      <!-- What you get -->
-      <div class="card card-hover p-6">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="rounded-xl bg-[#E5F0FF] p-3">
-            <!-- phone-plus icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#2563EB]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6.75h3m0 0v3m0-3-3 0M8.25 3.75h7.5a2.5 2.5 0 0 1 2.5 2.5v11.5a2.5 2.5 0 0 1-2.5 2.5h-7.5a2.5 2.5 0 0 1-2.5-2.5V6.25a2.5 2.5 0 0 1 2.5-2.5z"/>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-900">What you get</h3>
-        </div>
-        <p class="text-gray-700">A professional geographic number and our mobile app so your business can call & receive calls anywhere.</p>
-      </div>
-
-      <!-- How it works -->
-      <div class="card card-hover p-6">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="rounded-xl bg-[#E5FFFA] p-3">
-            <!-- cog/bolt icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#0E5B52]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6.75 9.75 4.5m4.5 0-.75 2.25M4.5 13.5l2.25.75m12.75-3L17.25 12M6.75 19.5l.75-2.25m9 2.25-.75-2.25M9.75 12a2.25 2.25 0 1 0 4.5 0 2.25 2.25 0 0 0-4.5 0Z"/>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-900">How it works</h3>
-        </div>
-        <p class="text-gray-700">Choose how many apps (users) you need. We assign your number, send app login, and you’re live in minutes.</p>
-      </div>
-
-      <!-- When to use -->
-      <div class="card card-hover p-6">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="rounded-xl bg-[#FFF7E6] p-3">
-            <!-- rocket icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#D97706]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 19l4-1 6-6a5 5 0 1 0-7-7L2 8l1 4m2 7 3-3"/>
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-900">When to use</h3>
-        </div>
-        <p class="text-gray-700">Perfect for startups and small teams that want a professional number without desk phones.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- DETAILS BAND -->
-  <section id="details" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-14">
-    <div class="grid gap-6 lg:grid-cols-3">
-      <!-- LEFT: Tabs -->
-      <div class="card p-6 lg:col-span-2">
-        <div class="mb-4" id="service-tabs">
-          <div id="segmented" class="relative rounded-2xl bg-gray-100 p-1 overflow-x-auto" role="tablist" aria-label="Service summary tabs" tabindex="0">
-            <span class="segmented-fade left"></span>
-            <span class="segmented-fade right"></span>
-            <div class="seg-inner relative flex gap-1 min-w-max pr-2">
-              <span id="seg-pill" class="absolute rounded-xl bg-[var(--blue)] transition-all duration-200 ease-out" style="top:4px;height:calc(100% - 8px);"></span>
-
-              <button id="tab-overview" type="button" role="tab" aria-selected="true"  aria-controls="panel-overview" data-tab="overview" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Overview</button>
-              <button id="tab-support"  type="button" role="tab" aria-selected="false" aria-controls="panel-support"  data-tab="support"  class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Support & SLA</button>
-              <button id="tab-fees"     type="button" role="tab" aria-selected="false" aria-controls="panel-fees"     data-tab="fees"     class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Fees & Billing</button>
-              <button id="tab-features" type="button" role="tab" aria-selected="false" aria-controls="panel-features" data-tab="features" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">App Features</button>
-              <button id="tab-legal"    type="button" role="tab" aria-selected="false" aria-controls="panel-legal"    data-tab="legal"    class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Legal</button>
-            </div>
-          </div>
-
-          <div class="seg-dots mt-2 mb-4 flex justify-center gap-1.5">
-            <button type="button" data-tab="overview" class="dot is-active" aria-label="Overview"></button>
-            <button type="button" data-tab="support"  class="dot" aria-label="Support & SLA"></button>
-            <button type="button" data-tab="fees"     class="dot" aria-label="Fees & Billing"></button>
-            <button type="button" data-tab="features" class="dot" aria-label="App Features"></button>
-            <button type="button" data-tab="legal"    class="dot" aria-label="Legal"></button>
-          </div>
-        </div>
-
-        <!-- PANELS -->
-        <div class="text-sm leading-6 text-gray-800">
-          <div id="panel-overview" role="tabpanel" aria-labelledby="tab-overview" tabindex="0">
-            <div class="grid gap-4 sm:grid-cols-3">
-              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Professional number</h4><p>Choose a geographic number to represent your business.</p></div>
-              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">App for each user</h4><p>Install on iOS or Android. Make & receive calls anywhere.</p></div>
-              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Simple billing</h4><p>One app per user. Calls billed per published rates.</p></div>
-            </div>
-          </div>
-
-          <div id="panel-support" role="tabpanel" aria-labelledby="tab-support" tabindex="0" class="hidden">
-            <div class="card p-4">
-              <div class="flex flex-wrap items-center gap-3 text-gray-700">
-                <span class="pill px-3 py-1 text-xs">Hours: 08:00–17:00 SAST (Mon–Fri)</span>
-                <span class="pill px-3 py-1 text-xs">Channel: WhatsApp service desk</span>
-                <span class="pill px-3 py-1 text-xs">Onsite by appointment</span>
-              </div>
-              <div class="mt-4 overflow-hidden rounded-xl border border-gray-200">
-                <table class="w-full text-sm">
-                  <tbody>
-                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Critical</td><td class="px-4 py-3">Service down / major outage</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 30 min</td></tr>
-                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">High</td><td class="px-4 py-3">Multiple users impacted</td><td class="px-4 py-3 text-right font-semibold">Response ≤ 2 hrs</td></tr>
-                  <tr class="divide-x divide-gray-200"><td class="bg-gray-50 px-4 py-3 font-medium text-gray-700">Normal</td><td class="px-4 py-3">Single user / request</td><td class="px-4 py-3 text-right font-semibold">Next business day</td></tr>
-                  </tbody>
-                </table>
-              </div>
-              <p class="mt-3 text-gray-600">Remote support within hours is unlimited.</p>
-            </div>
-          </div>
-
-          <div id="panel-fees" role="tabpanel" aria-labelledby="tab-fees" tabindex="0" class="hidden">
-            <div class="grid gap-4 sm:grid-cols-2">
-              <div class="card p-4">
-                <h4 class="font-semibold text-gray-900 mb-1">Monthly</h4>
-                <ul class="space-y-1">
-                  <li>• App license: <strong>R 65</strong> / app / month</li>
-                  <li>• Number rental: <strong>R 25</strong> / month (added in Step 2)</li>
-                  <li class="text-gray-600">Calls billed per published rates.</li>
-                </ul>
-              </div>
-              <div class="card p-4">
-                <h4 class="font-semibold text-gray-900 mb-1">Once-off</h4>
-                <ul class="space-y-1">
-                  <li>• Setup & activation: <strong>Free</strong></li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <div id="panel-features" role="tabpanel" aria-labelledby="tab-features" tabindex="0" class="hidden">
-            <div class="grid gap-4 sm:grid-cols-3">
-              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Calling</h4><ul class="text-sm text-gray-700 space-y-1"><li>• Inbound & outbound</li><li>• Caller ID</li><li>• Voicemail to email</li></ul></div>
-              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">App</h4><ul class="text-sm text-gray-700 space-y-1"><li>• iOS & Android</li><li>• Push notifications</li><li>• Contacts & history</li></ul></div>
-              <div class="card p-4"><h4 class="font-semibold text-gray-900 mb-1">Admin</h4><ul class="text-sm text-gray-700 space-y-1"><li>• Online portal</li><li>• Usage reports</li><li>• Number management</li></ul></div>
-            </div>
-          </div>
-
-          <div id="panel-legal" role="tabpanel" aria-labelledby="tab-legal" tabindex="0" class="hidden">
-            <div class="card p-4">
-              <h4 class="font-semibold text-gray-900 mb-1">Service Agreement</h4>
-              <p class="text-gray-700">App-only service with a new geographic number. Fair use applies. Call recording & storage subject to compliance.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RIGHT: Quick Summary -->
-      <aside class="card p-6">
-        <p class="kicker">At a glance</p>
-        <h3 class="text-xl font-semibold tracking-tight">A real business number on your phone.</h3>
-
-        <ul class="mt-4 space-y-2 text-sm text-gray-700">
-          <li class="pill px-3 py-1 inline-flex">Choose your geographic code</li>
-          <li class="pill px-3 py-1 inline-flex">1 app per user</li>
-          <li class="pill px-3 py-1 inline-flex">WhatsApp-first support</li>
-        </ul>
-
-        <div class="mt-6 space-y-2 text-sm">
-          <div class="flex items-center justify-between"><span>Per app (monthly)</span><strong>R 65</strong></div>
-          <div class="flex items-center justify-between"><span>Number (monthly)</span><strong>+ R 25</strong> <span class="text-gray-500 text-xs ml-1">(in Step 2)</span></div>
-          <div class="flex items-center justify-between"><span>Setup</span><strong>Free</strong></div>
-        </div>
-
-        <a href="#config" class="mt-6 btn btn-blue w-full font-semibold tracking-tight">Start configuration</a>
-      </aside>
-    </div>
-  </section>
-
-  <!-- CONFIGURATOR -->
-  <section id="config" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-16">
-    <div class="card p-8 sm:p-10 text-center">
+<!-- ===== CONFIG CARD (Step 1 + Step 2 unified) ===== -->
+<section id="config-card" class="band">
+  <div class="soft">
+    <!-- Step 1 -->
+    <div class="text-center">
       <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
       <h2 class="mt-2 text-2xl font-semibold tracking-tight">How many apps do you need?</h2>
-      <p class="mt-3 text-gray-600">Select how many apps (users) you need. The number rental is added in Step 2 when you choose your geographic code.</p>
-
-      <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
-        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">App Included</div>
-        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">New Geographic Number (Step 2)</div>
-      </div>
-
-      <div class="mt-6 flex flex-col items-center">
-        <div class="inline-flex items-center gap-2">
-          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Apps</span>
-          <div class="stepper" role="group" aria-label="Choose number of apps">
-            <button type="button" id="app-dec" aria-label="Decrease">–</button>
-            <input id="pn-apps" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
-            <button type="button" id="app-inc" aria-label="Increase">+</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <div class="inline-flex items-baseline gap-2 pill px-4 py-3">
-          <span class="text-[11px] uppercase tracking-widest text-gray-500">once-off</span>
-          <span id="pn-total-onceoff" class="text-xl font-semibold text-gray-900">R 0</span>
-        </div>
-        <div class="inline-flex items-baseline gap-2 pill px-4 py-3">
-          <span class="text-[11px] uppercase tracking-widest text-gray-500">monthly (now)</span>
-          <span id="pn-total-monthly" class="text-xl font-semibold text-gray-900">R 65</span>
-        </div>
-      </div>
-
-      <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
-        <a id="pn-choose-number-btn" href="porting.html"
-           class="inline-flex items-center gap-3 rounded-xl bg-[var(--blue)] px-6 py-3 text-white font-semibold tracking-tight shadow-sm transition-colors duration-200 hover:bg-[#0066CC] focus:outline-none focus:ring-2 focus:ring-[var(--blue)]/30">
-          <span>Choose geographic number</span>
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <a href="build-solution.html" target="_blank" class="btn btn-primary">Browse hardware (optional)</a>
-      </div>
-
-      <p class="mt-3 text-xs text-gray-500">Number rental (+R25) is added in Step 2.</p>
+      <p class="mt-3 text-gray-600">Select how many apps (users) you need.</p>
     </div>
-  </section>
 
-  <footer class="text-center text-xs text-gray-500 py-8">
-    <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>
-  </footer>
+    <div class="mt-6 flex items-center justify-center gap-2">
+      <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Apps</span>
+      <div class="stepper" role="group" aria-label="Choose number of apps">
+        <button type="button" id="app-dec" aria-label="Decrease">–</button>
+        <input id="pn-apps" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
+        <button type="button" id="app-inc" aria-label="Increase">+</button>
+      </div>
+    </div>
 
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+        <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">monthly</span>
+        <span id="pn-total-monthly">R 65</span>
+      </span>
+      <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+        <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">once-off</span>
+        <span id="pn-total-onceoff">R 0</span>
+      </span>
+    </div>
 
+    <!-- Divider -->
+    <hr class="my-8 border-gray-200" />
+
+    <!-- Step 2 -->
+    <div class="text-center">
+      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
+      <h2 class="mt-2 text-2xl font-semibold tracking-tight">Choose your geographic number</h2>
+      <p class="mt-1 text-gray-600">Pick a local code to present a professional business identity.</p>
+    </div>
+
+    <div class="mt-4 flex justify-center">
+      <a id="pn-choose-number-btn" href="porting.html" class="btn">
+        <span>Choose geographic number</span>
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Compact Apple-style microcopy -->
+    <div class="mt-6 microcopy text-center">
+      <p><b>Pricing:</b> R65/app/month · +R25/month number rental · Calls: 35c/min local, 55c/min mobile.</p>
+      <p class="mt-1"><b>Support:</b> WhatsApp desk Mon–Fri 08:00–17:00. Critical ≤ 30 min · High ≤ 2 hrs · Normal next day.</p>
+      <p class="mt-1"><b>Notes:</b> App for iOS & Android. Online portal for usage & numbers. Fair use applies.</p>
+    </div>
+  </div>
+</section>
+
+<footer class="text-center text-xs text-gray-500 py-8">
+  <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>
+</footer>
 
   <!-- WhatsApp floater (kept) -->
   <a href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help" target="_blank" rel="noopener"
@@ -647,9 +317,25 @@ h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
     <span style="font-size:14px;font-weight:600">Need help?</span>
   </a>
 
-  <script>
-    // Footer year
-    document.getElementById('y').textContent = new Date().getFullYear();
-  </script>
+<script>
+  // Footer year
+  document.getElementById('y').textContent = new Date().getFullYear();
+
+  // Simple stepper
+  const input = document.getElementById('pn-apps'),
+        dec = document.getElementById('app-dec'),
+        inc = document.getElementById('app-inc'),
+        m = document.getElementById('pn-total-monthly'),
+        o = document.getElementById('pn-total-onceoff');
+  function sync(n){
+    const apps = Math.max(1, n|0);
+    input.value = apps;
+    m.textContent = 'R ' + (apps * 65);
+    o.textContent = 'R 0';
+  }
+  dec?.addEventListener('click', () => sync((+input.value || 1)-1));
+  inc?.addEventListener('click', () => sync((+input.value || 1)+1));
+  input?.addEventListener('input', () => sync(+input.value||1));
+</script>
 </body>
 </html>

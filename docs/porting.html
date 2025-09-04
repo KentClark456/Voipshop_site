@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta first -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Choose a Virtual Number - VoIP Shop</title>
-  <script>
-  window.tailwind = window.tailwind || {};
-  window.tailwind.config = {
-    safelist: [
-      'hidden','block','md:hidden','md:flex','overflow-hidden',
-      'sticky','top-0','z-50','backdrop-blur',
-      'border-b','border-gray-200',
-      'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-      'flex','items-center','justify-between','gap-6',
-      'text-sm','font-medium','text-gray-700','hover:text-black',
-      'space-y-2','text-base'
-    ]
-  };
-</script>
-<script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17526288798');
+  </script>
+
+  <!-- Tailwind config -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      safelist: [
+        'hidden','block','md:hidden','md:flex','overflow-hidden',
+        'sticky','top-0','z-50','backdrop-blur',
+        'border-b','border-gray-200',
+        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+        'flex','items-center','justify-between','gap-6',
+        'text-sm','font-medium','text-gray-700','hover:text-black',
+        'space-y-2','text-base'
+      ]
+    };
+  </script>
+
+  <!-- Tailwind runtime -->
   <script src="https://cdn.tailwindcss.com"></script>
+</head>
   <style>
     /* Smooth animations */
     .transition-all { transition: all 0.25s ease-in-out; }

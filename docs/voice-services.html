@@ -1,10 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta first -->
   <meta charset="utf-8" />
   <title>Voice-Only Services (BYO Hardware) | VoIP Shop</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Already have phones? Keep your hardware and switch to VoIP Shop. Simple month-to-month voice service, clear support, and easy porting.">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-17526288798');
+  </script>
 
   <!-- Tailwind config (safelist for injected nav/classes) -->
   <script>
@@ -22,339 +32,150 @@
     };
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-  <style>
-    :root{
-      --blue:#0071E3;           /* Apple blue */
-      --border:#e6e6eb;
-      --card-r:18px;
-      --vb3-blue:#0a84ff; --vb3-blue-2:#66a6ff; --vb3-text:#111; --vb3-muted:#515154; --vb3-border:#e5e5ea; --vb3-bg:#fff;
-    }
-    html, body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-      background:#f5f5f7; color:#111;
-    }
-
-    /* Smooth anchors but respect reduced motion */
-    @media (prefers-reduced-motion:no-preference){
-      html { scroll-behavior:smooth; }
-    }
-    /* Clear anchor jumps below any fixed UI */
-    section[id]{ scroll-margin-top: clamp(56px, 10vh, 100px); }
-
-    /* Cards (unified look) */
-    .card { background:#fff; border:1px solid var(--border); border-radius:var(--card-r); box-shadow:0 2px 10px rgba(0,0,0,.05); }
-    .card-hover { transition:transform .2s ease, box-shadow .2s ease; }
-    .card-hover:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.08); }
-
-    /* Buttons */
-    .btn { display:inline-flex; align-items:center; justify-content:center; gap:.5rem; padding:.75rem 1rem; border-radius:12px; }
-    .btn-primary { background:#111; color:#fff; }
-    .btn-blue { background:var(--blue); color:#fff; }
-    .btn-blue:hover { background:#0066CC; }
-    .btn:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
-
-    /* Kicker, pills, chips */
-    .kicker { letter-spacing:.08em; text-transform:uppercase; font-size:.8rem; color:#6b7280; }
-    .pill { border-radius:999px; background:#f8f8fb; border:1px solid var(--border); }
-    .chip { padding:.35rem .6rem; border-radius:999px; font-size:.8rem; color:#374151; background:#fff; border:1px solid var(--border); }
-
-    /* Segmented tabs */
-    .tab-btn { position: relative; z-index: 1; color:#374151; }
-    [role="tab"][aria-selected="true"] { color:#fff; }
-    #segmented { --fade: 24px; }
-    #segmented .segmented-fade { position:absolute; top:0; width:var(--fade); height:100%; pointer-events:none; opacity:0; transition:opacity .18s ease; }
-    #segmented .segmented-fade.left  { left:0;  background:linear-gradient(to right, rgba(243,244,246,1), rgba(243,244,246,0)); }
-    #segmented .segmented-fade.right { right:0; background:linear-gradient(to left,  rgba(243,244,246,1), rgba(243,244,246,0)); }
-    #seg-pill{ box-shadow:0 6px 16px rgba(0,113,227,.25); }
-    .seg-dots .dot { width:10px; height:10px; border-radius:9999px; background:#d1d5db; transition:all .2s ease; border:0; }
-    .seg-dots .dot.is-active { background:var(--blue); width:18px; border-radius:8px; }
-
-    /* Reveal (kept always visible) */
-    .reveal, .reveal.is-visible { opacity: 1; transform: none; transition: none; }
-
-    /* Stepper */
-    .stepper { display:inline-flex; border:1px solid var(--border); border-radius:12px; background:#fff; }
-    .stepper input{ width:68px; text-align:center; padding:.5rem .25rem; border:0; outline:0; }
-    .stepper button{ width:44px; border:0; background:#f3f4f6; border-left:1px solid var(--border); font-weight:700; font-size:1.05rem; }
-    .stepper button:first-child{ border-left:0; border-right:1px solid var(--border); border-radius:12px 0 0 12px; }
-    .stepper button:last-child{ border-radius:0 12px 12px 0; }
-    .stepper button:active{ background:#e5e7eb; }
-    .stepper button:focus-visible{ outline: none; box-shadow: 0 0 0 3px rgba(0,113,227,.28); }
-
-    /* Perf: paint large sections on demand & reserve size to avoid CLS */
-    .hero, #details, #config { content-visibility: auto; contain-intrinsic-size: 800px 1200px; }
-
-    /* ===== Mobile polish (safe to keep at end) ===== */
-
-    /* 0) iOS Safari: avoid content-visibility weirdness on phones */
-    @media (max-width: 640px){
-      .hero, #details, #config { content-visibility: visible; contain-intrinsic-size: auto; }
-    }
-
-    /* 1) HERO sizing clamps + spacing */
-    section.hero h1{
-      font-size: clamp(1.75rem, 6vw, 2.5rem);
-      line-height: 1.15;
-    }
-    @media (max-width: 640px){
-      .kicker{ font-size:.72rem; }
-      .chip{ font-size:.78rem; padding:.3rem .55rem; }
-      .hero .py-14, .hero .sm\:py-16{ padding-top: 18px !important; padding-bottom: 18px !important; }
-      .hero .mt-8{ margin-top: 14px !important; }
-      .hero .mt-6{ margin-top: 10px !important; }
-      .btn{ min-height:44px; padding:.75rem 1.125rem; }
-    }
-
-    /* 2) Feature stripe and cards: lighter padding + tighter gaps */
-    @media (max-width: 640px){
-      .card{ border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
-      .card.p-6, .card.p-8, .card.p-10{ padding: 14px !important; }
-      .card .p-6, .card .p-4{ padding: 12px !important; }
-      .grid.gap-6{ gap: 12px !important; }
-      .grid.gap-4{ gap: 10px !important; }
-    }
-
-    /* 3) Tab segment control: compact + smooth scroll */
-    #segmented{ -webkit-overflow-scrolling: touch; }
-    #segmented .seg-inner{ padding-right: .25rem; }
-    @media (max-width: 640px){
-      .tab-btn{ padding: 6px 10px !important; font-size: 0.9rem !important; }
-      #segmented{ padding: 4px !important; }
-      #seg-pill{ top: 3px !important; height: calc(100% - 6px) !important; }
-      .seg-dots{ margin: 6px 0 10px !important; }
-      .seg-dots .dot{ width: 6px; height: 6px; border-radius: 999px; background:#d1d5db; }
-      .seg-dots .dot.is-active{ background: var(--blue); width: 12px; border-radius: 999px; }
-    }
-
-    /* 4) Support & SLA panel table: fixed layout + wrap + tighter cells */
-    #panel-support table{ table-layout: fixed; width: 100%; }
-    #panel-support td{ white-space: normal; word-break: break-word; }
-    @media (max-width: 640px){
-      #panel-support td{ padding: 8px 10px !important; font-size: 0.9rem; }
-    }
-
-    /* 5) PBX/Fees grids: comfy stack */
-    @media (max-width: 640px){
-      #panel-fees .card h4,
-      #panel-pbx .card h4{ font-size: 0.98rem; margin-bottom: 0.35rem; }
-      #panel-fees .card ul li,
-      #panel-pbx .card ul li{ font-size: 0.92rem; }
-    }
-
-    /* 6) Right sidebar: compact */
-    @media (max-width: 640px){
-      aside.card.p-6{ padding: 14px !important; }
-      aside.card .text-xl{ font-size: 1.05rem !important; }
-      aside.card .space-y-2 > * + *{ margin-top: 6px !important; }
-    }
-
-    /* 7) Configurator: smaller paddings + friendlier controls */
-    @media (max-width: 640px){
-      #config .card{ padding: 14px !important; }
-      #config .mt-4{ margin-top: 10px !important; }
-      #config .mt-6{ margin-top: 12px !important; }
-      #config h2{ font-size: 1.25rem; }
-      #config p{ font-size: 0.95rem; }
-      .stepper input{ width: 56px; padding: .45rem .25rem; font-size: .95rem; }
-      .stepper button{ width: 40px; font-size: 1rem; }
-    }
-
-    /* 8) Safe area: keep WhatsApp floater from overlapping actions */
-    @media (max-width: 640px){
-      body{ padding-bottom: max(70px, env(safe-area-inset-bottom)); }
-    }
-
-    @media (prefers-reduced-motion:reduce){
-      *{ transition:none !important; animation:none !important; }
-    }
-
-    /* === NEW: Overview panel guaranteed to fit on mobile === */
-    #panel-overview .grid{
-      display:grid;
-      grid-template-columns: 1fr;            /* tiny phones: single column */
-      gap: 10px;
-    }
-    @media (min-width:400px) and (max-width:639.98px){
-      #panel-overview .grid{                 /* wider phones: two columns */
-        grid-template-columns: repeat(2, minmax(0,1fr));
-        gap:12px;
-      }
-    }
-    @media (min-width:640px){                /* sm and up: three columns */
-      #panel-overview .grid{
-        grid-template-columns: repeat(3, minmax(0,1fr));
-        gap:16px;
-      }
-    }
-    #panel-overview .card{ min-width:0; padding:12px; }
-    #panel-overview h4{ font-size:.98rem; line-height:1.25rem; margin-bottom:.25rem; }
-    #panel-overview p{
-      font-size:.92rem; line-height:1.35rem; color:#374151;
-      overflow-wrap:anywhere; word-break:break-word;
-    }
-    @media (max-width:380px){
-      #panel-overview .card{ padding:10px; }
-      #panel-overview h4{ font-size:.95rem; }
-      #panel-overview p{ font-size:.9rem; }
-    }
-  </style>
-  <style>
-/* ==== MOBILE FIXES FOR THE TABBED "OVERVIEW / SUPPORT / SLA" STRIP ==== */
-@media (max-width: 640px){
-  /* 1) Let the tabs wrap instead of forcing a single scroll row */
-  #service-tabs #segmented{
-    overflow: visible !important;      /* no horizontal scroll on phones */
-    padding: 6px !important;
-  }
-  #service-tabs #segmented .seg-inner{
-    display: flex;
-    flex-wrap: wrap;                    /* <-- wrap onto multiple lines */
-    gap: 6px !important;
-    min-width: 0 !important;            /* override min-w-max effect */
-    padding-right: 0 !important;
-  }
-
-  /* 2) Compact tab buttons + clear selected state (since pill is hidden) */
-  #service-tabs .tab-btn{
-    flex: 1 1 calc(50% - 6px);          /* two per row on small phones */
-    text-align: center;
-    padding: 8px 10px !important;
-    font-size: 0.95rem !important;
-    border: 1px solid var(--border);
-    background: #fff;
-  }
-  #service-tabs .tab-btn[aria-selected="true"]{
-    background: var(--blue);
-    color:#fff;
-    border-color: var(--blue);
-  }
-
-  /* 3) Hide the sliding pill on mobile (only useful in one-line mode) */
-  #seg-pill{ display: none !important; }
-  #segmented .segmented-fade{ display:none !important; } /* no fades needed */
-
-  /* 4) Make all panels single-column + comfy spacing */
-  #panel-overview .grid,
-  #panel-pbx .grid{
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
-  }
-  #panel-fees .grid{
-    grid-template-columns: 1fr !important; /* Monthly / Once-off stack */
-    gap: 10px !important;
-  }
-  .card.p-10, .card.p-8, .card.p-6{ padding: 14px !important; }
-  .grid.gap-6{ gap: 12px !important; }
-
-  /* 5) Tables: guarantee no overflow */
-  #panel-support table{
-    table-layout: fixed;
-    width: 100%;
-    display: block;          /* allow horizontal scroll if truly needed */
-    overflow-x: auto;
-  }
-  #panel-support td, #panel-support th{
-    white-space: normal;
-    word-break: break-word;
-    padding: 8px 10px !important;
-    font-size: 0.92rem !important;
-  }
-
-  /* 6) Extra safety: prevent any accidental horizontal wideners */
-  html, body{ overflow-x: hidden; }
-}
-</style>
+<!-- ===== Base (light) styles ===== -->
 <style>
-/* ===== XS phones polish + overflow guards =====
-   Apply on both BYO + App pages (IDs/classes are shared)
------------------------------------------------------ */
-
-/* 1) Extra-small phones: stack tabs 1-per-row, bigger tap targets */
-@media (max-width: 360px){
-  #service-tabs #segmented{
-    overflow: visible !important;
-    padding: 6px !important;
+  :root{
+    --blue:#0071E3;
+    --border:#e6e6eb;
+    --card-r:18px;
+    --nav-h:64px;                 /* adjust if your nav is taller/shorter */
   }
-  #service-tabs #segmented .seg-inner{
-    display:flex; flex-wrap:wrap; gap:6px !important;
-    min-width:0 !important; padding-right:0 !important;
-  }
-  #service-tabs .tab-btn{
-    flex: 1 1 100%;             /* 1 per row on very small screens */
-    text-align:center;
-    padding: 10px 12px !important;
-    font-size: 0.95rem !important;
-    border: 1px solid var(--border);
-    background:#fff;
-  }
-  #service-tabs .tab-btn[aria-selected="true"]{
-    background: var(--blue); color:#fff; border-color: var(--blue);
-  }
-  #seg-pill,
-  #segmented .segmented-fade{ display:none !important; } /* hide pill/fades */
-}
 
-/* 2) XS: compress grids/paddings a touch more */
-@media (max-width: 360px){
-  /* Panel grids -> single column */
-  #panel-overview .grid,
-  #panel-fees .grid,
-  #panel-pbx .grid,
-  #panel-features .grid{
-    grid-template-columns: 1fr !important;
-    gap: 10px !important;
+  html, body{
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;
+    background:#f5f5f7;           /* space grey */
+    color:#111;
+    overflow-x:hidden;
   }
-  /* Card padding a bit tighter */
-  .card.p-10, .card.p-8, .card.p-6{ padding: 12px !important; }
-  .card .p-6, .card .p-4{ padding: 10px !important; }
-  /* Stepper & buttons comfortable */
-  .stepper input{ width: 52px; font-size: .95rem; }
-  .stepper button{ width: 38px; font-size: 1rem; }
-  .btn{ min-height: 44px; padding: .6rem .9rem; }
-}
 
-/* 3) Smooth overflow guards (global, gentle) */
-:root{
-  /* Prevent wide content from causing horizontal scroll */
-  --overflow-fix: hidden;
-}
-html, body{
-  overflow-x: var(--overflow-fix);          /* clip unexpected wideners */
-}
-img, svg, video, canvas, iframe{
-  max-width: 100%;
-  height: auto;
-}
-table{
-  width: 100%;
-  border-collapse: collapse;
-}
-#panel-support table{
-  table-layout: fixed;
-  display: block;           /* enables horizontal scrolling only if needed */
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-#panel-support th, #panel-support td{
-  white-space: normal;
-  word-break: break-word;
-}
+  /* Cards (Apple white) */
+  .card{background:#fff;border:1px solid var(--border);border-radius:var(--card-r);box-shadow:0 2px 10px rgba(0,0,0,.05);}
+  .card-hover{transition:transform .2s ease, box-shadow .2s ease;}
+  .card-hover:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.08);}
 
-/* 4) Long strings: never break layout */
-h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.8rem 1.05rem;border-radius:12px;font-weight:600;}
+  .btn-primary,.btn-blue{background:var(--blue);color:#fff;}
+  .btn-primary:hover,.btn-blue:hover{background:#0066CC;}
+  .btn-ghost{background:rgba(0,0,0,.06);color:#111;border:1px solid var(--border);}
+  .btn-ghost:hover{background:rgba(0,0,0,.10);}
+  .btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.28);}
 
-/* 5) Safety on containers with padding utilities */
-.max-w-screen-xl, .container{
-  min-width: 0;       /* allow children to shrink inside */
-}
+  /* Chips/Pills */
+  .kicker{letter-spacing:.08em;text-transform:uppercase;font-size:.8rem;color:#6b7280;}
+  .pill{border-radius:999px;background:#f8f8fb;border:1px solid var(--border);}
+  .chip{padding:.35rem .6rem;border-radius:999px;font-size:.85rem;color:#374151;background:#fff;border:1px solid var(--border);}
+
+  /* Stepper */
+  .stepper{display:inline-flex;border:1px solid var(--border);border-radius:12px;background:#fff;}
+  .stepper input{width:68px;text-align:center;padding:.5rem .25rem;border:0;outline:0;}
+  .stepper button{width:44px;border:0;background:#f3f4f6;border-left:1px solid var(--border);font-weight:700;font-size:1.05rem;}
+  .stepper button:first-child{border-left:0;border-right:1px solid var(--border);border-radius:12px 0 0 12px;}
+  .stepper button:last-child{border-radius:0 12px 12px 0;}
+  .stepper button:active{background:#e5e7eb;}
+  .stepper button:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,113,227,.28);}
+
+  /* Segmented tabs */
+  .tab-btn{position:relative;z-index:1;color:#374151;}
+  [role="tab"][aria-selected="true"]{color:#fff;}
+  #segmented{--fade:24px;background:#f3f4f6;}
+  #segmented .segmented-fade{position:absolute;top:0;width:var(--fade);height:100%;pointer-events:none;opacity:0;transition:opacity .18s ease;}
+  #segmented .segmented-fade.left{left:0;background:linear-gradient(to right, rgba(243,244,246,1), rgba(243,244,246,0));}
+  #segmented .segmented-fade.right{right:0;background:linear-gradient(to left, rgba(243,244,246,1), rgba(243,244,246,0));}
+  #seg-pill{background:var(--blue);box-shadow:0 6px 16px rgba(0,113,227,.25);}
+
+  /* === Split hero (black header only, no image cropping) === */
+  .hero-split{
+    background:#000; color:#fff;
+    /* push below fixed nav + comfortable breathing room */
+    padding: calc(var(--nav-h) + clamp(16px, 3vh, 32px)) 0 clamp(28px, 5vh, 48px);
+    border-bottom:1px solid #0b0b0f;
+    margin-bottom:clamp(28px, 5vw, 48px); /* gap before cards */
+  }
+  .hero-inner{max-width:1200px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px);}
+  .hero-grid{display:grid;gap:clamp(16px,3vw,28px);align-items:center;}
+  @media (min-width:1024px){ .hero-grid{grid-template-columns:1.05fr .95fr;} }
+
+  .hero-copy .kicker{color:#D1D5DB;}
+  .hero-copy h1{font-size:clamp(1.9rem,5vw,3.25rem);line-height:1.08;font-weight:800;letter-spacing:-.02em;color:#fff;}
+  .hero-copy .sub{font-size:clamp(1rem,1.6vw,1.125rem);color:#E5E7EB;margin-top:6px;}
+  .hero-copy .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;}
+  .hero-copy .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+
+  /* Image container: no fixed aspect ratio (prevents cropping) */
+  .hero-media{
+    display:flex;align-items:center;justify-content:flex-end; /* bias image to the right */
+    background:#0b0b0f;border-radius:16px;
+    padding:clamp(12px,2vw,24px);
+  }
+  .hero-media img{
+    width:100%; height:auto;                /* keep proportions */
+    max-height:clamp(220px, 42vh, 520px);   /* fits viewport without clipping */
+    object-fit:contain;                     /* show full image */
+    transform:none;
+  }
+
+  /* Overview grid robustness */
+  #panel-overview .grid{display:grid;grid-template-columns:1fr;gap:10px;}
+  @media (min-width:400px) and (max-width:639.98px){
+    #panel-overview .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  }
+  @media (min-width:640px){
+    #panel-overview .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+  }
+
+  /* Section spacing (hero already adds bottom margin) */
+  #details{margin-top:0;}
+  #config-card{margin-top:clamp(24px,4vw,36px);}
+
+  /* Mobile polish */
+  @media (max-width:640px){
+    #service-tabs #segmented{overflow:visible !important;padding:6px !important;}
+    #service-tabs #segmented .seg-inner{display:flex;flex-wrap:wrap;gap:6px !important;min-width:0 !important;padding-right:0 !important;}
+    #service-tabs .tab-btn{
+      flex:1 1 calc(50% - 6px);text-align:center;
+      padding:8px 10px !important;font-size:.95rem !important;
+      border:1px solid var(--border);background:#fff;
+    }
+    #service-tabs .tab-btn[aria-selected="true"]{background:var(--blue);color:#fff;border-color:var(--blue);}
+    #seg-pill,#segmented .segmented-fade{display:none !important;}
+
+    .card{border-radius:14px;}
+    .card.p-6,.card.p-8,.card.p-10{padding:14px !important;}
+    .grid.gap-6{gap:12px !important;}
+    .grid.gap-4{gap:10px !important;}
+
+    #panel-overview .grid,#panel-pbx .grid,#panel-fees .grid{grid-template-columns:1fr !important;gap:10px !important;}
+
+    #panel-support table{table-layout:fixed;width:100%;display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    #panel-support td,#panel-support th{white-space:normal;word-break:break-word;padding:8px 10px !important;font-size:.92rem !important;}
+
+    .btn{min-height:44px;padding:.75rem 1.125rem;}
+    .stepper input{width:56px;padding:.45rem .25rem;font-size:.95rem;}
+    .stepper button{width:40px;font-size:1rem;}
+  }
+
+  /* XS phones */
+  @media (max-width:360px){
+    #service-tabs .tab-btn{flex:1 1 100%;}
+    .card.p-10,.card.p-8,.card.p-6{padding:12px !important;}
+    .card .p-6,.card .p-4{padding:10px !important;}
+    .stepper input{width:52px;font-size:.95rem;}
+    .stepper button{width:38px;font-size:1rem;}
+    .btn{min-height:44px;padding:.6rem .9rem;}
+  }
+
+  /* Misc safety */
+  img,svg,video,canvas,iframe{max-width:100%;height:auto;}
+  table{width:100%;border-collapse:collapse;}
+  h1,h2,h3,h4,p,li,.pill,.chip,.btn,.tab-btn{overflow-wrap:anywhere;word-break:break-word;}
+  .max-w-screen-xl,.container{min-width:0;}
 </style>
-
 
 </head>
+
 <body class="antialiased">
   <!-- Skip to content -->
   <a href="#details" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 bg-black text-white rounded px-3 py-2">Skip to content</a>
@@ -363,90 +184,55 @@ h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
   <div id="nav-slot"></div>
   <script src="./scripts/site.js" defer></script>
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="max-w-screen-xl mx-auto px-6 lg:px-16 py-14 sm:py-16">
-      <div class="max-w-3xl mx-auto text-center reveal">
-        <p class="kicker">Voice-only services</p>
-        <h1 class="text-4xl md:text-5xl font-bold tracking-tight">Keep your hardware. Upgrade the service.</h1>
-        <p class="mt-4 text-gray-600 text-lg">35c/min local · 55c/min mobile · International varies</p>
+  <!-- ===== BLACK HEADER (Split hero) ===== -->
+  <header class="hero-split">
+    <div class="hero-inner">
+      <div class="hero-grid">
+        <!-- Left: copy -->
+        <div class="hero-copy">
+          <span class="kicker">Voice-only services</span>
+          <h1>Keep your hardware.<br class="hidden sm:inline">Upgrade the service.</h1>
+          <p class="sub">Local 35c/min · Mobile 55c/min · Month-to-month. Port your numbers. WhatsApp-first support.</p>
 
-        <div class="mt-6 flex items-center justify-center gap-3 flex-wrap">
-          <span class="chip">Porting handled for you</span>
-          <span class="chip">Any SIP device supported</span>
-          <span class="chip">WhatsApp-first support</span>
+          <div class="cta-row">
+            <a href="#config-card" class="btn btn-primary">
+              Configure now
+              <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+
+          <div class="chips" role="list" aria-label="Highlights">
+            <span class="chip" role="listitem">Hosted Cloud PBX</span>
+            <span class="chip" role="listitem">Any SIP device</span>
+            <span class="chip" role="listitem">Free installation</span>
+            <span class="chip" role="listitem">Porting handled</span>
+          </div>
         </div>
 
-        <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
-          <a href="#config" class="btn btn-blue font-semibold tracking-tight shadow-sm">Configure now</a>
-          <a href="#details" class="btn btn-primary font-semibold tracking-tight">See details</a>
+        <!-- Right: image (focused to the right) -->
+        <div class="hero-media">
+          <picture>
+            <source media="(max-width: 640px)" srcset="assets/voice-only-hero-mobile.jpg">
+            <img src="Assets/Untitled design-3.png" alt="Modern business desk phone and mobile app calling, lit with soft blue accents" />
+          </picture>
         </div>
       </div>
     </div>
-  </section>
+  </header>
 
-  <!-- FEATURE STRIPE -->
-  <section class="max-w-screen-xl mx-auto px-6 lg:px-16 mt-6 mb-12 relative z-10">
-    <div class="grid gap-6 md:grid-cols-3">
-
-      <!-- What you get -->
-      <div class="card card-hover p-6">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="rounded-xl bg-[#F59E0B]/10 p-3">
-            <!-- Gift Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#F59E0B]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M20 12v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-8M4 8h16M12 22V8m0-6a3 3 0 1 1 0 6m0-6a3 3 0 1 0 0 6" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-900">What you get</h3>
-        </div>
-        <p class="text-gray-700">Hosted PBX platform, number porting, and WhatsApp-first support.</p>
-      </div>
-
-      <!-- How it works -->
-      <div class="card card-hover p-6">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="rounded-xl bg-[#0E5B52]/10 p-3">
-            <!-- Cog Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#0E5B52]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317L9.6 2.1a1 1 0 0 1 .76-1.276l2.64-.528a1 1 0 0 1 1.175.808l.725 2.217a8.003 8.003 0 0 1 3.612 1.857l2.05-1.192a1 1 0 0 1 1.366.366l1.32 2.292a1 1 0 0 1-.366 1.366l-2.05 1.192c.113 .582.174 1.18.174 1.785s-.061 1.203-.174 1.785l2.05 1.192a1 1 0 0 1 .366 1.366l-1.32 2.292a1 1 0 0 1-1.366.366l-2.05-1.192a8.003 8.003 0 0 1-3.612 1.857l-.725 2.217a1 1 0 0 1-1.175.808l-2.64-.528a1 1 0 0 1-.76-1.276l.725-2.217A8.003 8.003 0 0 1 6.713 17.9l-2.05 1.192a1 1 0 0 1-1.366-.366l-1.32-2.292a1 1 0 0 1 .366-1.366l2.05-1.192A8.003 8.003 0 0 1 10.325 4.317z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-900">How it works</h3>
-        </div>
-        <p class="text-gray-700">Keep your SIP phones. We connect them to our cloud and move your numbers—no new hardware needed.</p>
-      </div>
-
-      <!-- When to use -->
-      <div class="card card-hover p-6">
-        <div class="flex items-center gap-3 mb-3">
-          <div class="rounded-xl bg-[#D97706]/10 p-3">
-            <!-- Clock Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-[#D97706]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2m6-2a10 10 0 1 1-20 0 10 10 0 0 1 20 0z" />
-            </svg>
-          </div>
-          <h3 class="font-semibold text-gray-900">When to use</h3>
-        </div>
-        <p class="text-gray-700">Ideal if you already own phones or want to switch provider without a full replacement.</p>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- DETAILS BAND -->
+  <!-- ===== DETAILS (space grey background; white cards) ===== -->
   <section id="details" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-14">
     <div class="grid gap-6 lg:grid-cols-3">
-      <!-- LEFT: Tabs -->
+      <!-- LEFT: Tabs card -->
       <div class="card p-6 lg:col-span-2 reveal">
-        <!-- Segmented control -->
         <div class="mb-4" id="service-tabs">
-          <div id="segmented" class="relative rounded-2xl bg-gray-100 p-1 overflow-x-auto" role="tablist" aria-label="Service summary tabs" tabindex="0">
+          <div id="segmented" class="relative rounded-2xl p-1 overflow-x-auto" role="tablist" aria-label="Service summary tabs" tabindex="0">
             <span class="segmented-fade left"></span>
             <span class="segmented-fade right"></span>
             <div class="seg-inner relative flex gap-1 min-w-max pr-2">
-              <span id="seg-pill" class="absolute rounded-xl bg-[var(--blue)] transition-all duration-200 ease-out" style="top:4px;height:calc(100% - 8px);"></span>
+              <span id="seg-pill" class="absolute rounded-xl transition-all duration-200 ease-out" style="top:4px;height:calc(100% - 8px);"></span>
 
               <button id="tab-overview" type="button" role="tab" aria-selected="true"  aria-controls="panel-overview" data-tab="overview" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Overview</button>
               <button id="tab-support"  type="button" role="tab" aria-selected="false" aria-controls="panel-support"  data-tab="support"  class="tab-btn px-4 py-2 rounded-lg text-sm font-medium">Support & SLA</button>
@@ -540,8 +326,8 @@ h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
               <p class="text-gray-700">Warranty applies to hardware supplied by us (3 years). BYO hardware is best-effort support.</p>
             </div>
           </div>
-        </div> <!-- /text container -->
-      </div> <!-- /LEFT column card CLOSED (this was missing) -->
+        </div>
+      </div>
 
       <!-- RIGHT: Quick Summary -->
       <aside class="card p-6 reveal">
@@ -562,69 +348,56 @@ h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
           <div class="flex items-center justify-between"><span>Installation</span><strong>Free</strong></div>
         </div>
 
-        <a href="#config" class="mt-6 btn btn-blue w-full font-semibold tracking-tight">Start configuration</a>
+        <a href="#config-card" class="mt-6 btn btn-blue w-full font-semibold tracking-tight">Start configuration</a>
       </aside>
     </div>
   </section>
 
-  <!-- CONFIGURATOR -->
-  <section id="config" class="max-w-screen-xl mx-auto px-6 lg:px-16 mb-16">
-    <div class="card p-8 sm:p-10 text-center reveal">
-      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
-      <h2 class="mt-2 text-2xl font-semibold tracking-tight">Configure your voice service</h2>
-      <p class="mt-3 text-gray-600">Enter your number of extensions. Totals update automatically. You can proceed straight to porting.</p>
+  <!-- ===== CONFIG (Unified card: Step 1 + Step 2) ===== -->
+  <section id="config-card" class="">
+    <div class="max-w-screen-md mx-auto px-6 lg:px-0">
+      <div class="card p-6 sm:p-8 md:p-10 text-center">
+        <!-- Step 1 -->
+        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-tight">How many extensions do you need?</h2>
+        <p class="mt-2 text-gray-600">Choose the number of users/extensions for your system.</p>
 
-      <!-- Pills -->
-      <div class="mt-4 flex flex-wrap items-center justify-center gap-3">
-        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
-          Phone Setup Included
-        </div>
-        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
-          Support Included
-        </div>
-        <div class="inline-flex items-center rounded-full bg-black px-4 py-2 text-sm font-medium text-white">
-          Calls Excluded
-        </div>
-      </div>
-
-      <!-- Stepper -->
-      <div class="mt-6 flex flex-col items-center">
-        <div class="inline-flex items-center gap-2">
+        <div class="mt-6 flex items-center justify-center gap-2">
           <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Extensions</span>
           <div class="stepper" role="group" aria-label="Choose number of extensions">
             <button type="button" id="ext-dec" aria-label="Decrease">–</button>
-            <input id="vs-ext" type="text" inputmode="numeric" pattern="[0-9]*"
-                  oninput="this.value=this.value.replace(/[^0-9]/g,'')" value="1" aria-live="polite" />
+            <input id="vs-ext" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
             <button type="button" id="ext-inc" aria-label="Increase">+</button>
           </div>
         </div>
-      </div>
 
-      <!-- Totals -->
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-        <div class="inline-flex items-baseline gap-2 pill px-4 py-3">
-          <span class="text-[11px] uppercase tracking-widest text-gray-500">once-off</span>
-          <span id="vs-total-onceoff" class="text-xl font-semibold text-gray-900">R 0</span>
+        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+            <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">monthly</span>
+            <span id="vs-total-monthly">R 215</span>
+          </span>
+          <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+            <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">once-off</span>
+            <span id="vs-total-onceoff">R 0</span>
+          </span>
         </div>
-        <div class="inline-flex items-baseline gap-2 pill px-4 py-3">
-          <span class="text-[11px] uppercase tracking-widest text-gray-500">monthly</span>
-          <span id="vs-total-monthly" class="text-xl font-semibold text-gray-900">R 0</span>
+
+        <hr class="my-8 border-gray-200" />
+
+        <!-- Step 2 -->
+        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
+        <h3 class="mt-2 text-xl font-semibold tracking-tight">Start porting your numbers</h3>
+        <p class="mt-1 text-gray-600">We’ll move your existing numbers and connect your SIP phones to the cloud.</p>
+
+        <div class="mt-4 flex justify-center">
+          <a id="vs-porting-btn" href="porting.html" class="btn btn-blue font-semibold tracking-tight">
+            Start porting
+            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
         </div>
       </div>
-
-      <!-- CTAs -->
-      <div class="mt-8 flex items-center justify-center gap-3 flex-wrap">
-        <a id="vs-porting-btn" href="porting.html"
-          class="inline-flex items-center gap-3 rounded-xl bg-[var(--blue)] px-6 py-3 text-white font-semibold tracking-tight shadow-sm transition-colors duration-200 hover:bg-[#0066CC] focus:outline-none focus:ring-2 focus:ring-[var(--blue)]/30">
-          <span>Proceed to Porting</span>
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </a>
-        <a href="build-solution.html" target="_blank" class="btn btn-primary">Browse Hardware (optional)</a>
-      </div>
-
-      <p class="mt-3 text-xs text-gray-500">We’ll carry your selections into porting.</p>
     </div>
   </section>
 
@@ -632,205 +405,8 @@ h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
     <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>
   </footer>
 
-  <!-- BYO Calculator -->
-  <script>
-  (function(){
-    // Pricing
-    const BASE_FEE_MONTHLY = 150;   // PBX platform (monthly)
-    const PER_EXT_MONTHLY  = 65;    // per extension (monthly)
-    const ONCE_OFF_FREE    = 0;     // installation free
-
-    // Elements
-    const extInput  = document.getElementById('vs-ext');
-    const decBtn    = document.getElementById('ext-dec');
-    const incBtn    = document.getElementById('ext-inc');
-    const onceOffEl = document.getElementById('vs-total-onceoff');
-    const monthlyEl = document.getElementById('vs-total-monthly');
-    const portBtn   = document.getElementById('vs-porting-btn');
-
-    // Format "R 1,234"
-    const R = (num) => 'R ' + Number(num || 0).toLocaleString('en-ZA');
-
-    function clampExt(n){
-      const x = parseInt(n, 10);
-      return isFinite(x) && x > 0 ? x : 1;
-    }
-
-    function startFreshOrder(){
-      try {
-        localStorage.removeItem('voip:selectedPackage');
-        localStorage.removeItem('voip:customBuild');
-        localStorage.removeItem('voip:virtualNumber');
-      } catch {}
-    }
-
-    function persistForNextSteps(ext, monthly, onceoff){
-      startFreshOrder();
-      const payload = {
-        label: `Voice-only (BYO) — ${ext} extension${ext>1?'s':''}`,
-        name:  'Voice-only (BYO)',
-        monthly: monthly,
-        onceOff: onceoff,
-        extensions: ext,
-        isVoiceOnly: true,
-        tags: ['voice-only'],
-        devices: [],
-        minutesIncluded: null,
-        meta: { mode:'byoh' }
-      };
-      try { localStorage.setItem('voip:selectedPackage', JSON.stringify(payload)); } catch {}
-      try { localStorage.setItem('voip:customBuild', JSON.stringify([])); } catch {}
-    }
-
-    function updatePortingLink(ext, monthly, onceoff){
-      const params = new URLSearchParams({
-        mode: 'byoh',
-        ext: String(ext),
-        monthly: String(monthly),
-        onceoff: String(onceoff)
-      });
-      if (portBtn) portBtn.href = 'porting.html?' + params.toString();
-    }
-
-    function recalc(){
-      const ext = clampExt(extInput.value);
-      const monthly = BASE_FEE_MONTHLY + (PER_EXT_MONTHLY * ext);
-      const onceoff = ONCE_OFF_FREE;
-
-      if (monthlyEl) monthlyEl.textContent = R(monthly);
-      if (onceOffEl) onceOffEl.textContent = R(onceoff);
-
-      persistForNextSteps(ext, monthly, onceoff);
-      updatePortingLink(ext, monthly, onceoff);
-    }
-
-    // Stepper wiring
-    decBtn?.addEventListener('click', ()=>{
-      extInput.value = Math.max(1, clampExt(extInput.value) - 1);
-      recalc();
-      extInput.focus();
-    });
-    incBtn?.addEventListener('click', ()=>{
-      extInput.value = clampExt(extInput.value) + 1;
-      recalc();
-      extInput.focus();
-    });
-    extInput?.addEventListener('input', recalc);
-
-    // Initial paint
-    recalc();
-
-    // Footer year
-    try { document.getElementById('y').textContent = new Date().getFullYear(); } catch {}
-  })();
-  </script>
-
-  <!-- Segmented tabs logic (mobile-friendly + a11y) -->
-  <script>
-  (function(){
-    const segmented   = document.getElementById('segmented');
-    if (!segmented) return;
-
-    const segInner    = segmented.querySelector('.seg-inner');
-    const pill        = document.getElementById('seg-pill');
-    const tabBtns     = Array.from(segmented.querySelectorAll('.tab-btn[role="tab"]'));
-    const dots        = Array.from(document.querySelectorAll('.seg-dots .dot'));
-
-    const panels = {
-      overview: document.getElementById('panel-overview'),
-      support : document.getElementById('panel-support'),
-      fees    : document.getElementById('panel-fees'),
-      pbx     : document.getElementById('panel-pbx'),
-      compat  : document.getElementById('panel-compat'),
-      legal   : document.getElementById('panel-legal')
-    };
-
-    function showPanel(key){
-      Object.entries(panels).forEach(([k, el])=>{
-        if (!el) return;
-        const isActive = (k === key);
-        el.classList.toggle('hidden', !isActive);
-        el.setAttribute('tabindex', isActive ? '0' : '-1');
-      });
-    }
-
-    function movePillTo(tab){
-      if (!pill || !tab || !segInner) return;
-      const tabRect = tab.getBoundingClientRect();
-      const innerRect = segInner.getBoundingClientRect();
-      const left = (tabRect.left - innerRect.left) + segInner.scrollLeft;
-      pill.style.transform = `translateX(${left}px)`;
-      pill.style.width = `${tabRect.width}px`;
-    }
-
-    function setActive(tabKey){
-      tabBtns.forEach(btn=>{
-        const isActive = btn.dataset.tab === tabKey;
-        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
-        if (isActive) movePillTo(btn);
-      });
-
-      dots.forEach(d=> d.classList.toggle('is-active', d.dataset.tab === tabKey));
-      showPanel(tabKey);
-
-      const activeBtn = tabBtns.find(b => b.dataset.tab === tabKey);
-      if (activeBtn) activeBtn.scrollIntoView({ inline:'center', block:'nearest', behavior:'smooth' });
-
-      history.replaceState(null, '', `#${tabKey}`);
-    }
-
-    function updateFades(){
-      const leftFade  = segmented.querySelector('.segmented-fade.left');
-      const rightFade = segmented.querySelector('.segmented-fade.right');
-      if (!leftFade || !rightFade) return;
-      const max = segInner.scrollWidth - segInner.clientWidth;
-      const x = segInner.scrollLeft;
-      leftFade.style.opacity  = x > 2 ? '1' : '0';
-      rightFade.style.opacity = (max - x) > 2 ? '1' : '0';
-    }
-
-    tabBtns.forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        setActive(btn.dataset.tab);
-        btn.focus();
-      });
-    });
-    dots.forEach(dot=>{
-      dot.addEventListener('click', ()=>{
-        setActive(dot.dataset.tab);
-        const match = tabBtns.find(b=>b.dataset.tab===dot.dataset.tab);
-        match?.focus();
-      });
-    });
-
-    segmented.addEventListener('keydown', (e)=>{
-      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      e.preventDefault();
-      const idx = tabBtns.findIndex(b => b.getAttribute('aria-selected') === 'true');
-      if (idx < 0) return;
-      const next = e.key === 'ArrowRight'
-        ? Math.min(idx + 1, tabBtns.length - 1)
-        : Math.max(idx - 1, 0);
-      setActive(tabBtns[next].dataset.tab);
-      tabBtns[next].focus();
-    });
-
-    window.addEventListener('resize', ()=>{
-      const active = tabBtns.find(b => b.getAttribute('aria-selected') === 'true') || tabBtns[0];
-      movePillTo(active);
-      updateFades();
-    });
-    segInner.addEventListener('scroll', updateFades, { passive: true });
-
-    const hashKey = (location.hash || '').replace('#','');
-    const initialKey = tabBtns.some(b => b.dataset.tab === hashKey) ? hashKey : 'overview';
-    requestAnimationFrame(()=>{
-      setActive(initialKey);
-      updateFades();
-    });
-  })();
-  </script>
-
+  <!-- Page JS (kept external) -->
+  <script src="./scripts/voice-services.js" defer></script>
 
   <!-- WhatsApp floater (kept) -->
   <a href="https://wa.me/27679228256?text=Hi%20VoIP%20Shop%2C%20I%20need%20help" target="_blank" rel="noopener"
@@ -838,28 +414,10 @@ h1, h2, h3, h4, p, li, .pill, .chip, .btn, .tab-btn{
      style="position:fixed;z-index:60;right:16px;bottom:16px;background:#25D366;color:#fff;
             border-radius:999px;padding:8px 12px;display:flex;gap:8px;align-items:center;
             box-shadow:0 10px 24px rgba(0,0,0,.16)">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18"
-         fill="currentColor" aria-hidden="true">
-      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24
-               l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12
-               0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-1.9 0-3.73-.5-5.34-1.45l-.38-.22-3.68.94.98-3.59
-               -.25-.37A9.46 9.46 0 0 1 2.5 12C2.5 6.76 6.76 2.5 12 2.5c2.52 0 4.9.98
-               6.71 2.79A9.45 9.45 0 0 1 21.5 12c0 5.24-4.26 9.5-9.5 9.5zm5.37-7.13
-               c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94
-               1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07
-               -.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37
-               -.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57
-               c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5
-               1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5 .71 .3 1.27 .48 1.7
-               .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72
-               2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+      <path d="M20.52 3.48A11.91 11.91 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.12.55 4.16 1.59 5.97L0 24l6.2-1.58A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.2-3.48-8.52zM12 21.5c-.3-.15-1.77-.87-2.05-.97-.27-.1-.47-.15-.67.15s-.77.97-.94 1.17c-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.46-.89-.79-1.5-1.77-1.67-2.07-.17-.3-.02-.46.13-.61.13-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.07-.15-.67-1.62-.91-2.21-.24-.59-.48-.5-.67-.51h-.57c-.2 0-.52 .07-.79 .37s-1.04 1.02-1.04 2.5 1.07 2.9 1.22 3.1c.15 .2 2.1 3.2 5.1 4.5 .71 .3 1.27 .48 1.7 .62 .71 .23 1.35 .2 1.86 .12 .57 -.08 1.77 -.72 2.02 -1.42 .25 -.7 .25 -1.3 .17 -1.42 -.08 -.12 -.27 -.2 -.57 -.35z"/>
     </svg>
     <span style="font-size:14px;font-weight:600">Need help?</span>
   </a>
-
-  <script>
-    // Footer year
-    document.getElementById('y')?.textContent = new Date().getFullYear();
-  </script>
 </body>
 </html>

@@ -1,12 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta first -->
   <meta charset="utf-8" />
   <title>VoIP Shop — Shopping Cart</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17526288798');
+  </script>
+
   <!-- reCAPTCHA v3 (non-blocking) -->
   <script async defer src="https://www.google.com/recaptcha/api.js?render=6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw"></script>
+
+  <!-- your styles/scripts continue here -->
+</head>
 
   <!-- Diagnostic helper (optional) -->
   <script>
@@ -31,6 +44,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
   <style>
+    /* --- Critical layout (no Tailwind required) --- */
+.cart-grid{
+  max-width:1280px; /* ≈ max-w-screen-xl */
+  margin:0 auto;
+  padding:2rem 1.5rem; /* ≈ py-8 px-6 */
+  display:grid;
+  grid-template-columns:1fr; /* mobile */
+  gap:2rem;                /* ≈ gap-8 */
+}
+.cart-left, .cart-right{ grid-column:auto / span 1; }
+@media (min-width:1024px){ /* ≈ lg: */
+  .cart-grid{ grid-template-columns:repeat(12, minmax(0,1fr)); }
+  .cart-left { grid-column:span 8; }  /* ≈ lg:col-span-8 */
+  .cart-right{ grid-column:span 4; }  /* ≈ lg:col-span-4 */
+}
+
     /* =========================
        Base + Performance
        ========================= */
@@ -151,9 +180,10 @@
   <!-- Nav injection -->
   <script src="./scripts/site.js" defer></script>
 
-  <main class="max-w-screen-xl mx-auto px-6 py-8 grid lg:grid-cols-12 gap-8 w-full">
+ <main class="cart-grid">
+
     <!-- Left: tables -->
-    <div class="lg:col-span-8 space-y-8">
+   <div class="cart-left space-y-8">
       <!-- Once-off -->
       <section>
         <h2 class="text-[1.1rem] font-semibold text-gray-900 mb-3">Once-off Charges</h2>
@@ -182,7 +212,7 @@
     </div>
 
     <!-- Right: summary -->
-    <aside class="lg:col-span-4 space-y-4">
+<aside class="cart-right space-y-4">
 
       <!-- Card 1: Pay Now (blue accent) -->
       <div class="card card-blue">
