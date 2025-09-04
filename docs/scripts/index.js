@@ -275,17 +275,18 @@ function createPackageCard(pkg, index = 0) {
       </button>
     </div>
   `;
+const btn = card.querySelector(".select-package-btn");
+if (btn) {
+  btn.addEventListener("click", (e) => {
+    if (typeof window.selectPackage === "function") {
+      // Pass the event + the package so selectPackage can reliably find the invoker card
+      window.selectPackage(e, pkg);
+    } else {
+      window.dispatchEvent(new CustomEvent("package:selected", { detail: pkg }));
+    }
+  });
+}
 
-  const btn = card.querySelector(".select-package-btn");
-  if (btn) {
-    btn.addEventListener("click", () => {
-      if (typeof window.selectPackage === "function") {
-        window.selectPackage(pkg);
-      } else {
-        window.dispatchEvent(new CustomEvent("package:selected", { detail: pkg }));
-      }
-    });
-  }
 
   return card;
 }
