@@ -73,7 +73,6 @@
     #segmented .segmented-fade.left{left:0;background:linear-gradient(to right, rgba(243,244,246,1), rgba(243,244,246,0));}
     #segmented .segmented-fade.right{right:0;background:linear-gradient(to left, rgba(243,244,246,1), rgba(243,244,246,0));}
     #seg-pill{background:var(--blue);box-shadow:0 6px 16px rgba(0,113,227,.25);}
-
     .hero-split{
       background:#000; color:#fff;
       padding: calc(var(--nav-h) + clamp(16px, 3vh, 32px)) 0 clamp(28px, 5vh, 48px);
@@ -81,35 +80,17 @@
       margin-bottom:clamp(28px, 5vw, 48px);
     }
     .hero-inner{max-width:1200px;margin-inline:auto;padding-inline:clamp(16px,4vw,40px);}
-
-    /* Stack by default */
-    .hero-grid{
-      display:grid;
-      gap:clamp(16px,3vw,28px);
-      align-items:center;
-      grid-template-columns:1fr;
-    }
-    /* Split once there’s enough room (side-by-side from ~400px) */
-    @media (min-width:400px){
-      .hero-grid{ grid-template-columns:1.1fr .9fr; }
-      .hero-media{ min-width:220px; } /* keeps image from collapsing */
-    }
-    /* Larger desktops keep your original ratio */
-    @media (min-width:1024px){
-      .hero-grid{ grid-template-columns:1.05fr .95fr; }
-    }
-
+    .hero-grid{display:grid;gap:clamp(16px,3vw,28px);align-items:center;}
+    @media (min-width:1024px){ .hero-grid{grid-template-columns:1.05fr .95fr;} }
     .hero-copy .kicker{color:#D1D5DB;}
     .hero-copy h1{font-size:clamp(1.9rem,5vw,3.25rem);line-height:1.08;font-weight:800;letter-spacing:-.02em;color:#fff;}
     .hero-copy .sub{font-size:clamp(1rem,1.6vw,1.125rem);color:#E5E7EB;margin-top:6px;}
     .hero-copy .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:10px;}
     .hero-copy .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
-
     .hero-media{
       display:flex;align-items:center;justify-content:flex-end;
       background:#0b0b0f;border-radius:16px;
       padding:clamp(12px,2vw,24px);
-      min-width:0; /* prevents overflow in grid */
     }
     .hero-media img{
       width:100%; height:auto;
@@ -117,7 +98,6 @@
       object-fit:contain;
       transform:none;
     }
-
     #panel-overview .grid{display:grid;grid-template-columns:1fr;gap:10px;}
     @media (min-width:400px) and (max-width:639.98px){
       #panel-overview .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
@@ -125,10 +105,8 @@
     @media (min-width:640px){
       #panel-overview .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
     }
-
     #details{margin-top:0;}
     #config-card{margin-top:clamp(24px,4vw,36px);}
-
     @media (max-width:640px){
       #service-tabs #segmented{overflow:visible !important;padding:6px !important;}
       #service-tabs #segmented .seg-inner{display:flex;flex-wrap:wrap;gap:6px !important;min-width:0 !important;padding-right:0 !important;}
@@ -158,7 +136,6 @@
       .stepper button{width:38px;font-size:1rem;}
       .btn{min-height:44px;padding:.6rem .9rem;}
     }
-
     img,svg,video,canvas,iframe{max-width:100%;height:auto;}
     table{width:100%;border-collapse:collapse;}
     h1,h2,h3,h4,p,li,.pill,.chip,.btn,.tab-btn{overflow-wrap:anywhere;word-break:break-word;}
