@@ -124,6 +124,30 @@
       a[aria-label="Chat to VoIP Shop on WhatsApp"]{ bottom:14px; right:12px; }
     }
   </style>
+  <style>
+  /* Hero container: a touch more breathing room on small screens */
+  .hero-wrap { max-width:1200px; margin-inline:auto; }
+  @media (max-width: 639px){
+    .hero-wrap { padding-top: 18px !important; padding-bottom: 18px !important; }
+  }
+
+  /* Keep the page white (as you prefer) but let the step card stay grey */
+  html, body, main, header, footer, section, .band { background:#FFFFFF !important; }
+  #config-card { background:transparent !important; }
+  #config-card .soft{
+    background:#F5F5F7 !important;
+    border:1px solid #E5E7EB !important;
+    border-radius:20px;
+    max-width:56rem;
+    margin:0 auto;
+    padding:clamp(24px,2.6vw,40px);
+    box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+
+  /* Subtle drop-shadow helper for the mobile image */
+  .drop-shadow{ filter:drop-shadow(0 12px 28px rgba(0,0,0,.08)); }
+</style>
+
 </head>
 <body>
 
@@ -133,12 +157,25 @@
 <script src="./scripts/mobile-app.js" defer></script>
 
 
-<!-- ===== HEADER / INTRO ===== -->
 <header class="app-hero corner-notch">
-  <div class="grid-wrap grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 px-5 sm:px-8 py-12 sm:py-16">
-    <!-- Left copy -->
+  <div class="hero-wrap grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 px-5 sm:px-8 py-10 sm:py-12">
+    <!-- ===== Mobile-first image (VISIBLE on mobile, hidden on lg+) ===== -->
+    <div class="hero-media flex justify-center md:justify-start lg:hidden">
+      <picture>
+        <!-- optional hi-dpi source -->
+        <source srcset="Assets/mobilephone@2x.png 2x, Assets/mobilephone.png 1x" type="image/png" />
+        <img
+          src="Assets/mobilephone.png"
+          alt="VoIP Shop app on phone"
+          class="w-[72%] max-w-[320px] sm:max-w-[360px] h-auto drop-shadow"
+          loading="eager" decoding="async"
+        />
+      </picture>
+    </div>
+
+    <!-- ===== Left copy ===== -->
     <div class="lg:col-span-6 flex flex-col justify-center">
-      <div class="flex items-center gap-2 mb-4">
+      <div class="flex items-center gap-2 mb-3">
         <span class="pill">App Only</span>
         <span class="text-xs text-gray-500">iOS &amp; Android</span>
       </div>
@@ -148,24 +185,13 @@
         <span class="sr-only">VoIP Shop</span><span class="font-normal">Call like a pro.</span>
       </h1>
 
-      <!-- Mobile-first image directly under the headline -->
-      <div class="hidden md:flex lg:hidden justify-center mb-4">
-        <img
-          src="Assets/mobilephone.png"
-          alt="VoIP Shop app on phone"
-          class="w-2/3 max-w-[240px] h-auto"
-          loading="eager"
-          decoding="async"
-        />
-      </div>
-
       <p class="text-[15px] sm:text-base text-gray-600 max-w-prose mb-5">
         Start calling in minutes. Register inside the app and get our best rates —
         <b>35c</b> local and <b>55c</b> mobile — all for only <b>R65/month</b>. Keep things professional with your own
         <b>business number</b> that customers recognise.
       </p>
 
-      <div class="flex flex-wrap items-center gap-3 mb-6 text-[14.5px] text-gray-600">
+      <div class="flex flex-wrap items-center gap-3 mb-5 text-[14.5px] text-gray-700">
         <span>Local: <b class="text-gray-900">35c/min</b></span>
         <span>Mobile: <b class="text-gray-900">55c/min</b></span>
         <span>Subscription: <b class="text-gray-900">R65</b></span>
@@ -191,23 +217,25 @@
         </div>
       </div>
 
-      <div class="mt-5 text-xs text-gray-500">Keep your personal number private. Present a <b>professional business number</b> on every call.</div>
+      <div class="mt-4 text-xs text-gray-500">
+        Keep your personal number private. Present a <b>professional business number</b> on every call.
+      </div>
     </div>
 
-    <!-- Right visual: hidden on mobile, shows on lg+ -->
+    <!-- ===== Right visual: ONLY on lg+ (desktop/tablet landscape) ===== -->
     <div class="hidden lg:col-span-6 lg:flex items-center justify-center">
       <div class="device-visual">
         <img
           src="Assets/Untitled design-14.png"
           alt="App mockup"
           class="w-[86%] xl:w-[80%] max-w-[620px] h-auto"
-          loading="lazy"
-          decoding="async"
+          loading="lazy" decoding="async"
         />
       </div>
     </div>
   </div>
 </header>
+
 
 <!-- ===== CONFIG CARD (Step 1 + Step 2 unified) ===== -->
 <section id="config-card" class="bg-gray-100 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
