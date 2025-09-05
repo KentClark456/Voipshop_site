@@ -210,60 +210,63 @@
 </header>
 
 <!-- ===== CONFIG CARD (Step 1 + Step 2 unified) ===== -->
-<section id="config-card" class="band">
-  <div class="soft">
-    <!-- Step 1 -->
-    <div class="text-center">
-      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
-      <h2 class="mt-2 text-2xl font-semibold tracking-tight">How many apps do you need?</h2>
-      <p class="mt-3 text-gray-600">Select how many apps (users) you need.</p>
-    </div>
-
-    <div class="mt-6 flex items-center justify-center gap-2">
-      <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Apps</span>
-      <div class="stepper" role="group" aria-label="Choose number of apps">
-        <button type="button" id="app-dec" aria-label="Decrease">–</button>
-        <input id="pn-apps" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
-        <button type="button" id="app-inc" aria-label="Increase">+</button>
+<section id="config-card" class="bg-gray-100 py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-screen-xl mx-auto px-6 lg:px-16">
+    <div class="soft">
+      <!-- Step 1 -->
+      <div class="text-center">
+        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-tight">How many apps do you need?</h2>
+        <p class="mt-3 text-gray-600">Select how many apps (users) you need.</p>
       </div>
-    </div>
 
-    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-      <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
-        <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">monthly</span>
-        <span id="pn-total-monthly">R 65</span>
-      </span>
-      <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
-        <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">once-off</span>
-        <span id="pn-total-onceoff">R 0</span>
-      </span>
-    </div>
+      <div class="mt-6 flex items-center justify-center gap-2">
+        <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Apps</span>
+        <div class="stepper" role="group" aria-label="Choose number of apps">
+          <button type="button" id="app-dec" aria-label="Decrease">–</button>
+          <input id="pn-apps" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
+          <button type="button" id="app-inc" aria-label="Increase">+</button>
+        </div>
+      </div>
 
-    <hr class="my-8" />
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">monthly</span>
+          <span id="pn-total-monthly">R 65</span>
+        </span>
+        <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">once-off</span>
+          <span id="pn-total-onceoff">R 0</span>
+        </span>
+      </div>
 
-    <!-- Step 2 -->
-    <div class="text-center">
-      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
-      <h2 class="mt-2 text-2xl font-semibold tracking-tight">Choose your geographic number</h2>
-      <p class="mt-1 text-gray-600">Pick a local code to present a professional business identity.</p>
-    </div>
+      <hr class="my-8" />
 
-    <div class="mt-4 flex justify-center">
-      <a id="pn-choose-number-btn" href="porting.html" class="btn">
-        <span>Choose geographic number</span>
-        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </a>
-    </div>
+      <!-- Step 2 -->
+      <div class="text-center">
+        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
+        <h2 class="mt-2 text-2xl font-semibold tracking-tight">Choose your geographic number</h2>
+        <p class="mt-1 text-gray-600">Pick a local code to present a professional business identity.</p>
+      </div>
 
-    <div class="mt-6 microcopy text-center">
-      <p><b>Pricing:</b> R65/app/month · +R25/month number rental · Calls: 35c/min local, 55c/min mobile.</p>
-      <p class="mt-1"><b>Support:</b> WhatsApp desk Mon–Fri 08:00–17:00. Critical ≤ 30 min · High ≤ 2 hrs · Normal next day.</p>
-      <p class="mt-1"><b>Notes:</b> App for iOS & Android. Online portal for usage & numbers. Fair use applies.</p>
+      <div class="mt-4 flex justify-center">
+        <a id="pn-choose-number-btn" href="porting.html" class="btn">
+          <span>Choose geographic number</span>
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+
+      <div class="mt-6 microcopy text-center">
+        <p><b>Pricing:</b> R65/app/month · +R25/month number rental · Calls: 35c/min local, 55c/min mobile.</p>
+        <p class="mt-1"><b>Support:</b> WhatsApp desk Mon–Fri 08:00–17:00. Critical ≤ 30 min · High ≤ 2 hrs · Normal next day.</p>
+        <p class="mt-1"><b>Notes:</b> App for iOS & Android. Online portal for usage & numbers. Fair use applies.</p>
+      </div>
     </div>
   </div>
 </section>
+
 
 <footer class="text-center text-xs text-gray-500 py-8">
   <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>

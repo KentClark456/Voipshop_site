@@ -323,50 +323,53 @@
   </section>
 
   <!-- ===== CONFIG ===== -->
-  <section id="config-card" class="">
-    <div class="max-w-screen-md mx-auto px-6 lg:px-0">
-      <div class="card p-6 sm:p-8 md:p-10 text-center">
-        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
-        <h2 class="mt-2 text-2xl font-semibold tracking-tight">How many extensions do you need?</h2>
-        <p class="mt-2 text-gray-600">Choose the number of users/extensions for your system.</p>
+<section id="config-card" class="">
+  <!-- Match the same container as #details above -->
+  <div class="max-w-screen-xl mx-auto px-6 lg:px-16">
+    <!-- Keep your existing card styling -->
+    <div class="card p-6 sm:p-8 md:p-10 text-center">
+      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 1</p>
+      <h2 class="mt-2 text-2xl font-semibold tracking-tight">How many extensions do you need?</h2>
+      <p class="mt-2 text-gray-600">Choose the number of users/extensions for your system.</p>
 
-        <div class="mt-6 flex items-center justify-center gap-2">
-          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Extensions</span>
-          <div class="stepper" role="group" aria-label="Choose number of extensions">
-            <button type="button" id="ext-dec" aria-label="Decrease">–</button>
-            <input id="vs-ext" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
-            <button type="button" id="ext-inc" aria-label="Increase">+</button>
-          </div>
-        </div>
-
-        <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
-            <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">monthly</span>
-            <span id="vs-total-monthly">R 215</span>
-          </span>
-          <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
-            <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">once-off</span>
-            <span id="vs-total-onceoff">R 0</span>
-          </span>
-        </div>
-
-        <hr class="my-8 border-gray-200" />
-
-        <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
-        <h3 class="mt-2 text-xl font-semibold tracking-tight">Start porting your numbers</h3>
-        <p class="mt-1 text-gray-600">We’ll move your existing numbers and connect your SIP phones to the cloud.</p>
-
-        <div class="mt-4 flex justify-center">
-          <a id="vs-porting-btn" href="porting.html" class="btn btn-blue font-semibold tracking-tight">
-            Start porting
-            <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
+      <div class="mt-6 flex items-center justify-center gap-2">
+        <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2">Extensions</span>
+        <div class="stepper" role="group" aria-label="Choose number of extensions">
+          <button type="button" id="ext-dec" aria-label="Decrease">–</button>
+          <input id="vs-ext" type="text" inputmode="numeric" pattern="[0-9]*" value="1" aria-live="polite" />
+          <button type="button" id="ext-inc" aria-label="Increase">+</button>
         </div>
       </div>
+
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">monthly</span>
+          <span id="vs-total-monthly">R 215</span>
+        </span>
+        <span class="px-4 py-3 rounded-full border border-[var(--border)] text-gray-900 text-xl">
+          <span class="text-[11px] uppercase tracking-widest text-gray-500 mr-2 align-middle">once-off</span>
+          <span id="vs-total-onceoff">R 0</span>
+        </span>
+      </div>
+
+      <hr class="my-8 border-gray-200" />
+
+      <p class="text-xs font-medium uppercase tracking-widest text-gray-500">Step 2</p>
+      <h3 class="mt-2 text-xl font-semibold tracking-tight">Start porting your numbers</h3>
+      <p class="mt-1 text-gray-600">We’ll move your existing numbers and connect your SIP phones to the cloud.</p>
+
+      <div class="mt-4 flex justify-center">
+        <a id="vs-porting-btn" href="porting.html" class="btn btn-blue font-semibold tracking-tight">
+          Start porting
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M6 12h12M12 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
     </div>
-  </section>
+  </div>
+</section>
+
 
   <footer class="text-center text-xs text-gray-500 py-8">
     <p>© <span id="y"></span> VoIP Shop. All rights reserved.</p>

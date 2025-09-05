@@ -252,28 +252,33 @@ function createPackageCard(pkg, index = 0) {
     </div>
 
     <div class="package-meta">
-      <div class="price-list">
-        ${minutesText ? `
-          <div class="price-line">
-            <span class="price-label">Minutes included</span>
-            <span class="price-value">${minutesText}</span>
-          </div>` : ""}
+<div class="package-meta">
+  <div class="price-list">
+    ${minutesText ? `
+      <div class="price-line">
+        <span class="price-label">Minutes included</span>
+        <span class="price-value">${minutesText}</span>
+      </div>` : ""}
 
-        <div class="price-line">
-          <span class="price-label">Once-off</span>
-          <span class="price-value">R ${Number(pkg.onceOff||0).toLocaleString('en-ZA')}</span>
-        </div>
-
-        <div class="price-line">
-          <span class="price-label">Monthly</span>
-          <span class="price-value">R ${Number(pkg.monthly||0).toLocaleString('en-ZA')}<span class="per">/month</span></span>
-        </div>
-      </div>
-
-      <button class="select-package-btn" type="button" aria-label="Select ${pkg.name}">
-        Select Package
-      </button>
+    <div class="price-line">
+      <span class="price-label">Hardware&nbsp;Cost</span>
+      <span class="price-value">R ${Number(pkg.onceOff||0).toLocaleString('en-ZA')}</span>
     </div>
+
+    <div class="price-line">
+      <span class="price-label">Monthly</span>
+      <span class="price-value">
+        R ${Number(pkg.monthly||0).toLocaleString('en-ZA')}
+        <span class="per">/month</span>
+      </span>
+    </div>
+  </div>
+
+  <button class="select-package-btn" type="button" aria-label="Select ${pkg.name}">
+    Select Package
+  </button>
+</div>
+
   `;
 const btn = card.querySelector(".select-package-btn");
 if (btn) {

@@ -174,7 +174,7 @@ function cardHTML(item, idx = 0){
     <div class="hardware-bottom">
       <div class="hardware-price">
         <span class="price-value" data-base-price="${base}" data-base-price-ex="${baseEx}">${money(base)}</span>
-        <span class="price-label">Once-off</span>
+        <span class="price-label">Device Cost</span>
       </div>
 
       <div class="hardware-qty-container">
