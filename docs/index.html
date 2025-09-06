@@ -1,93 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="format-detection" content="telephone=no" />
-    <title>VoIP Shop | Business Phone Systems</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>VoIP Shop | Business Phone Systems</title>
 
-    <script>
-      window.tailwind = window.tailwind || {};
-      window.tailwind.config = {
-        safelist: [
-          'hidden','block','md:hidden','md:flex','overflow-hidden',
-          'sticky','top-0','z-50','backdrop-blur',
-          'border-b','border-gray-200',
-          'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
-          'flex','items-center','justify-between','gap-6',
-          'text-sm','font-medium','text-gray-700','hover:text-black',
-          'space-y-2','text-base'
-        ]
-      };
-    </script>
-    <!-- Tailwind CSS (single include) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+  <!-- ✅ Google tag (gtag.js) — keep inside <head> -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17526288798');
+  </script>
 
-    <!-- Flowbite CSS and JS -->
-    <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
-    <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js" defer></script>
+  <!-- Tailwind setup & libs -->
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      safelist: [
+        'hidden','block','md:hidden','md:flex','overflow-hidden',
+        'sticky','top-0','z-50','backdrop-blur',
+        'border-b','border-gray-200',
+        'max-w-screen-xl','mx-auto','px-4','md:px-6','py-3',
+        'flex','items-center','justify-between','gap-6',
+        'text-sm','font-medium','text-gray-700','hover:text-black',
+        'space-y-2','text-base'
+      ]
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Mobile polish + Apple styling -->
-    <style>
-      @media (prefers-reduced-motion: reduce) {
-        .btn-apple, .btn-apple .icon-slide, .btn-apple::after { transition: none !important; }
-      }
-      @media (max-width: 640px) {
-        .btn-apple { padding-left: 1.125rem !important; padding-right: 1.125rem !important; min-height: 44px; }
-      }
+  <!-- Flowbite CSS and JS -->
+  <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js" defer></script>
 
-      /* Apple palette */
-      :root{
-        --apple-blue: #0071E3;
-        --apple-blue-hover:#0066CC;
-        --apple-grey:#F5F5F7;
-        --apple-blue-tint:#E9F2FE;
-        --apple-blue-ink:#0A63CF;
-        --apple-pink:#FF2D55; /* subtle accent (optional) */
-      }
+  <!-- Styles -->
+  <style>
+    @media (prefers-reduced-motion: reduce) { .btn-apple, .btn-apple .icon-slide, .btn-apple::after { transition: none !important; } }
+    @media (max-width: 640px) { .btn-apple { padding-left: 1.125rem !important; padding-right: 1.125rem !important; min-height: 44px; } }
+    :root{
+      --apple-blue:#0071E3; --apple-blue-hover:#0066CC;
+      --apple-grey:#F5F5F7; --apple-blue-tint:#E9F2FE;
+      --apple-blue-ink:#0A63CF; --apple-pink:#FF2D55;
+    }
+    .btn-apple{ transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease; will-change: transform; position: relative; overflow: hidden; }
+    .btn-apple:hover{ transform: translateY(-2px); }
+    .btn-apple:active{ transform: translateY(0); }
+    .btn-primary-apple:hover{ box-shadow:0 10px 25px rgba(0,113,227,.25); background:var(--apple-blue-hover)!important; }
+    .btn-outline-apple{ background: linear-gradient(#fff,#f7f7f7); }
+    .btn-outline-apple:hover{ background:#f5f5f7; box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 8px 20px rgba(0,0,0,.06); border-color:#E5E7EB!important; }
+    .btn-apple .icon-slide{ transition: transform .18s ease, opacity .18s ease; }
+    .btn-apple:hover .icon-slide{ transform: translateX(3px); }
+    .btn-apple::after{ content:""; position:absolute; inset:0; transform:translateX(-120%); background:linear-gradient(120deg,transparent 0%, rgba(255,255,255,.25) 50%, transparent 100%); transition:transform .6s ease; }
+    .btn-apple:hover::after{ transform:translateX(120%); }
+    .btn-apple:focus-visible{ outline:none; box-shadow:0 0 0 3px rgba(0,113,227,.20), 0 10px 25px rgba(0,113,227,.25); border-color:rgba(0,113,227,.6)!important; }
+  </style>
+</head>
+  <!-- page content -->
 
-
-
-      /* ===== Apple-like buttons ===== */
-      .btn-apple {
-        transition: transform .18s ease, box-shadow .18s ease, background-color .18s ease, border-color .18s ease;
-        will-change: transform;
-        position: relative;
-        overflow: hidden;
-      }
-      .btn-apple:hover { transform: translateY(-2px); }
-      .btn-apple:active { transform: translateY(0); }
-      .btn-primary-apple:hover { box-shadow: 0 10px 25px rgba(0, 113, 227, .25); background: var(--apple-blue-hover) !important; }
-      .btn-outline-apple { background: linear-gradient(#fff, #f7f7f7); }
-      .btn-outline-apple:hover {
-        background: #f5f5f7;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,.06), 0 8px 20px rgba(0,0,0,.06);
-        border-color: #E5E7EB !important;
-      }
-      .btn-apple .icon-slide { transition: transform .18s ease, opacity .18s ease; }
-      .btn-apple:hover .icon-slide { transform: translateX(3px); }
-      .btn-apple::after {
-        content: ""; position: absolute; inset: 0; transform: translateX(-120%);
-        background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.25) 50%, transparent 100%);
-        transition: transform .6s ease;
-      }
-      .btn-apple:hover::after { transform: translateX(120%); }
-      .btn-apple:focus-visible {
-        outline: none;
-        box-shadow: 0 0 0 3px rgba(0,113,227,.20), 0 10px 25px rgba(0,113,227,.25);
-        border-color: rgba(0,113,227,.6) !important;
-      }
-    </style>
-  </head>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'AW-17526288798');
-</script>
 
   <body class="bg-gray-100 text-black antialiased">
     <!-- Skip link for accessibility -->

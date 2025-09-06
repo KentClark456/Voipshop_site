@@ -18,24 +18,30 @@
   </script>
 
   <!-- ===== Google Ads conversion (Order Received ONLY) ===== -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      const money   = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
-      const monthly = money(document.getElementById('summary-monthly')?.textContent);
-      const onceoff = money(document.getElementById('summary-onceoff')?.textContent);
-      const orderId = (document.getElementById('order-number')?.textContent || '').trim();
+<!-- ===== Google Ads conversion (Order Received ONLY) ===== -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.__voipConvFired) return;   // fire once
+    window.__voipConvFired = true;
 
-      // Default: once-off + first month. Use "const valueToday = onceoff;" if you prefer once-off only.
-      const valueToday = monthly + onceoff;
+    const money = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
+    const monthly = money(document.getElementById('summary-monthly')?.textContent);
+    const onceoff = money(document.getElementById('summary-onceoff')?.textContent);
+    const orderId = (document.getElementById('order-number')?.textContent || '').trim();
 
-      gtag('event', 'conversion', {
-        send_to: 'AW-17526288798/yXsXCNjp1JbE7J1j6VB', // confirm this matches your Ads UI
-        value: valueToday,
-        currency: 'ZAR',
-        transaction_id: orderId
-      });
+    // Decide how you want to value the conversion:
+    //  - onceoff only: const valueToday = onceoff;
+    //  - onceoff + first month:
+    const valueToday = monthly + onceoff;
+
+    gtag('event', 'conversion', {
+      send_to: 'AW-17526288798/eo0tCJHX2pIbEJ7jl6VB',  // <-- use your real label
+      value: valueToday,
+      currency: 'ZAR',
+      transaction_id: orderId || undefined
     });
-  </script>
+  });
+</script>
 
   <!-- ===== Tailwind (configure BEFORE including CDN) ===== -->
   <script>
