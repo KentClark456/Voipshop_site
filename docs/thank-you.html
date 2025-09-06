@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ===== Meta FIRST ===== -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Quote Sent | VoIP Shop</title>
+  <meta name="description" content="Thanks! We've emailed your quote. View your reference and next steps." />
+  <meta name="theme-color" content="#f5f5f7" />
+
+  <!-- ===== Google tag (gtag.js) AFTER metas ===== -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17526288798');
+  </script>
+
+  <!-- ===== Tailwind (CDN) ===== -->
+  <script>
+    // Small palette to match your other pages
+    window.tailwind = {
+      theme: {
+        extend: {
+          colors: {
+            ink: '#0B0B0F',
+            paper: '#FFFFFF',
+            apple: { blue: '#0071E3', grey: '#F5F5F7' }
+          },
+          boxShadow: {
+            card: '0 2px 10px rgba(0,0,0,.05)',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @media print { .no-print { display:none !important; } }
+  </style>
+</head>
+
+<body class="bg-[#F5F5F7] text-gray-900">
+  <!-- ✅ Universal navbar injected by site.js (NOT inside .about-scope) -->
+  <div id="nav-slot"></div>
+  <script src="./scripts/site.js" defer></script>
+  <!-- ✅ End navbar -->
+
+
+  <!-- ===== Main ===== -->
+  <main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+    <!-- Success header -->
+    <section class="text-center">
+      <div class="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] shadow-sm">
+        <svg class="h-7 w-7" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12l4 4 10-10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h1 class="mt-4 text-3xl sm:text-4xl font-semibold tracking-tight">Your quote is on its way</h1>
+      <p class="mt-2 text-gray-600">
+        We’ve emailed your quote to
+        <span id="customer-email" class="font-medium text-gray-900">you@example.com</span>.
+      </p>
+      <p class="text-sm text-gray-500">
+        Reference <span id="order-number" class="font-medium text-gray-800">VS-QUOTE-000000</span>
+      </p>
+
+      <!-- Quick actions -->
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+        <a id="btn-view-quote" href="#" class="inline-flex items-center rounded-full bg-[#0071E3] px-6 py-3 text-white font-semibold hover:bg-[#0066CC]">View Quote</a>
+        <a href="index.html" class="inline-flex items-center rounded-full border border-gray-300 bg-white px-6 py-3 font-semibold hover:bg-gray-50">Back to Home</a>
+      </div>
+
+      <p class="mt-4 text-xs text-gray-500">Didn’t receive the email? Check spam or contact
+        <a class="underline" href="mailto:sales@voipshop.co.za">sales@voipshop.co.za</a>.
+      </p>
+    </section>
+
+    <!-- Next steps -->
+    <section class="mt-10 grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <h2 class="text-lg font-semibold tracking-tight">What happens next</h2>
+        <ol class="mt-4 space-y-4 text-sm">
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">1</span>
+            <div>
+              <p class="font-medium text-gray-900">Review your quote</p>
+              <p class="text-gray-600">Open the PDF we emailed to confirm quantities and pricing.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">2</span>
+            <div>
+              <p class="font-medium text-gray-900">Approve or request changes</p>
+              <p class="text-gray-600">Reply to the email if anything needs updating—we’ll resend instantly.</p>
+            </div>
+          </li>
+          <li class="flex gap-3">
+            <span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-[#E7F0FF] text-[#0B63E6] text-xs font-bold">3</span>
+            <div>
+              <p class="font-medium text-gray-900">Convert to order</p>
+              <p class="text-gray-600">Once approved, we’ll send the invoice and schedule installation.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+
+      <div class="lg:col-span-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <h2 class="text-lg font-semibold tracking-tight">Summary</h2>
+        <div class="mt-3 space-y-2 text-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Monthly total (ex VAT)</span>
+            <span id="summary-monthly" class="font-semibold text-gray-900">R 0.00</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-gray-600">Once-off total (ex VAT)</span>
+            <span id="summary-onceoff" class="font-semibold text-gray-900">R 0.00</span>
+          </div>
+          <hr class="my-3 border-gray-200">
+          <p class="text-gray-600 text-sm">Values are taken from your quote request.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Help -->
+    <section class="mt-8 text-sm text-gray-600 text-center">
+      Questions? WhatsApp <a href="https://wa.me/27679228256" target="_blank" class="underline">+27 67 922 8256</a> or email
+      <a href="mailto:sales@voipshop.co.za" class="underline">sales@voipshop.co.za</a>.
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="bg-white border-t border-gray-200">
+    <div class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8 text-center text-sm text-gray-600">
+      <div class="mb-2">Need help? <a href="mailto:sales@voipshop.co.za" class="text-[#0071E3]">Email us</a> or call <a href="tel:0679228256" class="text-[#0071E3]">067 922 8256</a>.</div>
+      <div class="mb-2">
+        <a href="privacy.html" class="hover:underline">Privacy Policy</a> ·
+        <a href="terms.html" class="hover:underline">Terms of Service</a> ·
+        <a href="legal.html" class="hover:underline">Refund Policy</a>
+      </div>
+      <div class="text-gray-400">© 2025 VoIP Shop. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- ===== Wire text + link + expose values for conversion ===== -->
+  <script>
+    (function wireQuotePage(){
+      // Read identifiers (URL first, then session)
+      const url = new URL(window.location.href);
+      const qpEmail = url.searchParams.get('email');
+      const qpOrder = url.searchParams.get('order');
+
+      let meta = null, downloads = null;
+      try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
+      try { downloads = JSON.parse(sessionStorage.getItem('orderDownloads') || 'null'); } catch {}
+
+      const email = qpEmail || meta?.email || 'you@example.com';
+      const order = qpOrder || meta?.orderNumber || 'VS-QUOTE-000000';
+
+      // Fill UI
+      const emailEl = document.getElementById('customer-email');
+      const orderEl = document.getElementById('order-number');
+      if (emailEl) emailEl.textContent = email;
+      if (orderEl) orderEl.textContent = order;
+
+      // Show summary if we have it
+      const fmtZAR = (n) => 'R ' + Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (meta?.subtotals) {
+        const m = document.getElementById('summary-monthly');
+        const o = document.getElementById('summary-onceoff');
+        if (m) m.textContent = fmtZAR(meta.subtotals.monthly);
+        if (o) o.textContent = fmtZAR(meta.subtotals.onceOff);
+      }
+
+      // Expose values for conversion helpers
+      (function exposeForConversion(){
+        const monthlyNum = Number(meta?.subtotals?.monthly || 0);
+        const onceoffNum = Number(meta?.subtotals?.onceOff || 0);
+        document.body.setAttribute('data-order-id', order || '');
+        document.body.setAttribute('data-monthly', String(monthlyNum));
+        document.body.setAttribute('data-onceoff', String(onceoffNum));
+        window.ORDER = { id: order || '', monthly: monthlyNum, onceoff: onceoffNum };
+      })();
+
+      // Link "View Quote" (prefer previously saved blob URL; else API fallback)
+      const API_BASE = 'https://voipshop-quote-api.vercel.app';
+      const quoteUrlBlob = downloads?.invoiceUrl || ''; // reuse invoiceUrl if backend returns that
+      const hasRealOrder = order && !/^VS-QUOTE-0+$/.test(order) && !/^VS-0+$/.test(order);
+
+      // Fallback to invoice preview if no blob present (adjust if your API exposes /quote)
+      const quoteUrl = quoteUrlBlob || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice` : '');
+
+      const a = document.getElementById('btn-view-quote');
+      if (a) {
+        if (quoteUrl) {
+          a.href = quoteUrl;
+          a.target = '_blank';
+          a.rel = 'noopener';
+        } else {
+          a.removeAttribute('href');
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            alert('We’re preparing your quote. Please refresh in a moment or check your email.');
+          }, { once: true });
+        }
+      }
+    })();
+  </script>
+
+  <!-- ===== Google Ads conversion (Quote Thank-You) ===== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.__voipQuoteConvFired) return;
+      window.__voipQuoteConvFired = true;
+
+      // Normalize cents→rands if inputs look like cents
+      function toZARforEvent(monthly, onceoff) {
+        const allInts = Number.isInteger(monthly) && Number.isInteger(onceoff);
+        const both00  = (monthly % 100 === 0) && (onceoff % 100 === 0);
+        const sum     = (monthly || 0) + (onceoff || 0);
+        if (allInts && both00 && sum >= 10000) {
+          console.log('ℹ️ Normalizing cents→rands for Ads value');
+          return sum / 100;
+        }
+        return sum;
+      }
+
+      function readNow() {
+        let monthly = Number(document.body.getAttribute('data-monthly') || 0);
+        let onceoff = Number(document.body.getAttribute('data-onceoff') || 0);
+        let orderId = (document.body.getAttribute('data-order-id') || '').trim();
+
+        if ((!monthly && !onceoff) && window.ORDER) {
+          monthly = Number(window.ORDER.monthly || 0);
+          onceoff = Number(window.ORDER.onceoff || 0);
+        }
+        if (!orderId && window.ORDER) orderId = (window.ORDER.id || '').trim();
+
+        return { monthly, onceoff, orderId };
+      }
+
+      function fire({ monthly, onceoff, orderId }) {
+        const sum = toZARforEvent(monthly, onceoff);
+        if (!(sum > 0) || !orderId || typeof gtag !== 'function') {
+          console.warn('[ads] Skipping conversion', { sum, orderId, hasGtag: typeof gtag === 'function' });
+          return;
+        }
+        const valueToday = Math.round(sum * 100) / 100;
+        console.log('🧾 Quote conversion payload', { monthly, onceoff, orderId, valueToday });
+
+        gtag('event', 'conversion', {
+          send_to: 'AW-17526288798/vYsXCNjp1JIbEJ7jl6VB',
+          value: valueToday,
+          currency: 'ZAR',
+          transaction_id: orderId
+        });
+      }
+
+      const delays = [0, 250, 600, 1200, 2000];
+      (function attempt(i=0){
+        setTimeout(()=>{
+          const data = readNow();
+          const haveValues = (data.monthly || data.onceoff) && (data.orderId && !/^VS-QUOTE-0+$/.test(data.orderId));
+          console.log(`🔎 Quote attempt ${i+1}/${delays.length}`, data);
+          if (haveValues || i === delays.length - 1) {
+            fire(data);
+          } else {
+            attempt(i+1);
+          }
+        }, delays[i]);
+      })();
+    });
+  </script>
+</body>
+</html>
+

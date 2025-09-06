@@ -233,7 +233,7 @@
 
     <!-- Footer -->
     <section class="mt-8 text-sm text-gray-600">
-      Questions? WhatsApp <a href="https://wa.me/27679228256" target="_blank" class="underline">+27 71 005 7691</a> or email <a href="mailto:sales@voipshop.co.za" class="underline">sales@voipshop.co.za</a>.
+      Questions? WhatsApp <a href="https://wa.me/27679228256" target="_blank" class="underline">+27 67 922 8256</a> or email <a href="mailto:sales@voipshop.co.za" class="underline">sales@voipshop.co.za</a>.
     </section>
   </main>
 
@@ -425,7 +425,9 @@
       }
 
       function fire({ monthly, onceoff, orderId }) {
-        const valueToday = toZARforEvent(monthly, onceoff) || 1;
+        const sum = toZARforEvent(monthly, onceoff);
+if (!sum || !orderId) return; // skip firing if we don't have real data
+const valueToday = sum;
         console.log('🧾 Conversion payload', { monthly, onceoff, orderId, valueToday });
 
         gtag('event', 'conversion', {

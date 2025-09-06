@@ -18,9 +18,6 @@
   <!-- reCAPTCHA v3 (non-blocking) -->
   <script async defer src="https://www.google.com/recaptcha/api.js?render=6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw"></script>
 
-  <!-- your styles/scripts continue here -->
-</head>
-
   <!-- Diagnostic helper (optional) -->
   <script>
     window.__rcDiag = async function(action='send_quote'){
@@ -43,22 +40,23 @@
   <meta http-equiv="x-dns-prefetch-control" content="on" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+
   <style>
     /* --- Critical layout (no Tailwind required) --- */
-.cart-grid{
-  max-width:1280px; /* ≈ max-w-screen-xl */
-  margin:0 auto;
-  padding:2rem 1.5rem; /* ≈ py-8 px-6 */
-  display:grid;
-  grid-template-columns:1fr; /* mobile */
-  gap:2rem;                /* ≈ gap-8 */
-}
-.cart-left, .cart-right{ grid-column:auto / span 1; }
-@media (min-width:1024px){ /* ≈ lg: */
-  .cart-grid{ grid-template-columns:repeat(12, minmax(0,1fr)); }
-  .cart-left { grid-column:span 8; }  /* ≈ lg:col-span-8 */
-  .cart-right{ grid-column:span 4; }  /* ≈ lg:col-span-4 */
-}
+    .cart-grid{
+      max-width:1280px; /* ≈ max-w-screen-xl */
+      margin:0 auto;
+      padding:2rem 1.5rem; /* ≈ py-8 px-6 */
+      display:grid;
+      grid-template-columns:1fr; /* mobile */
+      gap:2rem;                /* ≈ gap-8 */
+    }
+    .cart-left, .cart-right{ grid-column:auto / span 1; }
+    @media (min-width:1024px){ /* ≈ lg: */
+      .cart-grid{ grid-template-columns:repeat(12, minmax(0,1fr)); }
+      .cart-left { grid-column:span 8; }  /* ≈ lg:col-span-8 */
+      .cart-right{ grid-column:span 4; }  /* ≈ lg:col-span-4 */
+    }
 
     /* =========================
        Base + Performance
@@ -180,10 +178,10 @@
   <!-- Nav injection -->
   <script src="./scripts/site.js" defer></script>
 
- <main class="cart-grid">
+  <main class="cart-grid">
 
     <!-- Left: tables -->
-   <div class="cart-left space-y-8">
+    <div class="cart-left space-y-8">
       <!-- Once-off -->
       <section>
         <h2 class="text-[1.1rem] font-semibold text-gray-900 mb-3">Once-off Charges</h2>
@@ -212,7 +210,7 @@
     </div>
 
     <!-- Right: summary -->
-<aside class="cart-right space-y-4">
+    <aside class="cart-right space-y-4">
 
       <!-- Card 1: Pay Now (blue accent) -->
       <div class="card card-blue">
@@ -413,106 +411,106 @@
 
   <!-- ✅ Mobile fixes (CSS) -->
   <style>
-  /* ---------- MOBILE FIXES ---------- */
+    /* ---------- MOBILE FIXES ---------- */
 
-  /* iOS Safari: explicitly visible on phones */
-  @media (max-width: 640px){
-    main, aside, section { content-visibility: visible; contain-intrinsic-size: auto; }
-  }
-
-  /* Long product names: wrap safely */
-  .table-row [data-cell="name"]{
-    overflow-wrap:anywhere;
-    word-break:break-word;
-    line-height:1.25;
-  }
-
-  /* Mobile grid with fixed total column */
-  @media (max-width: 767.98px){
-    .table-row{
-      grid-template-columns: 1fr 104px;
-      gap:8px;
-      padding:10px 12px;
+    /* iOS Safari: explicitly visible on phones */
+    @media (max-width: 640px){
+      main, aside, section { content-visibility: visible; contain-intrinsic-size: auto; }
     }
-    .table-row [data-cell="name"]  { grid-column:1/-1; }
-    .table-row [data-cell="qty"]   { grid-column:1/2; justify-self:start; }
-    .table-row [data-cell="total"] {
-      grid-column:2/3;
-      justify-self:end;
-      text-align:right;
-      white-space:nowrap;
-      font-variant-numeric:tabular-nums;
-      font-size:clamp(.92rem, 3.6vw, 1rem);
-      max-width:104px;
-      overflow:hidden;
-      text-overflow:ellipsis;
+
+    /* Long product names: wrap safely */
+    .table-row [data-cell="name"]{
+      overflow-wrap:anywhere;
+      word-break:break-word;
+      line-height:1.25;
     }
-  }
 
-  /* Ultra-small phones: slightly narrower total col */
-  @media (max-width: 380px){
-    .table-row{ grid-template-columns: 1fr 92px; }
-    .table-row [data-cell="total"]{ max-width:92px; font-size:.9rem; }
-  }
-
-  /* Qty control: compact on phones */
-  @media (max-width: 480px){
-    :root{ --qty-pill-number-nudge:0; }
-    .qty-pill{ height:26px; border-radius:9px; transform:none; }
-    .qty-btn{ width:26px; font-size:13px; }
-    .qty-value{ min-width:26px; font-size:12px; }
-    .qty-plain{ height:26px; min-width:30px; padding:0 6px; font-size:12px; }
-  }
-
-  /* Totals rows: fixed right column width on mobile */
-  @media (max-width: 640px){
-    .table-total{ border-radius:12px; padding:10px 12px !important; }
-    .table-total .label{ font-size:.9rem; }
-    .table-total .amount{
-      font-size:clamp(1rem, 4vw, 1.05rem);
-      white-space:nowrap;
+    /* Mobile grid with fixed total column */
+    @media (max-width: 767.98px){
+      .table-row{
+        grid-template-columns: 1fr 104px;
+        gap:8px;
+        padding:10px 12px;
+      }
+      .table-row [data-cell="name"]  { grid-column:1/-1; }
+      .table-row [data-cell="qty"]   { grid-column:1/2; justify-self:start; }
+      .table-row [data-cell="total"] {
+        grid-column:2/3;
+        justify-self:end;
+        text-align:right;
+        white-space:nowrap;
+        font-variant-numeric:tabular-nums;
+        font-size:clamp(.92rem, 3.6vw, 1rem);
+        max-width:104px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+      }
     }
-    .table-total.grid{
-      grid-template-columns: 1fr 130px;
-      column-gap:10px;
+
+    /* Ultra-small phones: slightly narrower total col */
+    @media (max-width: 380px){
+      .table-row{ grid-template-columns: 1fr 92px; }
+      .table-row [data-cell="total"]{ max-width:92px; font-size:.9rem; }
     }
-  }
 
-  /* Summary cards */
-  @media (max-width: 1024px){
-    .card-h{ padding:12px 14px; }
-    .card-b{ padding:14px; }
-    .pill{ font-size:11.5px; padding:3px 9px; }
-  }
+    /* Qty control: compact on phones */
+    @media (max-width: 480px){
+      :root{ --qty-pill-number-nudge:0; }
+      .qty-pill{ height:26px; border-radius:9px; transform:none; }
+      .qty-btn{ width:26px; font-size:13px; }
+      .qty-value{ min-width:26px; font-size:12px; }
+      .qty-plain{ height:26px; min-width:30px; padding:0 6px; font-size:12px; }
+    }
 
-  /* Footer breathing room so WhatsApp floater doesn't overlap */
-  @media (max-width: 640px){
-    footer{ padding-bottom:64px; }
-    .card:last-of-type{ margin-bottom:8px; }
-  }
+    /* Totals rows: fixed right column width on mobile */
+    @media (max-width: 640px){
+      .table-total{ border-radius:12px; padding:10px 12px !important; }
+      .table-total .label{ font-size:.9rem; }
+      .table-total .amount{
+        font-size:clamp(1rem, 4vw, 1.05rem);
+        white-space:nowrap;
+      }
+      .table-total.grid{
+        grid-template-columns: 1fr 130px;
+        column-gap:10px;
+      }
+    }
 
-  /* Breadcrumb + H1 sizing */
-  @media (max-width: 480px){
-    h1.text-3xl{ font-size:1.5rem; }
-    nav[aria-label="breadcrumb"]{ font-size:12px; }
-  }
+    /* Summary cards */
+    @media (max-width: 1024px){
+      .card-h{ padding:12px 14px; }
+      .card-b{ padding:14px; }
+      .pill{ font-size:11.5px; padding:3px 9px; }
+    }
 
-  /* Fallback if Tailwind grid helpers aren’t present */
-  @media (max-width: 1023.98px){
-    .lg\:col-span-8, .lg\:col-span-4 { grid-column: auto / span 12; }
-  }
+    /* Footer breathing room so WhatsApp floater doesn't overlap */
+    @media (max-width: 640px){
+      footer{ padding-bottom:64px; }
+      .card:last-of-type{ margin-bottom:8px; }
+    }
+
+    /* Breadcrumb + H1 sizing */
+    @media (max-width: 480px){
+      h1.text-3xl{ font-size:1.5rem; }
+      nav[aria-label="breadcrumb"]{ font-size:12px; }
+    }
+
+    /* Fallback if Tailwind grid helpers aren’t present */
+    @media (max-width: 1023.98px){
+      .lg\:col-span-8, .lg\:col-span-4 { grid-column: auto / span 12; }
+    }
   </style>
 
   <!-- (Optional safety) Keep these overrides; harmless if globals are removed -->
   <style>
-  /* Turn off content-visibility for dynamic billing tables (explicit) */
-  #monthly-rows,
-  #monthly-rows ~ .mt-3,
-  #onceoff-rows,
-  #onceoff-rows ~ .mt-3 {
-    content-visibility: visible !important;
-    contain-intrinsic-size: auto !important;
-  }
+    /* Turn off content-visibility for dynamic billing tables (explicit) */
+    #monthly-rows,
+    #monthly-rows ~ .mt-3,
+    #onceoff-rows,
+    #onceoff-rows ~ .mt-3 {
+      content-visibility: visible !important;
+      contain-intrinsic-size: auto !important;
+    }
   </style>
 
   <!-- WhatsApp floater (kept) -->
@@ -539,5 +537,153 @@
     </svg>
     <span style="font-size:14px;font-weight:600">Need help?</span>
   </a>
+
+  <!-- ✅ Checkout wiring (moved to end, DOM-safe, guarded) -->
+  <script>
+    (function () {
+      const SITE_KEY = '6LcI2rUrAAAAADaW9lGy3WZfBS-KzmnhWpOlcSVw'; // reCAPTCHA v3
+
+      // Parse "R 1.499,00" / "R 1499.00" safely
+      const money = (t) => {
+        const s = String(t || '')
+          .replace(/[^\d,.\-]/g, '')
+          .replace(/\.(?=\d{3}\b)/g, ''); // drop thousand points
+        const n = Number(s.replace(',', '.'));
+        return Number.isFinite(n) ? n : 0;
+      };
+
+      // Read ex-VAT subtotals first (preferred), fall back to table totals
+      function readTotals() {
+        let onceOff = money(document.getElementById('subtotal-onceoff')?.textContent);
+        let monthly = money(document.getElementById('subtotal-monthly')?.textContent);
+        if (!onceOff) onceOff = money(document.getElementById('onceoff-total')?.textContent);
+        if (!monthly) monthly = money(document.getElementById('monthly-total')?.textContent);
+        return { onceOff, monthly };
+      }
+
+      // Persist for the Order Received page (used by your conversion code)
+      function saveMeta({ email, orderNumber, monthly, onceOff }) {
+        sessionStorage.setItem('checkoutMeta', JSON.stringify({
+          email,
+          orderNumber,
+          subtotals: { monthly, onceOff }
+        }));
+      }
+      function saveDownloads(maybe) {
+        if (!maybe) return;
+        sessionStorage.setItem('orderDownloads', JSON.stringify(maybe));
+      }
+
+      async function withCaptcha(action) {
+        if (!window.grecaptcha?.execute) throw new Error('reCAPTCHA not loaded');
+        await new Promise(res => grecaptcha.ready(res));
+        return await grecaptcha.execute(SITE_KEY, { action });
+      }
+
+      async function postJSON(url, data) {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        if (!res.ok) throw new Error('Request failed ' + res.status);
+        return await res.json().catch(() => ({}));
+      }
+
+      function init() {
+        if (window.__checkoutWired) return; // prevent double-binding
+        window.__checkoutWired = true;
+
+        const form = document.getElementById('quick-checkout-form');
+        const emailQuoteBtn = document.getElementById('email-quote-btn');
+
+        // Complete Order
+        if (form) {
+          form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(form);
+            const email = (fd.get('email') || '').toString().trim();
+            const business = (fd.get('businessName') || '').toString().trim();
+            const phone = (fd.get('phone') || '').toString().trim();
+            const { onceOff, monthly } = readTotals();
+
+            const btn = form.querySelector('button[type="submit"]');
+            btn.disabled = true;
+
+            try {
+              const token = await withCaptcha('complete_order');
+              const payload = { email, business, phone, totals: { onceOff, monthly }, token };
+
+              // 🔧 TODO: point at your real backend
+              const resp = await postJSON('/api/checkout/complete', payload);
+
+              const orderNumber = resp.orderNumber || ('VS-' + Date.now());
+              saveMeta({ email, orderNumber, monthly, onceOff });
+              saveDownloads({ invoiceUrl: resp.invoiceUrl, slaUrl: resp.slaUrl, portingUrl: resp.portingUrl });
+
+              // (Optional) remarketing signal — safe if not configured
+              if (window.gtag) gtag('event', 'begin_checkout', { value: onceOff + monthly, currency: 'ZAR' });
+
+              const q = new URLSearchParams({ order: orderNumber, email }).toString();
+              location.href = 'post-checkout.html?' + q;
+            } catch (err) {
+              console.error('[checkout] submit failed', err);
+              alert('Sorry — we couldn’t complete your order right now. Please try again or use “Email Me Quote”.');
+            } finally {
+              btn.disabled = false;
+            }
+          });
+        }
+
+// Email Me Quote  ➜ thank-you.html
+if (emailQuoteBtn) {
+  emailQuoteBtn.addEventListener('click', async () => {
+    const form = document.getElementById('quick-checkout-form');
+    const fd = new FormData(form);
+    const email    = (fd.get('email') || '').toString().trim();
+    const business = (fd.get('businessName') || '').toString().trim();
+    const phone    = (fd.get('phone') || '').toString().trim();
+    const { onceOff, monthly } = readTotals();
+
+    if (!email) { alert('Please enter your email so we can send the quote.'); return; }
+
+    emailQuoteBtn.disabled = true;
+    try {
+      const token   = await withCaptcha('email_quote');
+      const payload = { email, business, phone, totals: { onceOff, monthly }, token };
+
+      // 🔧 point to your real endpoint
+      const resp = await postJSON('/api/checkout/email-quote', payload);
+
+      const orderNumber = resp.orderNumber || ('VS-QUOTE-' + Date.now());
+      saveMeta({ email, orderNumber, monthly, onceOff });
+      saveDownloads({ invoiceUrl: resp.invoiceUrl, slaUrl: resp.slaUrl, portingUrl: resp.portingUrl });
+
+      if (window.gtag) gtag('event', 'generate_lead', { value: onceOff + monthly, currency: 'ZAR' });
+
+      // ✅ redirect to thank-you.html
+      const qs = new URLSearchParams({ order: orderNumber, email, intent: 'quote' }).toString();
+      window.location.assign('thank-you.html?' + qs);
+    } catch (err) {
+      console.error('[checkout] quote failed', err);
+      // Still send them to thank-you so UX & tracking aren’t blocked
+      const qs = new URLSearchParams({ email, intent: 'quote', offline: '1' }).toString();
+      window.location.assign('thank-you.html?' + qs);
+    } finally {
+      emailQuoteBtn.disabled = false;
+    }
+  });
+}
+
+      }
+
+      // Ensure DOM is ready before wiring
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
 </body>
 </html>
