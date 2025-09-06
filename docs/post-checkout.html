@@ -9,6 +9,7 @@
   <meta name="theme-color" content="#f5f5f7" />
 
   <!-- ===== Google tag (gtag.js) AFTER metas ===== -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
   <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -18,30 +19,30 @@
   </script>
 
   <!-- ===== Google Ads conversion (Order Received ONLY) ===== -->
-<!-- ===== Google Ads conversion (Order Received ONLY) ===== -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    if (window.__voipConvFired) return;   // fire once
-    window.__voipConvFired = true;
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Prevent duplicate fires
+      if (window.__voipConvFired) return;
+      window.__voipConvFired = true;
 
-    const money = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
-    const monthly = money(document.getElementById('summary-monthly')?.textContent);
-    const onceoff = money(document.getElementById('summary-onceoff')?.textContent);
-    const orderId = (document.getElementById('order-number')?.textContent || '').trim();
+      // Helpers to read values from the page
+      const money = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
+      const monthly = money(document.getElementById('summary-monthly')?.textContent);
+      const onceoff = money(document.getElementById('summary-onceoff')?.textContent);
+      const orderId = (document.getElementById('order-number')?.textContent || '').trim();
 
-    // Decide how you want to value the conversion:
-    //  - onceoff only: const valueToday = onceoff;
-    //  - onceoff + first month:
-    const valueToday = monthly + onceoff;
+      // Conversion value: once-off + first month (adjust if you prefer once-off only)
+      const valueToday = monthly + onceoff;
 
-    gtag('event', 'conversion', {
-      send_to: 'AW-17526288798/eo0tCJHX2pIbEJ7jl6VB',  // <-- use your real label
-      value: valueToday,
-      currency: 'ZAR',
-      transaction_id: orderId || undefined
+      // ✅ Use your real conversion label from Google Ads
+      gtag('event', 'conversion', {
+        send_to: 'AW-17526288798/vYsXCNjp1JIbEJ7jl6VB',  // real label
+        value: valueToday || 1,   // fallback ensures tag still verifies
+        currency: 'ZAR',
+        transaction_id: orderId || undefined
+      });
     });
-  });
-</script>
+  </script>
 
   <!-- ===== Tailwind (configure BEFORE including CDN) ===== -->
   <script>

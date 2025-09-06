@@ -8,7 +8,7 @@
   <meta name="description" content="Buy PBX phones at cost price with professional installation. No contracts, no markups. Simple monthly service from R 85/month." />
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="Assets/icon _voice_.png" />
+  <link rel="icon" type="image/png" href="Assets/icon%20_voice_.png" />
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -19,7 +19,17 @@
   <link rel="preload" as="style" href="style.css" onload="this.onload=null;this.rel='stylesheet'">
   <noscript><link rel="stylesheet" href="style.css" /></noscript>
 
-  <!-- Google Tag Manager -->
+  <!-- ✅ Google tag (gtag.js) to match other pages -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17526288798"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'AW-17526288798');
+  </script>
+
+  <!-- Google Tag Manager (container present; keep if you use GTM for other tags) -->
   <script>
     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -27,6 +37,7 @@
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-TKKDK54F');
   </script>
+
   <!-- Tailwind (with safelist for injected header) -->
   <script>
     window.tailwind = window.tailwind || {};
@@ -47,22 +58,20 @@
   <!-- Flowbite (unchanged) -->
   <link href="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.css" rel="stylesheet" />
   <script src="https://unpkg.com/flowbite@1.6.5/dist/flowbite.min.js" defer></script>
-<style>
-/* Microcopy as plain text */
-.microcopy {
-  font-size:.78rem;
-  line-height:1.35;
-  color:var(--muted);
-  text-align:center;
-  margin-top:1.5rem;   /* keep some spacing above */
-}
 
-.microcopy b {
-  color:#1F2937; /* darker gray for labels */
-}
-
-</style>
-
+  <style>
+    /* Microcopy as plain text */
+    .microcopy {
+      font-size:.78rem;
+      line-height:1.35;
+      color:var(--muted);
+      text-align:center;
+      margin-top:1.5rem;   /* keep some spacing above */
+    }
+    .microcopy b {
+      color:#1F2937; /* darker gray for labels */
+    }
+  </style>
 
   <!-- Page CSS (no inline JS) -->
   <style>
@@ -214,6 +223,7 @@
   <noscript>
     <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TKKDK54F" height="0" width="0" style="display:none;visibility:hidden"></iframe>
   </noscript>
+
 
   <!-- ✅ Universal navbar (injected by site.js) -->
   <div id="nav-slot" class="nav-reserve"></div>
