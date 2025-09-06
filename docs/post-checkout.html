@@ -390,6 +390,19 @@
 
       const money = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
 
+      // Heuristic: if both numbers look like cents (integers, divisible by 100, and big),
+      // divide by 100 *for the event value only* to send Rands to Ads.
+      function toZARforEvent(monthly, onceoff) {
+        const allInts = Number.isInteger(monthly) && Number.isInteger(onceoff);
+        const both00  = (monthly % 100 === 0) && (onceoff % 100 === 0);
+        const sum     = (monthly || 0) + (onceoff || 0);
+        if (allInts && both00 && sum >= 10000) {
+          console.log('ℹ️ Normalizing cents→rands for Ads value');
+          return sum / 100;
+        }
+        return sum;
+      }
+
       function readNow() {
         // Primary: visible IDs
         let monthly = money(document.getElementById('summary-monthly')?.textContent);
@@ -412,7 +425,7 @@
       }
 
       function fire({ monthly, onceoff, orderId }) {
-        const valueToday = (monthly + onceoff) || 1;
+        const valueToday = toZARforEvent(monthly, onceoff) || 1;
         console.log('🧾 Conversion payload', { monthly, onceoff, orderId, valueToday });
 
         gtag('event', 'conversion', {
