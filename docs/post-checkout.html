@@ -18,32 +18,6 @@
     gtag('config', 'AW-17526288798');
   </script>
 
-  <!-- ===== Google Ads conversion (Order Received ONLY) ===== -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      // Prevent duplicate fires
-      if (window.__voipConvFired) return;
-      window.__voipConvFired = true;
-
-      // Helpers to read values from the page
-      const money = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
-      const monthly = money(document.getElementById('summary-monthly')?.textContent);
-      const onceoff = money(document.getElementById('summary-onceoff')?.textContent);
-      const orderId = (document.getElementById('order-number')?.textContent || '').trim();
-
-      // Conversion value: once-off + first month (adjust if you prefer once-off only)
-      const valueToday = monthly + onceoff;
-
-      // ✅ Use your real conversion label from Google Ads
-      gtag('event', 'conversion', {
-        send_to: 'AW-17526288798/vYsXCNjp1JIbEJ7jl6VB',  // real label
-        value: valueToday || 1,   // fallback ensures tag still verifies
-        currency: 'ZAR',
-        transaction_id: orderId || undefined
-      });
-    });
-  </script>
-
   <!-- ===== Tailwind (configure BEFORE including CDN) ===== -->
   <script>
     window.tailwind = window.tailwind || {};
@@ -324,75 +298,147 @@
     });
   </script>
 
-<script>
-  (function wireStaticDownloads() {
-    // 1) Read identifiers + any saved links/amounts
-    const url = new URL(window.location.href);
-    const qpEmail = url.searchParams.get('email');
-    const qpOrder = url.searchParams.get('order');
+  <!-- Wire download links + EXPOSE VALUES FOR CONVERSION -->
+  <script>
+    (function wireStaticDownloads() {
+      // 1) Read identifiers + any saved links/amounts
+      const url = new URL(window.location.href);
+      const qpEmail = url.searchParams.get('email');
+      const qpOrder = url.searchParams.get('order');
 
-    let meta = null, downloads = null;
-    try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
-    try { downloads = JSON.parse(sessionStorage.getItem('orderDownloads') || 'null'); } catch {}
+      let meta = null, downloads = null;
+      try { meta = JSON.parse(sessionStorage.getItem('checkoutMeta') || 'null'); } catch {}
+      try { downloads = JSON.parse(sessionStorage.getItem('orderDownloads') || 'null'); } catch {}
 
-    const email = qpEmail || meta?.email || 'you@example.com';
-    const order = qpOrder || meta?.orderNumber || 'VS-000000';
-    const hasRealOrder = order && !/^VS-0+$/.test(order);
+      const email = qpEmail || meta?.email || 'you@example.com';
+      const order = qpOrder || meta?.orderNumber || 'VS-000000';
+      const hasRealOrder = order && !/^VS-0+$/.test(order);
 
-    // 2) Fill header text
-    const emailEl = document.getElementById('customer-email');
-    const orderEl = document.getElementById('order-number');
-    if (emailEl) emailEl.textContent = email;
-    if (orderEl) orderEl.textContent = order;
+      // === EXPOSE FOR CONVERSION (DOM data-* + window.ORDER) ===
+      (function exposeForConversion() {
+        const monthlyNum = Number(meta?.subtotals?.monthly || 0);
+        const onceoffNum = Number(meta?.subtotals?.onceOff || 0);
 
-    // 3) Fill right-side "Order summary" (if we have totals)
-    const fmtZAR = (n) => 'R ' + Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    if (meta?.subtotals) {
-      const m = document.getElementById('summary-monthly');
-      const o = document.getElementById('summary-onceoff');
-      if (m) m.textContent = fmtZAR(meta.subtotals.monthly);
-      if (o) o.textContent = fmtZAR(meta.subtotals.onceOff);
-    }
+        document.body.setAttribute('data-order-id', order || '');
+        document.body.setAttribute('data-monthly', String(monthlyNum));
+        document.body.setAttribute('data-onceoff', String(onceoffNum));
 
-    // 4) Helper to wire <a> tags
-    function link(a, href, forceDownload = true) {
-      if (!a) return;
-      if (href) {
-        a.href = href;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        if (forceDownload) a.setAttribute('download', '');
-        else a.removeAttribute('download');
-      } else {
-        a.removeAttribute('href');
-        a.addEventListener('click', e => {
-          e.preventDefault();
-          alert('We’re preparing your documents. Please refresh this page in a moment, or check your email (attachments were sent).');
-        }, { once: true });
+        window.ORDER = { id: order || '', monthly: monthlyNum, onceoff: onceoffNum };
+      })();
+      // === END EXPOSE ===
+
+      // 2) Fill header text
+      const emailEl = document.getElementById('customer-email');
+      const orderEl = document.getElementById('order-number');
+      if (emailEl) emailEl.textContent = email;
+      if (orderEl) orderEl.textContent = order;
+
+      // 3) Fill right-side "Order summary" (if we have totals)
+      const fmtZAR = (n) => 'R ' + Number(n||0).toLocaleString('en-ZA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (meta?.subtotals) {
+        const m = document.getElementById('summary-monthly');
+        const o = document.getElementById('summary-onceoff');
+        if (m) m.textContent = fmtZAR(meta.subtotals.monthly);
+        if (o) o.textContent = fmtZAR(meta.subtotals.onceOff);
       }
-    }
 
-    // 5) Prefer direct Blob URLs (fast), else fall back to API preview routes
-    const API_BASE = 'https://voipshop-quote-api.vercel.app';
+      // 4) Helper to wire <a> tags
+      function link(a, href, forceDownload = true) {
+        if (!a) return;
+        if (href) {
+          a.href = href;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          if (forceDownload) a.setAttribute('download', '');
+          else a.removeAttribute('download');
+        } else {
+          a.removeAttribute('href');
+          a.addEventListener('click', e => {
+            e.preventDefault();
+            alert('We’re preparing your documents. Please refresh this page in a moment, or check your email (attachments were sent).');
+          }, { once: true });
+        }
+      }
 
-    const invoiceUrlBlob = downloads?.invoiceUrl || '';
-    const slaUrlBlob     = downloads?.slaUrl     || '';
-    const portingUrlBlob = downloads?.portingUrl || '';
+      // 5) Prefer direct Blob URLs (fast), else fall back to API preview routes
+      const API_BASE = 'https://voipshop-quote-api.vercel.app';
 
-    const invoiceUrl = invoiceUrlBlob || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice` : '');
-    const slaUrl     = slaUrlBlob     || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`     : '');
-    const portingUrl = portingUrlBlob || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting` : '');
+      const invoiceUrlBlob = downloads?.invoiceUrl || '';
+      const slaUrlBlob     = downloads?.slaUrl     || '';
+      const portingUrlBlob = downloads?.portingUrl || '';
 
-    // 6) Wire buttons
-    link(document.getElementById('btn-download-invoice'), invoiceUrl, true);
-    link(document.getElementById('btn-download-sla'),     slaUrl,     true);
-    link(document.getElementById('btn-download-porting'), portingUrl, true);
-    link(document.getElementById('btn-view-invoice'),     invoiceUrl, false); // View in new tab
+      const invoiceUrl = invoiceUrlBlob || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/invoice` : '');
+      const slaUrl     = slaUrlBlob     || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/sla`     : '');
+      const portingUrl = portingUrlBlob || (hasRealOrder ? `${API_BASE}/api/orders/${encodeURIComponent(order)}/porting` : '');
 
-    link(document.getElementById('btn-download-sla-2'),     slaUrl,     true);
-    link(document.getElementById('btn-download-porting-2'), portingUrl, true);
-  })();
-</script>
+      // 6) Wire buttons
+      link(document.getElementById('btn-download-invoice'), invoiceUrl, true);
+      link(document.getElementById('btn-download-sla'),     slaUrl,     true);
+      link(document.getElementById('btn-download-porting'), portingUrl, true);
+      link(document.getElementById('btn-view-invoice'),     invoiceUrl, false); // View in new tab
+
+      link(document.getElementById('btn-download-sla-2'),     slaUrl,     true);
+      link(document.getElementById('btn-download-porting-2'), portingUrl, true);
+    })();
+  </script>
+
+  <!-- Robust Google Ads conversion (Order Received ONLY) -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.__voipConvFired) return;
+      window.__voipConvFired = true;
+
+      const money = t => parseFloat(String(t || '').replace(/[^0-9.]/g, '')) || 0;
+
+      function readNow() {
+        // Primary: visible IDs
+        let monthly = money(document.getElementById('summary-monthly')?.textContent);
+        let onceoff = money(document.getElementById('summary-onceoff')?.textContent);
+        let orderId = (document.getElementById('order-number')?.textContent || '').trim();
+
+        // Fallback: body data-attributes
+        if (!monthly) monthly = money(document.body.getAttribute('data-monthly'));
+        if (!onceoff) onceoff = money(document.body.getAttribute('data-onceoff'));
+        if (!orderId) orderId = (document.body.getAttribute('data-order-id') || '').trim();
+
+        // Fallback: window.ORDER
+        if (!monthly || !onceoff) {
+          monthly = monthly || Number(window.ORDER?.monthly || 0);
+          onceoff = onceoff || Number(window.ORDER?.onceoff || 0);
+        }
+        if (!orderId) orderId = (window.ORDER?.id || '').trim();
+
+        return { monthly, onceoff, orderId };
+      }
+
+      function fire({ monthly, onceoff, orderId }) {
+        const valueToday = (monthly + onceoff) || 1;
+        console.log('🧾 Conversion payload', { monthly, onceoff, orderId, valueToday });
+
+        gtag('event', 'conversion', {
+          send_to: 'AW-17526288798/vYsXCNjp1JIbEJ7jl6VB',
+          value: valueToday,
+          currency: 'ZAR',
+          ...(orderId ? { transaction_id: orderId } : {})
+        });
+      }
+
+      // Try a few times for late-rendering
+      const delays = [0, 250, 600, 1200, 2000];
+      (function attempt(i=0){
+        setTimeout(()=>{
+          const data = readNow();
+          const haveValues = (data.monthly || data.onceoff) && (data.orderId && data.orderId !== 'VS-000000');
+          console.log(`🔎 Attempt ${i+1}/${delays.length}`, data);
+          if (haveValues || i === delays.length - 1) {
+            fire(data);
+          } else {
+            attempt(i+1);
+          }
+        }, delays[i]);
+      })();
+    });
+  </script>
 
 </body>
 </html>
